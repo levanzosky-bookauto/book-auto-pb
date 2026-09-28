@@ -17,6 +17,7 @@ import { getLogoForBrand } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, logoutUser } from './utils/auth';
 import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
+import { fetchCarsFromSupabase, syncCarsToSupabase } from './utils/supabase';
 
 const LOCAL_STORAGE_KEY = 'book_auto_pb_cars_v1';
 
@@ -95,11 +96,23 @@ export default function App() {
     }));
   };
 
-  // Load Initial Data (from localStorage or /data/cars.json)
+  // Load Initial Data (from Supabase, localStorage, or /data/cars.json)
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}data/cars.json`)
-      .then(res => res.json())
-      .then(defaultCars => {
+    async function loadInitialCars() {
+      // 1. Try Supabase cloud database first
+      const supabaseCars = await fetchCarsFromSupabase();
+      if (supabaseCars && supabaseCars.length > 0) {
+        const formatted = formatCarImages(supabaseCars);
+        setCars(formatted);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to localStorage or cars.json
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json`);
+        const defaultCars = await res.json();
         const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (savedLocal) {
           try {
@@ -107,6 +120,7 @@ export default function App() {
             const formatted = formatCarImages(parsed);
             setCars(formatted);
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+            syncCarsToSupabase(formatted);
             setLoading(false);
             return;
           } catch (e) {
@@ -116,18 +130,22 @@ export default function App() {
         const formattedDefault = formatCarImages(defaultCars);
         setCars(formattedDefault);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedDefault));
+        syncCarsToSupabase(formattedDefault);
         setLoading(false);
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Error loading default cars.json:', err);
         setLoading(false);
-      });
+      }
+    }
+
+    loadInitialCars();
   }, []);
 
-  // Save to localStorage whenever cars state changes
+  // Save to state, localStorage, and sync to Supabase Cloud
   const saveCarsState = (newCars) => {
     setCars(newCars);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newCars));
+    syncCarsToSupabase(newCars);
   };
 
   // Selection Toggle Handlers
