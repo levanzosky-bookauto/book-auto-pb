@@ -1,0 +1,1494 @@
+[
+  {
+    "id": "car_2",
+    "page": 2,
+    "brand": "Alfa Romeo",
+    "model": "8C Spider",
+    "immatricolazione": "21/09/2009",
+    "chassis": "ZAR92000000048519",
+    "cilindrata": "4.691",
+    "horsepower": "450",
+    "esemplari": "329",
+    "images": [
+      "/images/cars/car_2_img_5.jpeg",
+      "/images/cars/car_2_img_1.jpeg",
+      "/images/cars/car_2_img_2.jpeg",
+      "/images/cars/car_2_img_3.jpeg",
+      "/images/cars/car_2_img_4.jpeg"
+    ],
+    "pageImage": "/images/cars/car_2_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_2_img_5.jpeg",
+    "logoImg": "/images/cars/car_2_img_4.jpeg",
+    "carPhotos": [
+      "/images/cars/car_2_img_1.jpeg",
+      "/images/cars/car_2_img_2.jpeg",
+      "/images/cars/car_2_img_3.jpeg",
+      "/images/cars/car_2_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_3",
+    "page": 3,
+    "brand": "Aston Martin",
+    "model": "DB5",
+    "immatricolazione": "1965",
+    "chassis": "DB51521L",
+    "cilindrata": "3.995",
+    "horsepower": "286",
+    "esemplari": "123",
+    "images": [
+      "/images/cars/car_3_img_3.jpeg",
+      "/images/cars/car_3_img_1.jpeg",
+      "/images/cars/car_3_img_2.jpeg",
+      "/images/cars/car_3_img_4.jpeg",
+      "/images/cars/car_3_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_3_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_3_img_3.jpeg",
+    "logoImg": "/images/cars/car_3_img_5.jpeg",
+    "carPhotos": [
+      "/images/cars/car_3_img_1.jpeg",
+      "/images/cars/car_3_img_2.jpeg",
+      "/images/cars/car_3_img_3.jpeg",
+      "/images/cars/car_3_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_4",
+    "page": 4,
+    "brand": "Audi",
+    "model": "A1",
+    "immatricolazione": "2017",
+    "chassis": "A0677340VR18",
+    "cilindrata": "1.790",
+    "horsepower": "",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_4_img_2.png",
+      "/images/cars/car_4_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_4_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_4_img_2.png",
+    "logoImg": "/images/cars/car_4_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_4_img_2.png"
+    ]
+  },
+  {
+    "id": "car_5",
+    "page": 5,
+    "brand": "Audi",
+    "model": "Quattro",
+    "immatricolazione": "1984",
+    "chassis": "WAUZZZ852EA900705",
+    "cilindrata": "2.144",
+    "horsepower": "200",
+    "esemplari": "11.452",
+    "images": [
+      "/images/cars/car_5_img_2.jpeg",
+      "/images/cars/car_5_img_4.jpeg",
+      "/images/cars/car_5_img_3.jpeg",
+      "/images/cars/car_5_img_1.jpeg",
+      "/images/cars/car_5_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_5_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_5_img_2.jpeg",
+    "logoImg": "/images/cars/car_4_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_5_img_1.jpeg",
+      "/images/cars/car_5_img_2.jpeg",
+      "/images/cars/car_5_img_3.jpeg",
+      "/images/cars/car_5_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_6",
+    "page": 6,
+    "brand": "Audi",
+    "model": "Quattro Sport",
+    "immatricolazione": "08/11/1985",
+    "chassis": "WAUZZZ85ZEA905071",
+    "cilindrata": "2.134",
+    "horsepower": "306",
+    "esemplari": "224",
+    "images": [
+      "/images/cars/car_6_img_2.jpeg",
+      "/images/cars/car_6_img_3.jpeg",
+      "/images/cars/car_6_img_5.jpeg",
+      "/images/cars/car_6_img_4.jpeg",
+      "/images/cars/car_6_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_6_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_6_img_2.jpeg",
+    "logoImg": "/images/cars/car_4_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_6_img_2.jpeg",
+      "/images/cars/car_6_img_3.jpeg",
+      "/images/cars/car_6_img_4.jpeg",
+      "/images/cars/car_6_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_7",
+    "page": 7,
+    "brand": "Bentley",
+    "model": "Azure",
+    "immatricolazione": "2001",
+    "chassis": "SCBZK15C7WCX61662",
+    "cilindrata": "6.761",
+    "horsepower": "339",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_7_img_3.jpeg",
+      "/images/cars/car_7_img_4.jpeg",
+      "/images/cars/car_7_img_1.jpeg",
+      "/images/cars/car_7_img_2.jpeg",
+      "/images/cars/car_7_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_7_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_7_img_3.jpeg",
+    "logoImg": "/images/cars/car_7_img_5.jpeg",
+    "carPhotos": [
+      "/images/cars/car_7_img_1.jpeg",
+      "/images/cars/car_7_img_2.jpeg",
+      "/images/cars/car_7_img_3.jpeg",
+      "/images/cars/car_7_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_8",
+    "page": 8,
+    "brand": "Bizzarrini",
+    "model": "5300 GT Strada",
+    "immatricolazione": "1993",
+    "chassis": "IA30226",
+    "cilindrata": "5.354",
+    "horsepower": "410",
+    "esemplari": "133",
+    "images": [
+      "/images/cars/car_8_img_2.jpeg",
+      "/images/cars/car_8_img_3.jpeg",
+      "/images/cars/car_8_img_5.jpeg",
+      "/images/cars/car_8_img_4.jpeg",
+      "/images/cars/car_8_img_1.png"
+    ],
+    "pageImage": "/images/cars/car_8_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_8_img_2.jpeg",
+    "logoImg": "/images/cars/car_8_img_1.png",
+    "carPhotos": [
+      "/images/cars/car_8_img_2.jpeg",
+      "/images/cars/car_8_img_3.jpeg",
+      "/images/cars/car_8_img_4.jpeg",
+      "/images/cars/car_8_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_9",
+    "page": 9,
+    "brand": "BMW",
+    "model": "Z8",
+    "immatricolazione": "27/01/2004",
+    "chassis": "WBAEJ11000AF77564",
+    "cilindrata": "4.941",
+    "horsepower": "373",
+    "esemplari": "5.703",
+    "images": [
+      "/images/cars/car_9_img_3.jpeg",
+      "/images/cars/car_9_img_5.jpeg",
+      "/images/cars/car_9_img_4.jpeg",
+      "/images/cars/car_9_img_2.jpeg",
+      "/images/cars/car_9_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_9_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_9_img_3.jpeg",
+    "logoImg": "/images/cars/car_9_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_9_img_2.jpeg",
+      "/images/cars/car_9_img_3.jpeg",
+      "/images/cars/car_9_img_4.jpeg",
+      "/images/cars/car_9_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_10",
+    "page": 10,
+    "brand": "Bugatti",
+    "model": "EB 110",
+    "immatricolazione": "1994",
+    "chassis": "ZA9AB01E0RCD39076",
+    "cilindrata": "3.500",
+    "horsepower": "561",
+    "esemplari": "126",
+    "images": [
+      "/images/cars/car_10_img_2.jpeg",
+      "/images/cars/car_10_img_3.jpeg",
+      "/images/cars/car_10_img_4.jpeg",
+      "/images/cars/car_10_img_5.jpeg",
+      "/images/cars/car_10_img_1.png"
+    ],
+    "pageImage": "/images/cars/car_10_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_10_img_2.jpeg",
+    "logoImg": "/images/cars/car_10_img_1.png",
+    "carPhotos": [
+      "/images/cars/car_10_img_2.jpeg",
+      "/images/cars/car_10_img_3.jpeg",
+      "/images/cars/car_10_img_4.jpeg",
+      "/images/cars/car_10_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_11",
+    "page": 11,
+    "brand": "Citroën",
+    "model": "Mehari",
+    "immatricolazione": "27/09/1991",
+    "chassis": "VF7AYCA0012CA5247",
+    "cilindrata": "602",
+    "horsepower": "29",
+    "esemplari": "144.953",
+    "images": [
+      "/images/cars/car_11_img_2.jpeg",
+      "/images/cars/car_11_img_4.jpeg",
+      "/images/cars/car_11_img_5.jpeg",
+      "/images/cars/car_11_img_3.jpeg",
+      "/images/cars/car_11_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_11_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_11_img_2.jpeg",
+    "logoImg": "/images/cars/car_11_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_11_img_2.jpeg",
+      "/images/cars/car_11_img_3.jpeg",
+      "/images/cars/car_11_img_4.jpeg",
+      "/images/cars/car_11_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_12",
+    "page": 12,
+    "brand": "Ferrari",
+    "model": "275 GTB Berlinetta",
+    "immatricolazione": "1965",
+    "chassis": "06773",
+    "cilindrata": "3.286",
+    "horsepower": "245",
+    "esemplari": "780",
+    "images": [
+      "/images/cars/car_12_img_5.jpeg",
+      "/images/cars/car_12_img_4.jpeg",
+      "/images/cars/car_12_img_2.jpeg",
+      "/images/cars/car_12_img_3.jpeg",
+      "/images/cars/car_12_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_12_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_12_img_5.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_12_img_2.jpeg",
+      "/images/cars/car_12_img_3.jpeg",
+      "/images/cars/car_12_img_4.jpeg",
+      "/images/cars/car_12_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_13",
+    "page": 13,
+    "brand": "Ferrari",
+    "model": "348 TS",
+    "immatricolazione": "1992",
+    "chassis": "",
+    "cilindrata": "",
+    "horsepower": "300",
+    "esemplari": "4228",
+    "images": [
+      "/images/cars/car_13_img_2.jpeg",
+      "/images/cars/car_13_img_3.jpeg",
+      "/images/cars/car_13_img_4.jpeg",
+      "/images/cars/car_13_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_13_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_13_img_2.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_13_img_2.jpeg",
+      "/images/cars/car_13_img_3.jpeg",
+      "/images/cars/car_13_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_14",
+    "page": 14,
+    "brand": "Ferrari",
+    "model": "456M GT",
+    "immatricolazione": "2000",
+    "chassis": "ZFFWP44B000118438",
+    "cilindrata": "",
+    "horsepower": "442",
+    "esemplari": "688",
+    "images": [
+      "/images/cars/car_14_img_5.jpeg",
+      "/images/cars/car_14_img_3.jpeg",
+      "/images/cars/car_14_img_2.jpeg",
+      "/images/cars/car_14_img_4.jpeg",
+      "/images/cars/car_14_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_14_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_14_img_5.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_14_img_2.jpeg",
+      "/images/cars/car_14_img_3.jpeg",
+      "/images/cars/car_14_img_4.jpeg",
+      "/images/cars/car_14_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_15",
+    "page": 15,
+    "brand": "Ferrari",
+    "model": "365 GT4 BB",
+    "immatricolazione": "1973",
+    "chassis": "",
+    "cilindrata": "",
+    "horsepower": "380",
+    "esemplari": "387",
+    "images": [
+      "/images/cars/car_15_img_5.jpeg",
+      "/images/cars/car_15_img_2.jpeg",
+      "/images/cars/car_15_img_3.jpeg",
+      "/images/cars/car_15_img_4.jpeg",
+      "/images/cars/car_15_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_15_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_15_img_5.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_15_img_2.jpeg",
+      "/images/cars/car_15_img_3.jpeg",
+      "/images/cars/car_15_img_4.jpeg",
+      "/images/cars/car_15_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_16",
+    "page": 16,
+    "brand": "Ferrari",
+    "model": "812 Competizione",
+    "immatricolazione": "02/04/2026",
+    "chassis": "ZFF03TMB000271356",
+    "cilindrata": "6.496",
+    "horsepower": "826",
+    "esemplari": "999",
+    "images": [
+      "/images/cars/car_16_img_2.jpeg",
+      "/images/cars/car_16_img_3.jpeg",
+      "/images/cars/car_16_img_4.jpeg",
+      "/images/cars/car_16_img_5.jpeg",
+      "/images/cars/car_16_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_16_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_16_img_2.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_16_img_2.jpeg",
+      "/images/cars/car_16_img_3.jpeg",
+      "/images/cars/car_16_img_4.jpeg",
+      "/images/cars/car_16_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_17",
+    "page": 17,
+    "brand": "Ferrari",
+    "model": "Dino 246 GT (Serie L)",
+    "immatricolazione": "1970",
+    "chassis": "",
+    "cilindrata": "",
+    "horsepower": "195",
+    "esemplari": "357",
+    "images": [
+      "/images/cars/car_17_img_2.jpeg",
+      "/images/cars/car_17_img_3.jpeg",
+      "/images/cars/car_17_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_17_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_17_img_2.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_17_img_2.jpeg",
+      "/images/cars/car_17_img_3.jpeg"
+    ]
+  },
+  {
+    "id": "car_18",
+    "page": 18,
+    "brand": "Ferrari",
+    "model": "Enzo",
+    "immatricolazione": "05/07/2003",
+    "chassis": "2FFCZ563000132647",
+    "cilindrata": "5.999",
+    "horsepower": "655",
+    "esemplari": "400",
+    "images": [
+      "/images/cars/car_18_img_2.jpeg",
+      "/images/cars/car_18_img_3.jpeg",
+      "/images/cars/car_18_img_4.jpeg",
+      "/images/cars/car_18_img_5.jpeg",
+      "/images/cars/car_18_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_18_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_18_img_2.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_18_img_2.jpeg",
+      "/images/cars/car_18_img_3.jpeg",
+      "/images/cars/car_18_img_4.jpeg",
+      "/images/cars/car_18_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_19",
+    "page": 19,
+    "brand": "Ferrari",
+    "model": "F 110 Testarossa",
+    "immatricolazione": "27/05/1991",
+    "chassis": "ZFFAA17B000089572",
+    "cilindrata": "4.943",
+    "horsepower": "391",
+    "esemplari": "10.000",
+    "images": [
+      "/images/cars/car_19_img_2.jpeg",
+      "/images/cars/car_19_img_3.jpeg",
+      "/images/cars/car_19_img_4.jpeg",
+      "/images/cars/car_19_img_5.jpeg",
+      "/images/cars/car_19_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_19_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_19_img_2.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_19_img_2.jpeg",
+      "/images/cars/car_19_img_3.jpeg",
+      "/images/cars/car_19_img_4.jpeg",
+      "/images/cars/car_19_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_20",
+    "page": 20,
+    "brand": "Ferrari",
+    "model": "F 40",
+    "immatricolazione": "15/05/1992",
+    "chassis": "ZFFGJ34B000088821",
+    "cilindrata": "2.936",
+    "horsepower": "479",
+    "esemplari": "1.337",
+    "images": [
+      "/images/cars/car_20_img_2.jpeg",
+      "/images/cars/car_20_img_3.jpeg",
+      "/images/cars/car_20_img_4.jpeg",
+      "/images/cars/car_20_img_5.jpeg",
+      "/images/cars/car_20_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_20_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_20_img_2.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_20_img_2.jpeg",
+      "/images/cars/car_20_img_3.jpeg",
+      "/images/cars/car_20_img_4.jpeg",
+      "/images/cars/car_20_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_21",
+    "page": 21,
+    "brand": "Ferrari",
+    "model": "599 GTO",
+    "immatricolazione": "08/07/2011",
+    "chassis": "ZFF70RDB000181299",
+    "cilindrata": "5.999",
+    "horsepower": "665",
+    "esemplari": "599",
+    "images": [
+      "/images/cars/car_21_img_3.jpeg",
+      "/images/cars/car_21_img_4.jpeg",
+      "/images/cars/car_21_img_2.jpeg",
+      "/images/cars/car_21_img_1.jpeg",
+      "/images/cars/car_21_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_21_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_21_img_3.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_21_img_1.jpeg",
+      "/images/cars/car_21_img_2.jpeg",
+      "/images/cars/car_21_img_3.jpeg",
+      "/images/cars/car_21_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_22",
+    "page": 22,
+    "brand": "Ferrari",
+    "model": "F150 LaFerrari",
+    "immatricolazione": "07/07/2015",
+    "chassis": "ZFF76ZHB000210128",
+    "cilindrata": "6.262 Ibrido",
+    "horsepower": "796",
+    "esemplari": "499",
+    "images": [
+      "/images/cars/car_22_img_3.jpeg",
+      "/images/cars/car_22_img_5.jpeg",
+      "/images/cars/car_22_img_2.jpeg",
+      "/images/cars/car_22_img_4.jpeg",
+      "/images/cars/car_22_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_22_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_22_img_3.jpeg",
+    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_22_img_2.jpeg",
+      "/images/cars/car_22_img_3.jpeg",
+      "/images/cars/car_22_img_4.jpeg",
+      "/images/cars/car_22_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_23",
+    "page": 23,
+    "brand": "FIAT",
+    "model": "500",
+    "immatricolazione": "1969",
+    "chassis": "2033591",
+    "cilindrata": "500",
+    "horsepower": "",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_23_img_2.jpeg",
+      "/images/cars/car_23_img_3.jpeg",
+      "/images/cars/car_23_img_5.jpeg",
+      "/images/cars/car_23_img_4.jpeg",
+      "/images/cars/car_23_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_23_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_23_img_2.jpeg",
+    "logoImg": "/images/cars/car_23_img_1.png",
+    "carPhotos": [
+      "/images/cars/car_23_img_1.jpeg",
+      "/images/cars/car_23_img_2.jpeg",
+      "/images/cars/car_23_img_3.jpeg",
+      "/images/cars/car_23_img_4.jpeg",
+      "/images/cars/car_23_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_24",
+    "page": 24,
+    "brand": "Ford",
+    "model": "Bronco Jeep",
+    "immatricolazione": "1985",
+    "chassis": "1FMDU15N9FLA84306",
+    "cilindrata": "4.885",
+    "horsepower": "",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_24_img_1.jpeg",
+      "/images/cars/car_24_img_2.jpeg",
+      "/images/cars/car_24_img_4.jpeg",
+      "/images/cars/car_24_img_5.jpeg",
+      "/images/cars/car_24_img_6.jpeg",
+      "/images/cars/car_24_img_7.jpeg",
+      "/images/cars/car_24_img_3.png"
+    ],
+    "pageImage": "/images/cars/car_24_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_24_img_1.jpeg",
+    "logoImg": "/images/cars/car_24_img_7.png",
+    "carPhotos": [
+      "/images/cars/car_24_img_1.jpeg",
+      "/images/cars/car_24_img_2.jpeg",
+      "/images/cars/car_24_img_3.png",
+      "/images/cars/car_24_img_4.jpeg",
+      "/images/cars/car_24_img_5.jpeg",
+      "/images/cars/car_24_img_6.jpeg",
+      "/images/cars/car_24_img_7.jpeg"
+    ]
+  },
+  {
+    "id": "car_25",
+    "page": 25,
+    "brand": "Lamborghini",
+    "model": "Countach",
+    "immatricolazione": "04/07/2022",
+    "chassis": "ZHWEA97D8NLA11261",
+    "cilindrata": "6.498",
+    "horsepower": "781",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_25_img_1.jpeg",
+      "/images/cars/car_25_img_3.jpeg",
+      "/images/cars/car_25_img_4.jpeg",
+      "/images/cars/car_25_img_5.jpeg",
+      "/images/cars/car_25_img_6.jpeg",
+      "/images/cars/car_25_img_2.jpeg"
+    ],
+    "pageImage": "/images/cars/car_25_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_25_img_1.jpeg",
+    "logoImg": "/images/cars/car_25_img_6.png",
+    "carPhotos": [
+      "/images/cars/car_25_img_1.jpeg",
+      "/images/cars/car_25_img_2.jpeg",
+      "/images/cars/car_25_img_3.jpeg",
+      "/images/cars/car_25_img_4.jpeg",
+      "/images/cars/car_25_img_5.jpeg",
+      "/images/cars/car_25_img_6.jpeg"
+    ]
+  },
+  {
+    "id": "car_26",
+    "page": 26,
+    "brand": "Lancia",
+    "model": "Aurelia GT 2500",
+    "immatricolazione": "23/06/1989",
+    "chassis": "B24S1237",
+    "cilindrata": "2.451",
+    "horsepower": "1.183",
+    "esemplari": "2.640",
+    "images": [
+      "/images/cars/car_26_img_2.jpeg",
+      "/images/cars/car_26_img_3.jpeg",
+      "/images/cars/car_26_img_4.jpeg",
+      "/images/cars/car_26_img_5.jpeg",
+      "/images/cars/car_26_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_26_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_26_img_2.jpeg",
+    "logoImg": "/images/cars/car_26_img_1.png",
+    "carPhotos": [
+      "/images/cars/car_26_img_2.jpeg",
+      "/images/cars/car_26_img_3.jpeg",
+      "/images/cars/car_26_img_4.jpeg",
+      "/images/cars/car_26_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_27",
+    "page": 27,
+    "brand": "Lancia",
+    "model": "Flaminia Super Sport",
+    "immatricolazione": "1965",
+    "chassis": "BSB93742",
+    "cilindrata": "2.775",
+    "horsepower": "",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_27_img_2.jpeg",
+      "/images/cars/car_27_img_3.jpeg",
+      "/images/cars/car_27_img_4.jpeg",
+      "/images/cars/car_27_img_5.jpeg",
+      "/images/cars/car_27_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_27_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_27_img_2.jpeg",
+    "logoImg": "/images/cars/car_26_img_1.png",
+    "carPhotos": [
+      "/images/cars/car_27_img_2.jpeg",
+      "/images/cars/car_27_img_3.jpeg",
+      "/images/cars/car_27_img_4.jpeg",
+      "/images/cars/car_27_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_28",
+    "page": 28,
+    "brand": "Lancia",
+    "model": "Fulvia Coupè",
+    "immatricolazione": "11/04/1996",
+    "chassis": "818630057592",
+    "cilindrata": "1.298",
+    "horsepower": "92",
+    "esemplari": "161.832",
+    "images": [
+      "/images/cars/car_28_img_4.jpeg",
+      "/images/cars/car_28_img_5.jpeg",
+      "/images/cars/car_28_img_2.jpeg",
+      "/images/cars/car_28_img_3.jpeg",
+      "/images/cars/car_28_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_28_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_28_img_4.jpeg",
+    "logoImg": "/images/cars/car_26_img_1.png",
+    "carPhotos": [
+      "/images/cars/car_28_img_2.jpeg",
+      "/images/cars/car_28_img_3.jpeg",
+      "/images/cars/car_28_img_4.jpeg",
+      "/images/cars/car_28_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_29",
+    "page": 29,
+    "brand": "Land Rover",
+    "model": "Defender",
+    "immatricolazione": "06/05/2024",
+    "chassis": "SALEA7BN1L2004466",
+    "cilindrata": "1.999",
+    "horsepower": "297",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_29_img_1.jpeg",
+      "/images/cars/car_29_img_2.jpeg"
+    ],
+    "pageImage": "/images/cars/car_29_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_29_img_1.jpeg",
+    "logoImg": "/images/cars/car_29_img_2.jpeg",
+    "carPhotos": [
+      "/images/cars/car_29_img_1.jpeg",
+      "/images/cars/car_29_img_2.jpeg"
+    ]
+  },
+  {
+    "id": "car_30",
+    "page": 30,
+    "brand": "Mercedes-AMG",
+    "model": "One",
+    "immatricolazione": "2025",
+    "chassis": "WMXHJ6DB7PD000149",
+    "cilindrata": "",
+    "horsepower": "1075",
+    "esemplari": "275",
+    "images": [
+      "/images/cars/car_30_img_4.jpeg",
+      "/images/cars/car_30_img_1.jpeg",
+      "/images/cars/car_30_img_2.jpeg",
+      "/images/cars/car_30_img_3.jpeg",
+      "/images/cars/car_30_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_30_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_30_img_4.jpeg",
+    "logoImg": "/images/cars/car_30_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_30_img_1.jpeg",
+      "/images/cars/car_30_img_2.jpeg",
+      "/images/cars/car_30_img_3.jpeg",
+      "/images/cars/car_30_img_4.jpeg",
+      "/images/cars/car_30_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_31",
+    "page": 31,
+    "brand": "Mercedes-Benz",
+    "model": "Classe G 463",
+    "immatricolazione": "22/02/2002",
+    "chassis": "WDB4632481X130860",
+    "cilindrata": "4.966",
+    "horsepower": "297",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_31_img_2.jpeg",
+      "/images/cars/car_31_img_3.jpeg",
+      "/images/cars/car_31_img_4.jpeg",
+      "/images/cars/car_31_img_5.jpeg",
+      "/images/cars/car_31_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_31_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_31_img_2.jpeg",
+    "logoImg": "/images/cars/car_31_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_31_img_2.jpeg",
+      "/images/cars/car_31_img_3.jpeg",
+      "/images/cars/car_31_img_4.jpeg",
+      "/images/cars/car_31_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_32",
+    "page": 32,
+    "brand": "Mercedes-Benz",
+    "model": "SLS AMGMG",
+    "immatricolazione": "08/11/2017",
+    "chassis": "WMX1973771A003961",
+    "cilindrata": "6.208",
+    "horsepower": "571",
+    "esemplari": "350",
+    "images": [
+      "/images/cars/car_32_img_2.jpeg",
+      "/images/cars/car_32_img_3.jpeg",
+      "/images/cars/car_32_img_4.jpeg",
+      "/images/cars/car_32_img_5.jpeg",
+      "/images/cars/car_32_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_32_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_32_img_2.jpeg",
+    "logoImg": "/images/cars/car_31_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_32_img_2.jpeg",
+      "/images/cars/car_32_img_3.jpeg",
+      "/images/cars/car_32_img_4.jpeg",
+      "/images/cars/car_32_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_33",
+    "page": 33,
+    "brand": "Polaris",
+    "model": "Ranger",
+    "immatricolazione": "",
+    "chassis": "",
+    "cilindrata": "",
+    "horsepower": "",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_33_img_2.jpeg",
+      "/images/cars/car_33_img_1.png"
+    ],
+    "pageImage": "/images/cars/car_33_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_33_img_2.jpeg",
+    "logoImg": "/images/cars/car_33_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_33_img_1.png",
+      "/images/cars/car_33_img_2.jpeg"
+    ]
+  },
+  {
+    "id": "car_34",
+    "page": 34,
+    "brand": "Pontiac",
+    "model": "Firebird Trans Am",
+    "immatricolazione": "21/09/2020",
+    "chassis": "2W87K9L129031",
+    "cilindrata": "6.598",
+    "horsepower": "189",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_34_img_2.jpeg",
+      "/images/cars/car_34_img_3.jpeg",
+      "/images/cars/car_34_img_4.jpeg",
+      "/images/cars/car_34_img_5.jpeg",
+      "/images/cars/car_34_img_1.png"
+    ],
+    "pageImage": "/images/cars/car_34_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_34_img_2.jpeg",
+    "logoImg": "/images/cars/car_34_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_34_img_1.png",
+      "/images/cars/car_34_img_2.jpeg",
+      "/images/cars/car_34_img_3.jpeg",
+      "/images/cars/car_34_img_4.jpeg",
+      "/images/cars/car_34_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_35",
+    "page": 35,
+    "brand": "Porsche",
+    "model": "550 Spyder",
+    "immatricolazione": "1956",
+    "chassis": "550A0137",
+    "cilindrata": "1.498",
+    "horsepower": "135",
+    "esemplari": "90",
+    "images": [
+      "/images/cars/car_35_img_5.jpeg",
+      "/images/cars/car_35_img_3.jpeg",
+      "/images/cars/car_35_img_2.jpeg",
+      "/images/cars/car_35_img_4.jpeg",
+      "/images/cars/car_35_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_35_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_35_img_5.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_35_img_2.jpeg",
+      "/images/cars/car_35_img_3.jpeg",
+      "/images/cars/car_35_img_4.jpeg",
+      "/images/cars/car_35_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_36",
+    "page": 36,
+    "brand": "Porsche",
+    "model": "356 Speedster Carrera",
+    "immatricolazione": "1956",
+    "chassis": "81.096",
+    "cilindrata": "1.498",
+    "horsepower": "100",
+    "esemplari": "1.900",
+    "images": [
+      "/images/cars/car_36_img_4.jpeg",
+      "/images/cars/car_36_img_5.jpeg",
+      "/images/cars/car_36_img_1.jpeg",
+      "/images/cars/car_36_img_2.jpeg",
+      "/images/cars/car_36_img_3.jpeg"
+    ],
+    "pageImage": "/images/cars/car_36_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_36_img_4.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_36_img_1.jpeg",
+      "/images/cars/car_36_img_2.jpeg",
+      "/images/cars/car_36_img_4.jpeg",
+      "/images/cars/car_36_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_37",
+    "page": 37,
+    "brand": "Porsche",
+    "model": "356 B Roadster S-90",
+    "immatricolazione": "1960/1961",
+    "chassis": "87.726",
+    "cilindrata": "1.582",
+    "horsepower": "90",
+    "esemplari": "2.149",
+    "images": [
+      "/images/cars/car_37_img_2.jpeg",
+      "/images/cars/car_37_img_3.jpeg",
+      "/images/cars/car_37_img_1.jpeg",
+      "/images/cars/car_37_img_4.jpeg",
+      "/images/cars/car_37_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_37_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_37_img_2.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_37_img_1.jpeg",
+      "/images/cars/car_37_img_2.jpeg",
+      "/images/cars/car_37_img_3.jpeg",
+      "/images/cars/car_37_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_38",
+    "page": 38,
+    "brand": "Porsche",
+    "model": "356 Coupè",
+    "immatricolazione": "21/02/1962",
+    "chassis": "119160",
+    "cilindrata": "1.582",
+    "horsepower": "75",
+    "esemplari": "76.303",
+    "images": [
+      "/images/cars/car_38_img_3.jpeg",
+      "/images/cars/car_38_img_2.jpeg",
+      "/images/cars/car_38_img_1.jpeg",
+      "/images/cars/car_38_img_4.jpeg",
+      "/images/cars/car_38_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_38_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_38_img_3.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_38_img_1.jpeg",
+      "/images/cars/car_38_img_2.jpeg",
+      "/images/cars/car_38_img_3.jpeg",
+      "/images/cars/car_38_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_39",
+    "page": 39,
+    "brand": "Porsche",
+    "model": "911 Carrera",
+    "immatricolazione": "1987",
+    "chassis": "WP0ZZZ91ZHS101088",
+    "cilindrata": "3 .164",
+    "horsepower": "232",
+    "esemplari": "57.972",
+    "images": [
+      "/images/cars/car_39_img_5.jpeg",
+      "/images/cars/car_39_img_1.jpeg",
+      "/images/cars/car_39_img_3.jpeg",
+      "/images/cars/car_39_img_2.jpeg",
+      "/images/cars/car_39_img_4.jpeg"
+    ],
+    "pageImage": "/images/cars/car_39_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_39_img_5.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_39_img_1.jpeg",
+      "/images/cars/car_39_img_2.jpeg",
+      "/images/cars/car_39_img_3.jpeg",
+      "/images/cars/car_39_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_40",
+    "page": 40,
+    "brand": "Porsche",
+    "model": "911 Speedster Carrera",
+    "immatricolazione": "1989",
+    "chassis": "WP0ZZZ91ZKS173784",
+    "cilindrata": "3.125",
+    "horsepower": "218",
+    "esemplari": "819/823",
+    "images": [
+      "/images/cars/car_40_img_1.jpeg",
+      "/images/cars/car_40_img_4.jpeg",
+      "/images/cars/car_40_img_2.jpeg",
+      "/images/cars/car_40_img_3.jpeg",
+      "/images/cars/car_40_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_40_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_40_img_1.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_40_img_1.jpeg",
+      "/images/cars/car_40_img_2.jpeg",
+      "/images/cars/car_40_img_3.jpeg",
+      "/images/cars/car_40_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_41",
+    "page": 41,
+    "brand": "Porsche",
+    "model": "928 GTS",
+    "immatricolazione": "13/04/1995",
+    "chassis": "WP0ZZZ92ZSS800155",
+    "cilindrata": "5.397",
+    "horsepower": "350",
+    "esemplari": "2.831",
+    "images": [
+      "/images/cars/car_41_img_2.jpeg",
+      "/images/cars/car_41_img_3.jpeg",
+      "/images/cars/car_41_img_4.jpeg",
+      "/images/cars/car_41_img_5.jpeg",
+      "/images/cars/car_41_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_41_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_41_img_2.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_41_img_2.jpeg",
+      "/images/cars/car_41_img_3.jpeg",
+      "/images/cars/car_41_img_4.jpeg",
+      "/images/cars/car_41_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_42",
+    "page": 42,
+    "brand": "Porsche",
+    "model": "959",
+    "immatricolazione": "19/12/1991",
+    "chassis": "WP0ZZZ95ZJS900128",
+    "cilindrata": "2.850",
+    "horsepower": "449",
+    "esemplari": "288",
+    "images": [
+      "/images/cars/car_42_img_5.jpeg",
+      "/images/cars/car_42_img_3.jpeg",
+      "/images/cars/car_42_img_1.jpeg",
+      "/images/cars/car_42_img_2.jpeg",
+      "/images/cars/car_42_img_4.jpeg"
+    ],
+    "pageImage": "/images/cars/car_42_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_42_img_5.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_42_img_1.jpeg",
+      "/images/cars/car_42_img_2.jpeg",
+      "/images/cars/car_42_img_3.jpeg",
+      "/images/cars/car_42_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_43",
+    "page": 43,
+    "brand": "Porsche",
+    "model": "Carrera GT",
+    "immatricolazione": "29/11/2005",
+    "chassis": "WP0ZZZ98Z6L000100",
+    "cilindrata": "5.733",
+    "horsepower": "612",
+    "esemplari": "1.270",
+    "images": [
+      "/images/cars/car_43_img_2.jpeg",
+      "/images/cars/car_43_img_3.jpeg",
+      "/images/cars/car_43_img_4.jpeg",
+      "/images/cars/car_43_img_1.jpeg",
+      "/images/cars/car_43_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_43_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_43_img_2.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_43_img_1.jpeg",
+      "/images/cars/car_43_img_2.jpeg",
+      "/images/cars/car_43_img_3.jpeg",
+      "/images/cars/car_43_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_44",
+    "page": 44,
+    "brand": "Porsche",
+    "model": "911 GT3 RS",
+    "immatricolazione": "27/09/2024",
+    "chassis": "WP0ZZZ99XRS266629",
+    "cilindrata": "3.996",
+    "horsepower": "525",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_44_img_3.jpeg",
+      "/images/cars/car_44_img_4.jpeg",
+      "/images/cars/car_44_img_5.jpeg",
+      "/images/cars/car_44_img_2.jpeg",
+      "/images/cars/car_44_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_44_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_44_img_3.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_44_img_2.jpeg",
+      "/images/cars/car_44_img_3.jpeg",
+      "/images/cars/car_44_img_4.jpeg",
+      "/images/cars/car_44_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_45",
+    "page": 45,
+    "brand": "Porsche",
+    "model": "GT3 RS 4.0",
+    "immatricolazione": "18/04/2012",
+    "chassis": "WP0ZZZ99ZBS7BS7B5264",
+    "cilindrata": "3.996",
+    "horsepower": "501",
+    "esemplari": "600",
+    "images": [
+      "/images/cars/car_45_img_2.jpeg",
+      "/images/cars/car_45_img_1.jpeg",
+      "/images/cars/car_45_img_3.jpeg",
+      "/images/cars/car_45_img_4.jpeg",
+      "/images/cars/car_45_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_45_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_45_img_2.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_45_img_1.jpeg",
+      "/images/cars/car_45_img_2.jpeg",
+      "/images/cars/car_45_img_3.jpeg",
+      "/images/cars/car_45_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_46",
+    "page": 46,
+    "brand": "Porsche",
+    "model": "918 Spyder",
+    "immatricolazione": "13/10/2014",
+    "chassis": "WPOZZZ91ZFS800137",
+    "cilindrata": "4.593 Ibrido",
+    "horsepower": "608 termici 887 complessivi",
+    "esemplari": "918",
+    "images": [
+      "/images/cars/car_46_img_3.jpeg",
+      "/images/cars/car_46_img_4.jpeg",
+      "/images/cars/car_46_img_1.jpeg",
+      "/images/cars/car_46_img_2.jpeg",
+      "/images/cars/car_46_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_46_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_46_img_3.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_46_img_1.jpeg",
+      "/images/cars/car_46_img_2.jpeg",
+      "/images/cars/car_46_img_3.jpeg",
+      "/images/cars/car_46_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_47",
+    "page": 47,
+    "brand": "Porsche",
+    "model": "911 Speedster",
+    "immatricolazione": "03/12/2019",
+    "chassis": "WP0ZZZ99ZKS171159",
+    "cilindrata": "3.996",
+    "horsepower": "510",
+    "esemplari": "1.948",
+    "images": [
+      "/images/cars/car_47_img_1.jpeg",
+      "/images/cars/car_47_img_2.jpeg",
+      "/images/cars/car_47_img_3.jpeg",
+      "/images/cars/car_47_img_4.jpeg",
+      "/images/cars/car_47_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_47_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_47_img_1.jpeg",
+    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_47_img_1.jpeg",
+      "/images/cars/car_47_img_2.jpeg",
+      "/images/cars/car_47_img_3.jpeg",
+      "/images/cars/car_47_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_48",
+    "page": 48,
+    "brand": "Renault",
+    "model": "5 Turbo",
+    "immatricolazione": "28/10/1980",
+    "chassis": "VF1822000B0000520",
+    "cilindrata": "1.397",
+    "horsepower": "160",
+    "esemplari": "Serie",
+    "images": [
+      "/images/cars/car_48_img_1.jpeg",
+      "/images/cars/car_48_img_2.jpeg",
+      "/images/cars/car_48_img_3.jpeg",
+      "/images/cars/car_48_img_4.jpeg",
+      "/images/cars/car_48_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_48_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_48_img_1.jpeg",
+    "logoImg": "/images/cars/car_48_img_5.png",
+    "carPhotos": [
+      "/images/cars/car_48_img_1.jpeg",
+      "/images/cars/car_48_img_2.jpeg",
+      "/images/cars/car_48_img_3.jpeg",
+      "/images/cars/car_48_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_49",
+    "page": 49,
+    "brand": "Rolls-Royce",
+    "model": "Ghost",
+    "immatricolazione": "27/07/2017",
+    "chassis": "A0281BZ20",
+    "cilindrata": "6.592",
+    "horsepower": "571",
+    "esemplari": "ND",
+    "images": [
+      "/images/cars/car_49_img_1.jpeg",
+      "/images/cars/car_49_img_2.jpeg",
+      "/images/cars/car_49_img_3.jpeg",
+      "/images/cars/car_49_img_4.jpeg"
+    ],
+    "pageImage": "/images/cars/car_49_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_49_img_1.jpeg",
+    "logoImg": "/images/cars/car_49_img_4.jpeg",
+    "carPhotos": [
+      "/images/cars/car_49_img_1.jpeg",
+      "/images/cars/car_49_img_2.jpeg",
+      "/images/cars/car_49_img_3.jpeg",
+      "/images/cars/car_49_img_4.jpeg"
+    ]
+  },
+  {
+    "id": "car_50",
+    "page": 50,
+    "brand": "Rover",
+    "model": "3 Litre Coupèè",
+    "immatricolazione": "1968",
+    "chassis": "M200432890M",
+    "cilindrata": "3.528",
+    "horsepower": "184",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_50_img_1.jpeg",
+      "/images/cars/car_50_img_2.jpeg",
+      "/images/cars/car_50_img_3.jpeg",
+      "/images/cars/car_50_img_4.jpeg",
+      "/images/cars/car_50_img_5.jpeg"
+    ],
+    "pageImage": "/images/cars/car_50_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_50_img_1.jpeg",
+    "logoImg": "/images/cars/car_50_img_5.jpeg",
+    "carPhotos": [
+      "/images/cars/car_50_img_1.jpeg",
+      "/images/cars/car_50_img_2.jpeg",
+      "/images/cars/car_50_img_3.jpeg",
+      "/images/cars/car_50_img_4.jpeg",
+      "/images/cars/car_50_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_51",
+    "page": 51,
+    "brand": "SAAB",
+    "model": "Cabriolet Turbo",
+    "immatricolazione": "10/07/1991",
+    "chassis": "YS3AD75L5L7021225",
+    "cilindrata": "1.985",
+    "horsepower": "172",
+    "esemplari": "48.888",
+    "images": [
+      "/images/cars/car_51_img_4.jpeg",
+      "/images/cars/car_51_img_3.jpeg",
+      "/images/cars/car_51_img_2.jpeg",
+      "/images/cars/car_51_img_5.jpeg",
+      "/images/cars/car_51_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_51_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_51_img_4.jpeg",
+    "logoImg": "/images/cars/car_51_img_5.jpeg",
+    "carPhotos": [
+      "/images/cars/car_51_img_2.jpeg",
+      "/images/cars/car_51_img_3.jpeg",
+      "/images/cars/car_51_img_4.jpeg",
+      "/images/cars/car_51_img_5.jpeg"
+    ]
+  },
+  {
+    "id": "car_52",
+    "page": 52,
+    "brand": "Toyota",
+    "model": "Land Cruiser",
+    "immatricolazione": "2024",
+    "chassis": "A112160C024",
+    "cilindrata": "3.100",
+    "horsepower": "",
+    "esemplari": "",
+    "images": [
+      "/images/cars/car_52_img_2.jpeg",
+      "/images/cars/car_52_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_52_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_52_img_2.jpeg",
+    "logoImg": "/images/cars/car_52_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_52_img_1.jpeg",
+      "/images/cars/car_52_img_2.jpeg"
+    ]
+  },
+  {
+    "id": "car_53",
+    "page": 53,
+    "brand": "Volkswagen",
+    "model": "Maggiolino",
+    "immatricolazione": "13/04/2017",
+    "chassis": "WWWZZZ16ZHM810393",
+    "cilindrata": "1.900",
+    "horsepower": "150",
+    "esemplari": "Serie",
+    "images": [
+      "/images/cars/car_53_img_2.jpeg",
+      "/images/cars/car_53_img_3.jpeg",
+      "/images/cars/car_53_img_4.jpeg",
+      "/images/cars/car_53_img_5.jpeg",
+      "/images/cars/car_53_img_1.jpeg"
+    ],
+    "pageImage": "/images/cars/car_53_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "/images/cars/car_53_img_2.jpeg",
+    "logoImg": "/images/cars/car_53_img_1.jpeg",
+    "carPhotos": [
+      "/images/cars/car_53_img_2.jpeg",
+      "/images/cars/car_53_img_3.jpeg",
+      "/images/cars/car_53_img_4.jpeg",
+      "/images/cars/car_53_img_5.jpeg"
+    ]
+  }
+]
