@@ -78,7 +78,7 @@ export default function App() {
 
   // Load Initial Data (from localStorage or /data/cars.json)
   useEffect(() => {
-    fetch('/data/cars.json')
+    fetch(`${import.meta.env.BASE_URL}data/cars.json`)
       .then(res => res.json())
       .then(defaultCars => {
         const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -239,7 +239,7 @@ export default function App() {
 
   // Reset to original PDF dataset
   const handleResetData = () => {
-    fetch('/data/cars.json')
+    fetch(`${import.meta.env.BASE_URL}data/cars.json`)
       .then(res => res.json())
       .then(data => {
         setCars(data);
