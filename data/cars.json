@@ -10,22 +10,22 @@
     "horsepower": "450",
     "esemplari": "329",
     "images": [
-      "/images/cars/car_2_img_5.jpeg",
-      "/images/cars/car_2_img_1.jpeg",
-      "/images/cars/car_2_img_2.jpeg",
-      "/images/cars/car_2_img_3.jpeg",
-      "/images/cars/car_2_img_4.jpeg"
+      "./images/cars/car_2_img_5.jpeg",
+      "./images/cars/car_2_img_1.jpeg",
+      "./images/cars/car_2_img_2.jpeg",
+      "./images/cars/car_2_img_3.jpeg",
+      "./images/cars/car_2_img_4.jpeg"
     ],
-    "pageImage": "/images/cars/car_2_page.jpg",
+    "pageImage": "./images/cars/car_2_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_2_img_5.jpeg",
-    "logoImg": "/images/cars/car_2_img_4.jpeg",
+    "mainPhoto": "./images/cars/car_2_img_5.jpeg",
+    "logoImg": "./images/cars/car_2_img_4.jpeg",
     "carPhotos": [
-      "/images/cars/car_2_img_1.jpeg",
-      "/images/cars/car_2_img_2.jpeg",
-      "/images/cars/car_2_img_3.jpeg",
-      "/images/cars/car_2_img_5.jpeg"
+      "./images/cars/car_2_img_1.jpeg",
+      "./images/cars/car_2_img_2.jpeg",
+      "./images/cars/car_2_img_3.jpeg",
+      "./images/cars/car_2_img_5.jpeg"
     ]
   },
   {
@@ -39,22 +39,22 @@
     "horsepower": "286",
     "esemplari": "123",
     "images": [
-      "/images/cars/car_3_img_3.jpeg",
-      "/images/cars/car_3_img_1.jpeg",
-      "/images/cars/car_3_img_2.jpeg",
-      "/images/cars/car_3_img_4.jpeg",
-      "/images/cars/car_3_img_5.jpeg"
+      "./images/cars/car_3_img_3.jpeg",
+      "./images/cars/car_3_img_1.jpeg",
+      "./images/cars/car_3_img_2.jpeg",
+      "./images/cars/car_3_img_4.jpeg",
+      "./images/cars/car_3_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_3_page.jpg",
+    "pageImage": "./images/cars/car_3_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_3_img_3.jpeg",
-    "logoImg": "/images/cars/car_3_img_5.jpeg",
+    "mainPhoto": "./images/cars/car_3_img_3.jpeg",
+    "logoImg": "./images/cars/car_3_img_5.jpeg",
     "carPhotos": [
-      "/images/cars/car_3_img_1.jpeg",
-      "/images/cars/car_3_img_2.jpeg",
-      "/images/cars/car_3_img_3.jpeg",
-      "/images/cars/car_3_img_4.jpeg"
+      "./images/cars/car_3_img_1.jpeg",
+      "./images/cars/car_3_img_2.jpeg",
+      "./images/cars/car_3_img_3.jpeg",
+      "./images/cars/car_3_img_4.jpeg"
     ]
   },
   {
@@ -68,16 +68,16 @@
     "horsepower": "",
     "esemplari": "",
     "images": [
-      "/images/cars/car_4_img_2.png",
-      "/images/cars/car_4_img_1.jpeg"
+      "./images/cars/car_4_img_2.png",
+      "./images/cars/car_4_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_4_page.jpg",
+    "pageImage": "./images/cars/car_4_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_4_img_2.png",
-    "logoImg": "/images/cars/car_4_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_4_img_2.png",
+    "logoImg": "./images/cars/car_4_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_4_img_2.png"
+      "./images/cars/car_4_img_2.png"
     ]
   },
   {
@@ -91,22 +91,22 @@
     "horsepower": "200",
     "esemplari": "11.452",
     "images": [
-      "/images/cars/car_5_img_2.jpeg",
-      "/images/cars/car_5_img_4.jpeg",
-      "/images/cars/car_5_img_3.jpeg",
-      "/images/cars/car_5_img_1.jpeg",
-      "/images/cars/car_5_img_5.jpeg"
+      "./images/cars/car_5_img_2.jpeg",
+      "./images/cars/car_5_img_4.jpeg",
+      "./images/cars/car_5_img_3.jpeg",
+      "./images/cars/car_5_img_1.jpeg",
+      "./images/cars/car_5_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_5_page.jpg",
+    "pageImage": "./images/cars/car_5_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_5_img_2.jpeg",
-    "logoImg": "/images/cars/car_4_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_5_img_2.jpeg",
+    "logoImg": "./images/cars/car_4_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_5_img_1.jpeg",
-      "/images/cars/car_5_img_2.jpeg",
-      "/images/cars/car_5_img_3.jpeg",
-      "/images/cars/car_5_img_4.jpeg"
+      "./images/cars/car_5_img_1.jpeg",
+      "./images/cars/car_5_img_2.jpeg",
+      "./images/cars/car_5_img_3.jpeg",
+      "./images/cars/car_5_img_4.jpeg"
     ]
   },
   {
@@ -120,22 +120,22 @@
     "horsepower": "306",
     "esemplari": "224",
     "images": [
-      "/images/cars/car_6_img_2.jpeg",
-      "/images/cars/car_6_img_3.jpeg",
-      "/images/cars/car_6_img_5.jpeg",
-      "/images/cars/car_6_img_4.jpeg",
-      "/images/cars/car_6_img_1.jpeg"
+      "./images/cars/car_6_img_2.jpeg",
+      "./images/cars/car_6_img_3.jpeg",
+      "./images/cars/car_6_img_5.jpeg",
+      "./images/cars/car_6_img_4.jpeg",
+      "./images/cars/car_6_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_6_page.jpg",
+    "pageImage": "./images/cars/car_6_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_6_img_2.jpeg",
-    "logoImg": "/images/cars/car_4_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_6_img_2.jpeg",
+    "logoImg": "./images/cars/car_4_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_6_img_2.jpeg",
-      "/images/cars/car_6_img_3.jpeg",
-      "/images/cars/car_6_img_4.jpeg",
-      "/images/cars/car_6_img_5.jpeg"
+      "./images/cars/car_6_img_2.jpeg",
+      "./images/cars/car_6_img_3.jpeg",
+      "./images/cars/car_6_img_4.jpeg",
+      "./images/cars/car_6_img_5.jpeg"
     ]
   },
   {
@@ -149,22 +149,22 @@
     "horsepower": "339",
     "esemplari": "",
     "images": [
-      "/images/cars/car_7_img_3.jpeg",
-      "/images/cars/car_7_img_4.jpeg",
-      "/images/cars/car_7_img_1.jpeg",
-      "/images/cars/car_7_img_2.jpeg",
-      "/images/cars/car_7_img_5.jpeg"
+      "./images/cars/car_7_img_3.jpeg",
+      "./images/cars/car_7_img_4.jpeg",
+      "./images/cars/car_7_img_1.jpeg",
+      "./images/cars/car_7_img_2.jpeg",
+      "./images/cars/car_7_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_7_page.jpg",
+    "pageImage": "./images/cars/car_7_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_7_img_3.jpeg",
-    "logoImg": "/images/cars/car_7_img_5.jpeg",
+    "mainPhoto": "./images/cars/car_7_img_3.jpeg",
+    "logoImg": "./images/cars/car_7_img_5.jpeg",
     "carPhotos": [
-      "/images/cars/car_7_img_1.jpeg",
-      "/images/cars/car_7_img_2.jpeg",
-      "/images/cars/car_7_img_3.jpeg",
-      "/images/cars/car_7_img_4.jpeg"
+      "./images/cars/car_7_img_1.jpeg",
+      "./images/cars/car_7_img_2.jpeg",
+      "./images/cars/car_7_img_3.jpeg",
+      "./images/cars/car_7_img_4.jpeg"
     ]
   },
   {
@@ -178,22 +178,22 @@
     "horsepower": "410",
     "esemplari": "133",
     "images": [
-      "/images/cars/car_8_img_2.jpeg",
-      "/images/cars/car_8_img_3.jpeg",
-      "/images/cars/car_8_img_5.jpeg",
-      "/images/cars/car_8_img_4.jpeg",
-      "/images/cars/car_8_img_1.png"
+      "./images/cars/car_8_img_2.jpeg",
+      "./images/cars/car_8_img_3.jpeg",
+      "./images/cars/car_8_img_5.jpeg",
+      "./images/cars/car_8_img_4.jpeg",
+      "./images/cars/car_8_img_1.png"
     ],
-    "pageImage": "/images/cars/car_8_page.jpg",
+    "pageImage": "./images/cars/car_8_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_8_img_2.jpeg",
-    "logoImg": "/images/cars/car_8_img_1.png",
+    "mainPhoto": "./images/cars/car_8_img_2.jpeg",
+    "logoImg": "./images/cars/car_8_img_1.png",
     "carPhotos": [
-      "/images/cars/car_8_img_2.jpeg",
-      "/images/cars/car_8_img_3.jpeg",
-      "/images/cars/car_8_img_4.jpeg",
-      "/images/cars/car_8_img_5.jpeg"
+      "./images/cars/car_8_img_2.jpeg",
+      "./images/cars/car_8_img_3.jpeg",
+      "./images/cars/car_8_img_4.jpeg",
+      "./images/cars/car_8_img_5.jpeg"
     ]
   },
   {
@@ -207,22 +207,22 @@
     "horsepower": "373",
     "esemplari": "5.703",
     "images": [
-      "/images/cars/car_9_img_3.jpeg",
-      "/images/cars/car_9_img_5.jpeg",
-      "/images/cars/car_9_img_4.jpeg",
-      "/images/cars/car_9_img_2.jpeg",
-      "/images/cars/car_9_img_1.jpeg"
+      "./images/cars/car_9_img_3.jpeg",
+      "./images/cars/car_9_img_5.jpeg",
+      "./images/cars/car_9_img_4.jpeg",
+      "./images/cars/car_9_img_2.jpeg",
+      "./images/cars/car_9_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_9_page.jpg",
+    "pageImage": "./images/cars/car_9_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_9_img_3.jpeg",
-    "logoImg": "/images/cars/car_9_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_9_img_3.jpeg",
+    "logoImg": "./images/cars/car_9_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_9_img_2.jpeg",
-      "/images/cars/car_9_img_3.jpeg",
-      "/images/cars/car_9_img_4.jpeg",
-      "/images/cars/car_9_img_5.jpeg"
+      "./images/cars/car_9_img_2.jpeg",
+      "./images/cars/car_9_img_3.jpeg",
+      "./images/cars/car_9_img_4.jpeg",
+      "./images/cars/car_9_img_5.jpeg"
     ]
   },
   {
@@ -236,22 +236,22 @@
     "horsepower": "561",
     "esemplari": "126",
     "images": [
-      "/images/cars/car_10_img_2.jpeg",
-      "/images/cars/car_10_img_3.jpeg",
-      "/images/cars/car_10_img_4.jpeg",
-      "/images/cars/car_10_img_5.jpeg",
-      "/images/cars/car_10_img_1.png"
+      "./images/cars/car_10_img_2.jpeg",
+      "./images/cars/car_10_img_3.jpeg",
+      "./images/cars/car_10_img_4.jpeg",
+      "./images/cars/car_10_img_5.jpeg",
+      "./images/cars/car_10_img_1.png"
     ],
-    "pageImage": "/images/cars/car_10_page.jpg",
+    "pageImage": "./images/cars/car_10_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_10_img_2.jpeg",
-    "logoImg": "/images/cars/car_10_img_1.png",
+    "mainPhoto": "./images/cars/car_10_img_2.jpeg",
+    "logoImg": "./images/cars/car_10_img_1.png",
     "carPhotos": [
-      "/images/cars/car_10_img_2.jpeg",
-      "/images/cars/car_10_img_3.jpeg",
-      "/images/cars/car_10_img_4.jpeg",
-      "/images/cars/car_10_img_5.jpeg"
+      "./images/cars/car_10_img_2.jpeg",
+      "./images/cars/car_10_img_3.jpeg",
+      "./images/cars/car_10_img_4.jpeg",
+      "./images/cars/car_10_img_5.jpeg"
     ]
   },
   {
@@ -265,22 +265,22 @@
     "horsepower": "29",
     "esemplari": "144.953",
     "images": [
-      "/images/cars/car_11_img_2.jpeg",
-      "/images/cars/car_11_img_4.jpeg",
-      "/images/cars/car_11_img_5.jpeg",
-      "/images/cars/car_11_img_3.jpeg",
-      "/images/cars/car_11_img_1.jpeg"
+      "./images/cars/car_11_img_2.jpeg",
+      "./images/cars/car_11_img_4.jpeg",
+      "./images/cars/car_11_img_5.jpeg",
+      "./images/cars/car_11_img_3.jpeg",
+      "./images/cars/car_11_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_11_page.jpg",
+    "pageImage": "./images/cars/car_11_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_11_img_2.jpeg",
-    "logoImg": "/images/cars/car_11_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_11_img_2.jpeg",
+    "logoImg": "./images/cars/car_11_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_11_img_2.jpeg",
-      "/images/cars/car_11_img_3.jpeg",
-      "/images/cars/car_11_img_4.jpeg",
-      "/images/cars/car_11_img_5.jpeg"
+      "./images/cars/car_11_img_2.jpeg",
+      "./images/cars/car_11_img_3.jpeg",
+      "./images/cars/car_11_img_4.jpeg",
+      "./images/cars/car_11_img_5.jpeg"
     ]
   },
   {
@@ -294,22 +294,22 @@
     "horsepower": "245",
     "esemplari": "780",
     "images": [
-      "/images/cars/car_12_img_5.jpeg",
-      "/images/cars/car_12_img_4.jpeg",
-      "/images/cars/car_12_img_2.jpeg",
-      "/images/cars/car_12_img_3.jpeg",
-      "/images/cars/car_12_img_1.jpeg"
+      "./images/cars/car_12_img_5.jpeg",
+      "./images/cars/car_12_img_4.jpeg",
+      "./images/cars/car_12_img_2.jpeg",
+      "./images/cars/car_12_img_3.jpeg",
+      "./images/cars/car_12_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_12_page.jpg",
+    "pageImage": "./images/cars/car_12_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_12_img_5.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_12_img_5.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_12_img_2.jpeg",
-      "/images/cars/car_12_img_3.jpeg",
-      "/images/cars/car_12_img_4.jpeg",
-      "/images/cars/car_12_img_5.jpeg"
+      "./images/cars/car_12_img_2.jpeg",
+      "./images/cars/car_12_img_3.jpeg",
+      "./images/cars/car_12_img_4.jpeg",
+      "./images/cars/car_12_img_5.jpeg"
     ]
   },
   {
@@ -323,20 +323,20 @@
     "horsepower": "300",
     "esemplari": "4228",
     "images": [
-      "/images/cars/car_13_img_2.jpeg",
-      "/images/cars/car_13_img_3.jpeg",
-      "/images/cars/car_13_img_4.jpeg",
-      "/images/cars/car_13_img_1.jpeg"
+      "./images/cars/car_13_img_2.jpeg",
+      "./images/cars/car_13_img_3.jpeg",
+      "./images/cars/car_13_img_4.jpeg",
+      "./images/cars/car_13_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_13_page.jpg",
+    "pageImage": "./images/cars/car_13_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_13_img_2.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_13_img_2.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_13_img_2.jpeg",
-      "/images/cars/car_13_img_3.jpeg",
-      "/images/cars/car_13_img_4.jpeg"
+      "./images/cars/car_13_img_2.jpeg",
+      "./images/cars/car_13_img_3.jpeg",
+      "./images/cars/car_13_img_4.jpeg"
     ]
   },
   {
@@ -350,22 +350,22 @@
     "horsepower": "442",
     "esemplari": "688",
     "images": [
-      "/images/cars/car_14_img_5.jpeg",
-      "/images/cars/car_14_img_3.jpeg",
-      "/images/cars/car_14_img_2.jpeg",
-      "/images/cars/car_14_img_4.jpeg",
-      "/images/cars/car_14_img_1.jpeg"
+      "./images/cars/car_14_img_5.jpeg",
+      "./images/cars/car_14_img_3.jpeg",
+      "./images/cars/car_14_img_2.jpeg",
+      "./images/cars/car_14_img_4.jpeg",
+      "./images/cars/car_14_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_14_page.jpg",
+    "pageImage": "./images/cars/car_14_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_14_img_5.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_14_img_5.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_14_img_2.jpeg",
-      "/images/cars/car_14_img_3.jpeg",
-      "/images/cars/car_14_img_4.jpeg",
-      "/images/cars/car_14_img_5.jpeg"
+      "./images/cars/car_14_img_2.jpeg",
+      "./images/cars/car_14_img_3.jpeg",
+      "./images/cars/car_14_img_4.jpeg",
+      "./images/cars/car_14_img_5.jpeg"
     ]
   },
   {
@@ -379,22 +379,22 @@
     "horsepower": "380",
     "esemplari": "387",
     "images": [
-      "/images/cars/car_15_img_5.jpeg",
-      "/images/cars/car_15_img_2.jpeg",
-      "/images/cars/car_15_img_3.jpeg",
-      "/images/cars/car_15_img_4.jpeg",
-      "/images/cars/car_15_img_1.jpeg"
+      "./images/cars/car_15_img_5.jpeg",
+      "./images/cars/car_15_img_2.jpeg",
+      "./images/cars/car_15_img_3.jpeg",
+      "./images/cars/car_15_img_4.jpeg",
+      "./images/cars/car_15_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_15_page.jpg",
+    "pageImage": "./images/cars/car_15_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_15_img_5.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_15_img_5.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_15_img_2.jpeg",
-      "/images/cars/car_15_img_3.jpeg",
-      "/images/cars/car_15_img_4.jpeg",
-      "/images/cars/car_15_img_5.jpeg"
+      "./images/cars/car_15_img_2.jpeg",
+      "./images/cars/car_15_img_3.jpeg",
+      "./images/cars/car_15_img_4.jpeg",
+      "./images/cars/car_15_img_5.jpeg"
     ]
   },
   {
@@ -408,22 +408,22 @@
     "horsepower": "826",
     "esemplari": "999",
     "images": [
-      "/images/cars/car_16_img_2.jpeg",
-      "/images/cars/car_16_img_3.jpeg",
-      "/images/cars/car_16_img_4.jpeg",
-      "/images/cars/car_16_img_5.jpeg",
-      "/images/cars/car_16_img_1.jpeg"
+      "./images/cars/car_16_img_2.jpeg",
+      "./images/cars/car_16_img_3.jpeg",
+      "./images/cars/car_16_img_4.jpeg",
+      "./images/cars/car_16_img_5.jpeg",
+      "./images/cars/car_16_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_16_page.jpg",
+    "pageImage": "./images/cars/car_16_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_16_img_2.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_16_img_2.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_16_img_2.jpeg",
-      "/images/cars/car_16_img_3.jpeg",
-      "/images/cars/car_16_img_4.jpeg",
-      "/images/cars/car_16_img_5.jpeg"
+      "./images/cars/car_16_img_2.jpeg",
+      "./images/cars/car_16_img_3.jpeg",
+      "./images/cars/car_16_img_4.jpeg",
+      "./images/cars/car_16_img_5.jpeg"
     ]
   },
   {
@@ -437,18 +437,18 @@
     "horsepower": "195",
     "esemplari": "357",
     "images": [
-      "/images/cars/car_17_img_2.jpeg",
-      "/images/cars/car_17_img_3.jpeg",
-      "/images/cars/car_17_img_1.jpeg"
+      "./images/cars/car_17_img_2.jpeg",
+      "./images/cars/car_17_img_3.jpeg",
+      "./images/cars/car_17_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_17_page.jpg",
+    "pageImage": "./images/cars/car_17_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_17_img_2.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_17_img_2.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_17_img_2.jpeg",
-      "/images/cars/car_17_img_3.jpeg"
+      "./images/cars/car_17_img_2.jpeg",
+      "./images/cars/car_17_img_3.jpeg"
     ]
   },
   {
@@ -462,22 +462,22 @@
     "horsepower": "655",
     "esemplari": "400",
     "images": [
-      "/images/cars/car_18_img_2.jpeg",
-      "/images/cars/car_18_img_3.jpeg",
-      "/images/cars/car_18_img_4.jpeg",
-      "/images/cars/car_18_img_5.jpeg",
-      "/images/cars/car_18_img_1.jpeg"
+      "./images/cars/car_18_img_2.jpeg",
+      "./images/cars/car_18_img_3.jpeg",
+      "./images/cars/car_18_img_4.jpeg",
+      "./images/cars/car_18_img_5.jpeg",
+      "./images/cars/car_18_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_18_page.jpg",
+    "pageImage": "./images/cars/car_18_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_18_img_2.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_18_img_2.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_18_img_2.jpeg",
-      "/images/cars/car_18_img_3.jpeg",
-      "/images/cars/car_18_img_4.jpeg",
-      "/images/cars/car_18_img_5.jpeg"
+      "./images/cars/car_18_img_2.jpeg",
+      "./images/cars/car_18_img_3.jpeg",
+      "./images/cars/car_18_img_4.jpeg",
+      "./images/cars/car_18_img_5.jpeg"
     ]
   },
   {
@@ -491,22 +491,22 @@
     "horsepower": "391",
     "esemplari": "10.000",
     "images": [
-      "/images/cars/car_19_img_2.jpeg",
-      "/images/cars/car_19_img_3.jpeg",
-      "/images/cars/car_19_img_4.jpeg",
-      "/images/cars/car_19_img_5.jpeg",
-      "/images/cars/car_19_img_1.jpeg"
+      "./images/cars/car_19_img_2.jpeg",
+      "./images/cars/car_19_img_3.jpeg",
+      "./images/cars/car_19_img_4.jpeg",
+      "./images/cars/car_19_img_5.jpeg",
+      "./images/cars/car_19_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_19_page.jpg",
+    "pageImage": "./images/cars/car_19_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_19_img_2.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_19_img_2.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_19_img_2.jpeg",
-      "/images/cars/car_19_img_3.jpeg",
-      "/images/cars/car_19_img_4.jpeg",
-      "/images/cars/car_19_img_5.jpeg"
+      "./images/cars/car_19_img_2.jpeg",
+      "./images/cars/car_19_img_3.jpeg",
+      "./images/cars/car_19_img_4.jpeg",
+      "./images/cars/car_19_img_5.jpeg"
     ]
   },
   {
@@ -520,22 +520,22 @@
     "horsepower": "479",
     "esemplari": "1.337",
     "images": [
-      "/images/cars/car_20_img_2.jpeg",
-      "/images/cars/car_20_img_3.jpeg",
-      "/images/cars/car_20_img_4.jpeg",
-      "/images/cars/car_20_img_5.jpeg",
-      "/images/cars/car_20_img_1.jpeg"
+      "./images/cars/car_20_img_2.jpeg",
+      "./images/cars/car_20_img_3.jpeg",
+      "./images/cars/car_20_img_4.jpeg",
+      "./images/cars/car_20_img_5.jpeg",
+      "./images/cars/car_20_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_20_page.jpg",
+    "pageImage": "./images/cars/car_20_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_20_img_2.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_20_img_2.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_20_img_2.jpeg",
-      "/images/cars/car_20_img_3.jpeg",
-      "/images/cars/car_20_img_4.jpeg",
-      "/images/cars/car_20_img_5.jpeg"
+      "./images/cars/car_20_img_2.jpeg",
+      "./images/cars/car_20_img_3.jpeg",
+      "./images/cars/car_20_img_4.jpeg",
+      "./images/cars/car_20_img_5.jpeg"
     ]
   },
   {
@@ -549,22 +549,22 @@
     "horsepower": "665",
     "esemplari": "599",
     "images": [
-      "/images/cars/car_21_img_3.jpeg",
-      "/images/cars/car_21_img_4.jpeg",
-      "/images/cars/car_21_img_2.jpeg",
-      "/images/cars/car_21_img_1.jpeg",
-      "/images/cars/car_21_img_5.jpeg"
+      "./images/cars/car_21_img_3.jpeg",
+      "./images/cars/car_21_img_4.jpeg",
+      "./images/cars/car_21_img_2.jpeg",
+      "./images/cars/car_21_img_1.jpeg",
+      "./images/cars/car_21_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_21_page.jpg",
+    "pageImage": "./images/cars/car_21_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_21_img_3.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_21_img_3.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_21_img_1.jpeg",
-      "/images/cars/car_21_img_2.jpeg",
-      "/images/cars/car_21_img_3.jpeg",
-      "/images/cars/car_21_img_4.jpeg"
+      "./images/cars/car_21_img_1.jpeg",
+      "./images/cars/car_21_img_2.jpeg",
+      "./images/cars/car_21_img_3.jpeg",
+      "./images/cars/car_21_img_4.jpeg"
     ]
   },
   {
@@ -578,22 +578,22 @@
     "horsepower": "796",
     "esemplari": "499",
     "images": [
-      "/images/cars/car_22_img_3.jpeg",
-      "/images/cars/car_22_img_5.jpeg",
-      "/images/cars/car_22_img_2.jpeg",
-      "/images/cars/car_22_img_4.jpeg",
-      "/images/cars/car_22_img_1.jpeg"
+      "./images/cars/car_22_img_3.jpeg",
+      "./images/cars/car_22_img_5.jpeg",
+      "./images/cars/car_22_img_2.jpeg",
+      "./images/cars/car_22_img_4.jpeg",
+      "./images/cars/car_22_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_22_page.jpg",
+    "pageImage": "./images/cars/car_22_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_22_img_3.jpeg",
-    "logoImg": "/images/cars/car_12_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_22_img_3.jpeg",
+    "logoImg": "./images/cars/car_12_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_22_img_2.jpeg",
-      "/images/cars/car_22_img_3.jpeg",
-      "/images/cars/car_22_img_4.jpeg",
-      "/images/cars/car_22_img_5.jpeg"
+      "./images/cars/car_22_img_2.jpeg",
+      "./images/cars/car_22_img_3.jpeg",
+      "./images/cars/car_22_img_4.jpeg",
+      "./images/cars/car_22_img_5.jpeg"
     ]
   },
   {
@@ -607,23 +607,23 @@
     "horsepower": "",
     "esemplari": "",
     "images": [
-      "/images/cars/car_23_img_2.jpeg",
-      "/images/cars/car_23_img_3.jpeg",
-      "/images/cars/car_23_img_5.jpeg",
-      "/images/cars/car_23_img_4.jpeg",
-      "/images/cars/car_23_img_1.jpeg"
+      "./images/cars/car_23_img_2.jpeg",
+      "./images/cars/car_23_img_3.jpeg",
+      "./images/cars/car_23_img_5.jpeg",
+      "./images/cars/car_23_img_4.jpeg",
+      "./images/cars/car_23_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_23_page.jpg",
+    "pageImage": "./images/cars/car_23_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_23_img_2.jpeg",
-    "logoImg": "/images/cars/car_23_img_1.png",
+    "mainPhoto": "./images/cars/car_23_img_2.jpeg",
+    "logoImg": "./images/cars/car_23_img_1.png",
     "carPhotos": [
-      "/images/cars/car_23_img_1.jpeg",
-      "/images/cars/car_23_img_2.jpeg",
-      "/images/cars/car_23_img_3.jpeg",
-      "/images/cars/car_23_img_4.jpeg",
-      "/images/cars/car_23_img_5.jpeg"
+      "./images/cars/car_23_img_1.jpeg",
+      "./images/cars/car_23_img_2.jpeg",
+      "./images/cars/car_23_img_3.jpeg",
+      "./images/cars/car_23_img_4.jpeg",
+      "./images/cars/car_23_img_5.jpeg"
     ]
   },
   {
@@ -637,27 +637,27 @@
     "horsepower": "",
     "esemplari": "",
     "images": [
-      "/images/cars/car_24_img_1.jpeg",
-      "/images/cars/car_24_img_2.jpeg",
-      "/images/cars/car_24_img_4.jpeg",
-      "/images/cars/car_24_img_5.jpeg",
-      "/images/cars/car_24_img_6.jpeg",
-      "/images/cars/car_24_img_7.jpeg",
-      "/images/cars/car_24_img_3.png"
+      "./images/cars/car_24_img_1.jpeg",
+      "./images/cars/car_24_img_2.jpeg",
+      "./images/cars/car_24_img_4.jpeg",
+      "./images/cars/car_24_img_5.jpeg",
+      "./images/cars/car_24_img_6.jpeg",
+      "./images/cars/car_24_img_7.jpeg",
+      "./images/cars/car_24_img_3.png"
     ],
-    "pageImage": "/images/cars/car_24_page.jpg",
+    "pageImage": "./images/cars/car_24_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_24_img_1.jpeg",
-    "logoImg": "/images/cars/car_24_img_7.png",
+    "mainPhoto": "./images/cars/car_24_img_1.jpeg",
+    "logoImg": "./images/cars/car_24_img_7.png",
     "carPhotos": [
-      "/images/cars/car_24_img_1.jpeg",
-      "/images/cars/car_24_img_2.jpeg",
-      "/images/cars/car_24_img_3.png",
-      "/images/cars/car_24_img_4.jpeg",
-      "/images/cars/car_24_img_5.jpeg",
-      "/images/cars/car_24_img_6.jpeg",
-      "/images/cars/car_24_img_7.jpeg"
+      "./images/cars/car_24_img_1.jpeg",
+      "./images/cars/car_24_img_2.jpeg",
+      "./images/cars/car_24_img_3.png",
+      "./images/cars/car_24_img_4.jpeg",
+      "./images/cars/car_24_img_5.jpeg",
+      "./images/cars/car_24_img_6.jpeg",
+      "./images/cars/car_24_img_7.jpeg"
     ]
   },
   {
@@ -671,25 +671,25 @@
     "horsepower": "781",
     "esemplari": "",
     "images": [
-      "/images/cars/car_25_img_1.jpeg",
-      "/images/cars/car_25_img_3.jpeg",
-      "/images/cars/car_25_img_4.jpeg",
-      "/images/cars/car_25_img_5.jpeg",
-      "/images/cars/car_25_img_6.jpeg",
-      "/images/cars/car_25_img_2.jpeg"
+      "./images/cars/car_25_img_1.jpeg",
+      "./images/cars/car_25_img_3.jpeg",
+      "./images/cars/car_25_img_4.jpeg",
+      "./images/cars/car_25_img_5.jpeg",
+      "./images/cars/car_25_img_6.jpeg",
+      "./images/cars/car_25_img_2.jpeg"
     ],
-    "pageImage": "/images/cars/car_25_page.jpg",
+    "pageImage": "./images/cars/car_25_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_25_img_1.jpeg",
-    "logoImg": "/images/cars/car_25_img_6.png",
+    "mainPhoto": "./images/cars/car_25_img_1.jpeg",
+    "logoImg": "./images/cars/car_25_img_6.png",
     "carPhotos": [
-      "/images/cars/car_25_img_1.jpeg",
-      "/images/cars/car_25_img_2.jpeg",
-      "/images/cars/car_25_img_3.jpeg",
-      "/images/cars/car_25_img_4.jpeg",
-      "/images/cars/car_25_img_5.jpeg",
-      "/images/cars/car_25_img_6.jpeg"
+      "./images/cars/car_25_img_1.jpeg",
+      "./images/cars/car_25_img_2.jpeg",
+      "./images/cars/car_25_img_3.jpeg",
+      "./images/cars/car_25_img_4.jpeg",
+      "./images/cars/car_25_img_5.jpeg",
+      "./images/cars/car_25_img_6.jpeg"
     ]
   },
   {
@@ -703,22 +703,22 @@
     "horsepower": "1.183",
     "esemplari": "2.640",
     "images": [
-      "/images/cars/car_26_img_2.jpeg",
-      "/images/cars/car_26_img_3.jpeg",
-      "/images/cars/car_26_img_4.jpeg",
-      "/images/cars/car_26_img_5.jpeg",
-      "/images/cars/car_26_img_1.jpeg"
+      "./images/cars/car_26_img_2.jpeg",
+      "./images/cars/car_26_img_3.jpeg",
+      "./images/cars/car_26_img_4.jpeg",
+      "./images/cars/car_26_img_5.jpeg",
+      "./images/cars/car_26_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_26_page.jpg",
+    "pageImage": "./images/cars/car_26_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_26_img_2.jpeg",
-    "logoImg": "/images/cars/car_26_img_1.png",
+    "mainPhoto": "./images/cars/car_26_img_2.jpeg",
+    "logoImg": "./images/cars/car_26_img_1.png",
     "carPhotos": [
-      "/images/cars/car_26_img_2.jpeg",
-      "/images/cars/car_26_img_3.jpeg",
-      "/images/cars/car_26_img_4.jpeg",
-      "/images/cars/car_26_img_5.jpeg"
+      "./images/cars/car_26_img_2.jpeg",
+      "./images/cars/car_26_img_3.jpeg",
+      "./images/cars/car_26_img_4.jpeg",
+      "./images/cars/car_26_img_5.jpeg"
     ]
   },
   {
@@ -732,22 +732,22 @@
     "horsepower": "",
     "esemplari": "",
     "images": [
-      "/images/cars/car_27_img_2.jpeg",
-      "/images/cars/car_27_img_3.jpeg",
-      "/images/cars/car_27_img_4.jpeg",
-      "/images/cars/car_27_img_5.jpeg",
-      "/images/cars/car_27_img_1.jpeg"
+      "./images/cars/car_27_img_2.jpeg",
+      "./images/cars/car_27_img_3.jpeg",
+      "./images/cars/car_27_img_4.jpeg",
+      "./images/cars/car_27_img_5.jpeg",
+      "./images/cars/car_27_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_27_page.jpg",
+    "pageImage": "./images/cars/car_27_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_27_img_2.jpeg",
-    "logoImg": "/images/cars/car_26_img_1.png",
+    "mainPhoto": "./images/cars/car_27_img_2.jpeg",
+    "logoImg": "./images/cars/car_26_img_1.png",
     "carPhotos": [
-      "/images/cars/car_27_img_2.jpeg",
-      "/images/cars/car_27_img_3.jpeg",
-      "/images/cars/car_27_img_4.jpeg",
-      "/images/cars/car_27_img_5.jpeg"
+      "./images/cars/car_27_img_2.jpeg",
+      "./images/cars/car_27_img_3.jpeg",
+      "./images/cars/car_27_img_4.jpeg",
+      "./images/cars/car_27_img_5.jpeg"
     ]
   },
   {
@@ -761,22 +761,22 @@
     "horsepower": "92",
     "esemplari": "161.832",
     "images": [
-      "/images/cars/car_28_img_4.jpeg",
-      "/images/cars/car_28_img_5.jpeg",
-      "/images/cars/car_28_img_2.jpeg",
-      "/images/cars/car_28_img_3.jpeg",
-      "/images/cars/car_28_img_1.jpeg"
+      "./images/cars/car_28_img_4.jpeg",
+      "./images/cars/car_28_img_5.jpeg",
+      "./images/cars/car_28_img_2.jpeg",
+      "./images/cars/car_28_img_3.jpeg",
+      "./images/cars/car_28_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_28_page.jpg",
+    "pageImage": "./images/cars/car_28_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_28_img_4.jpeg",
-    "logoImg": "/images/cars/car_26_img_1.png",
+    "mainPhoto": "./images/cars/car_28_img_4.jpeg",
+    "logoImg": "./images/cars/car_26_img_1.png",
     "carPhotos": [
-      "/images/cars/car_28_img_2.jpeg",
-      "/images/cars/car_28_img_3.jpeg",
-      "/images/cars/car_28_img_4.jpeg",
-      "/images/cars/car_28_img_5.jpeg"
+      "./images/cars/car_28_img_2.jpeg",
+      "./images/cars/car_28_img_3.jpeg",
+      "./images/cars/car_28_img_4.jpeg",
+      "./images/cars/car_28_img_5.jpeg"
     ]
   },
   {
@@ -790,17 +790,17 @@
     "horsepower": "297",
     "esemplari": "",
     "images": [
-      "/images/cars/car_29_img_1.jpeg",
-      "/images/cars/car_29_img_2.jpeg"
+      "./images/cars/car_29_img_1.jpeg",
+      "./images/cars/car_29_img_2.jpeg"
     ],
-    "pageImage": "/images/cars/car_29_page.jpg",
+    "pageImage": "./images/cars/car_29_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_29_img_1.jpeg",
-    "logoImg": "/images/cars/car_29_img_2.jpeg",
+    "mainPhoto": "./images/cars/car_29_img_1.jpeg",
+    "logoImg": "./images/cars/car_29_img_2.jpeg",
     "carPhotos": [
-      "/images/cars/car_29_img_1.jpeg",
-      "/images/cars/car_29_img_2.jpeg"
+      "./images/cars/car_29_img_1.jpeg",
+      "./images/cars/car_29_img_2.jpeg"
     ]
   },
   {
@@ -814,23 +814,23 @@
     "horsepower": "1075",
     "esemplari": "275",
     "images": [
-      "/images/cars/car_30_img_4.jpeg",
-      "/images/cars/car_30_img_1.jpeg",
-      "/images/cars/car_30_img_2.jpeg",
-      "/images/cars/car_30_img_3.jpeg",
-      "/images/cars/car_30_img_5.jpeg"
+      "./images/cars/car_30_img_4.jpeg",
+      "./images/cars/car_30_img_1.jpeg",
+      "./images/cars/car_30_img_2.jpeg",
+      "./images/cars/car_30_img_3.jpeg",
+      "./images/cars/car_30_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_30_page.jpg",
+    "pageImage": "./images/cars/car_30_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_30_img_4.jpeg",
-    "logoImg": "/images/cars/car_30_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_30_img_4.jpeg",
+    "logoImg": "./images/cars/car_30_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_30_img_1.jpeg",
-      "/images/cars/car_30_img_2.jpeg",
-      "/images/cars/car_30_img_3.jpeg",
-      "/images/cars/car_30_img_4.jpeg",
-      "/images/cars/car_30_img_5.jpeg"
+      "./images/cars/car_30_img_1.jpeg",
+      "./images/cars/car_30_img_2.jpeg",
+      "./images/cars/car_30_img_3.jpeg",
+      "./images/cars/car_30_img_4.jpeg",
+      "./images/cars/car_30_img_5.jpeg"
     ]
   },
   {
@@ -844,22 +844,22 @@
     "horsepower": "297",
     "esemplari": "",
     "images": [
-      "/images/cars/car_31_img_2.jpeg",
-      "/images/cars/car_31_img_3.jpeg",
-      "/images/cars/car_31_img_4.jpeg",
-      "/images/cars/car_31_img_5.jpeg",
-      "/images/cars/car_31_img_1.jpeg"
+      "./images/cars/car_31_img_2.jpeg",
+      "./images/cars/car_31_img_3.jpeg",
+      "./images/cars/car_31_img_4.jpeg",
+      "./images/cars/car_31_img_5.jpeg",
+      "./images/cars/car_31_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_31_page.jpg",
+    "pageImage": "./images/cars/car_31_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_31_img_2.jpeg",
-    "logoImg": "/images/cars/car_31_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_31_img_2.jpeg",
+    "logoImg": "./images/cars/car_31_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_31_img_2.jpeg",
-      "/images/cars/car_31_img_3.jpeg",
-      "/images/cars/car_31_img_4.jpeg",
-      "/images/cars/car_31_img_5.jpeg"
+      "./images/cars/car_31_img_2.jpeg",
+      "./images/cars/car_31_img_3.jpeg",
+      "./images/cars/car_31_img_4.jpeg",
+      "./images/cars/car_31_img_5.jpeg"
     ]
   },
   {
@@ -873,22 +873,22 @@
     "horsepower": "571",
     "esemplari": "350",
     "images": [
-      "/images/cars/car_32_img_2.jpeg",
-      "/images/cars/car_32_img_3.jpeg",
-      "/images/cars/car_32_img_4.jpeg",
-      "/images/cars/car_32_img_5.jpeg",
-      "/images/cars/car_32_img_1.jpeg"
+      "./images/cars/car_32_img_2.jpeg",
+      "./images/cars/car_32_img_3.jpeg",
+      "./images/cars/car_32_img_4.jpeg",
+      "./images/cars/car_32_img_5.jpeg",
+      "./images/cars/car_32_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_32_page.jpg",
+    "pageImage": "./images/cars/car_32_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_32_img_2.jpeg",
-    "logoImg": "/images/cars/car_31_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_32_img_2.jpeg",
+    "logoImg": "./images/cars/car_31_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_32_img_2.jpeg",
-      "/images/cars/car_32_img_3.jpeg",
-      "/images/cars/car_32_img_4.jpeg",
-      "/images/cars/car_32_img_5.jpeg"
+      "./images/cars/car_32_img_2.jpeg",
+      "./images/cars/car_32_img_3.jpeg",
+      "./images/cars/car_32_img_4.jpeg",
+      "./images/cars/car_32_img_5.jpeg"
     ]
   },
   {
@@ -902,17 +902,17 @@
     "horsepower": "",
     "esemplari": "",
     "images": [
-      "/images/cars/car_33_img_2.jpeg",
-      "/images/cars/car_33_img_1.png"
+      "./images/cars/car_33_img_2.jpeg",
+      "./images/cars/car_33_img_1.png"
     ],
-    "pageImage": "/images/cars/car_33_page.jpg",
+    "pageImage": "./images/cars/car_33_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_33_img_2.jpeg",
-    "logoImg": "/images/cars/car_33_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_33_img_2.jpeg",
+    "logoImg": "./images/cars/car_33_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_33_img_1.png",
-      "/images/cars/car_33_img_2.jpeg"
+      "./images/cars/car_33_img_1.png",
+      "./images/cars/car_33_img_2.jpeg"
     ]
   },
   {
@@ -926,23 +926,23 @@
     "horsepower": "189",
     "esemplari": "",
     "images": [
-      "/images/cars/car_34_img_2.jpeg",
-      "/images/cars/car_34_img_3.jpeg",
-      "/images/cars/car_34_img_4.jpeg",
-      "/images/cars/car_34_img_5.jpeg",
-      "/images/cars/car_34_img_1.png"
+      "./images/cars/car_34_img_2.jpeg",
+      "./images/cars/car_34_img_3.jpeg",
+      "./images/cars/car_34_img_4.jpeg",
+      "./images/cars/car_34_img_5.jpeg",
+      "./images/cars/car_34_img_1.png"
     ],
-    "pageImage": "/images/cars/car_34_page.jpg",
+    "pageImage": "./images/cars/car_34_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_34_img_2.jpeg",
-    "logoImg": "/images/cars/car_34_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_34_img_2.jpeg",
+    "logoImg": "./images/cars/car_34_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_34_img_1.png",
-      "/images/cars/car_34_img_2.jpeg",
-      "/images/cars/car_34_img_3.jpeg",
-      "/images/cars/car_34_img_4.jpeg",
-      "/images/cars/car_34_img_5.jpeg"
+      "./images/cars/car_34_img_1.png",
+      "./images/cars/car_34_img_2.jpeg",
+      "./images/cars/car_34_img_3.jpeg",
+      "./images/cars/car_34_img_4.jpeg",
+      "./images/cars/car_34_img_5.jpeg"
     ]
   },
   {
@@ -956,22 +956,22 @@
     "horsepower": "135",
     "esemplari": "90",
     "images": [
-      "/images/cars/car_35_img_5.jpeg",
-      "/images/cars/car_35_img_3.jpeg",
-      "/images/cars/car_35_img_2.jpeg",
-      "/images/cars/car_35_img_4.jpeg",
-      "/images/cars/car_35_img_1.jpeg"
+      "./images/cars/car_35_img_5.jpeg",
+      "./images/cars/car_35_img_3.jpeg",
+      "./images/cars/car_35_img_2.jpeg",
+      "./images/cars/car_35_img_4.jpeg",
+      "./images/cars/car_35_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_35_page.jpg",
+    "pageImage": "./images/cars/car_35_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_35_img_5.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_35_img_5.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_35_img_2.jpeg",
-      "/images/cars/car_35_img_3.jpeg",
-      "/images/cars/car_35_img_4.jpeg",
-      "/images/cars/car_35_img_5.jpeg"
+      "./images/cars/car_35_img_2.jpeg",
+      "./images/cars/car_35_img_3.jpeg",
+      "./images/cars/car_35_img_4.jpeg",
+      "./images/cars/car_35_img_5.jpeg"
     ]
   },
   {
@@ -985,22 +985,22 @@
     "horsepower": "100",
     "esemplari": "1.900",
     "images": [
-      "/images/cars/car_36_img_4.jpeg",
-      "/images/cars/car_36_img_5.jpeg",
-      "/images/cars/car_36_img_1.jpeg",
-      "/images/cars/car_36_img_2.jpeg",
-      "/images/cars/car_36_img_3.jpeg"
+      "./images/cars/car_36_img_4.jpeg",
+      "./images/cars/car_36_img_5.jpeg",
+      "./images/cars/car_36_img_1.jpeg",
+      "./images/cars/car_36_img_2.jpeg",
+      "./images/cars/car_36_img_3.jpeg"
     ],
-    "pageImage": "/images/cars/car_36_page.jpg",
+    "pageImage": "./images/cars/car_36_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_36_img_4.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_36_img_4.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_36_img_1.jpeg",
-      "/images/cars/car_36_img_2.jpeg",
-      "/images/cars/car_36_img_4.jpeg",
-      "/images/cars/car_36_img_5.jpeg"
+      "./images/cars/car_36_img_1.jpeg",
+      "./images/cars/car_36_img_2.jpeg",
+      "./images/cars/car_36_img_4.jpeg",
+      "./images/cars/car_36_img_5.jpeg"
     ]
   },
   {
@@ -1014,22 +1014,22 @@
     "horsepower": "90",
     "esemplari": "2.149",
     "images": [
-      "/images/cars/car_37_img_2.jpeg",
-      "/images/cars/car_37_img_3.jpeg",
-      "/images/cars/car_37_img_1.jpeg",
-      "/images/cars/car_37_img_4.jpeg",
-      "/images/cars/car_37_img_5.jpeg"
+      "./images/cars/car_37_img_2.jpeg",
+      "./images/cars/car_37_img_3.jpeg",
+      "./images/cars/car_37_img_1.jpeg",
+      "./images/cars/car_37_img_4.jpeg",
+      "./images/cars/car_37_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_37_page.jpg",
+    "pageImage": "./images/cars/car_37_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_37_img_2.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_37_img_2.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_37_img_1.jpeg",
-      "/images/cars/car_37_img_2.jpeg",
-      "/images/cars/car_37_img_3.jpeg",
-      "/images/cars/car_37_img_4.jpeg"
+      "./images/cars/car_37_img_1.jpeg",
+      "./images/cars/car_37_img_2.jpeg",
+      "./images/cars/car_37_img_3.jpeg",
+      "./images/cars/car_37_img_4.jpeg"
     ]
   },
   {
@@ -1043,22 +1043,22 @@
     "horsepower": "75",
     "esemplari": "76.303",
     "images": [
-      "/images/cars/car_38_img_3.jpeg",
-      "/images/cars/car_38_img_2.jpeg",
-      "/images/cars/car_38_img_1.jpeg",
-      "/images/cars/car_38_img_4.jpeg",
-      "/images/cars/car_38_img_5.jpeg"
+      "./images/cars/car_38_img_3.jpeg",
+      "./images/cars/car_38_img_2.jpeg",
+      "./images/cars/car_38_img_1.jpeg",
+      "./images/cars/car_38_img_4.jpeg",
+      "./images/cars/car_38_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_38_page.jpg",
+    "pageImage": "./images/cars/car_38_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_38_img_3.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_38_img_3.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_38_img_1.jpeg",
-      "/images/cars/car_38_img_2.jpeg",
-      "/images/cars/car_38_img_3.jpeg",
-      "/images/cars/car_38_img_4.jpeg"
+      "./images/cars/car_38_img_1.jpeg",
+      "./images/cars/car_38_img_2.jpeg",
+      "./images/cars/car_38_img_3.jpeg",
+      "./images/cars/car_38_img_4.jpeg"
     ]
   },
   {
@@ -1072,22 +1072,22 @@
     "horsepower": "232",
     "esemplari": "57.972",
     "images": [
-      "/images/cars/car_39_img_5.jpeg",
-      "/images/cars/car_39_img_1.jpeg",
-      "/images/cars/car_39_img_3.jpeg",
-      "/images/cars/car_39_img_2.jpeg",
-      "/images/cars/car_39_img_4.jpeg"
+      "./images/cars/car_39_img_5.jpeg",
+      "./images/cars/car_39_img_1.jpeg",
+      "./images/cars/car_39_img_3.jpeg",
+      "./images/cars/car_39_img_2.jpeg",
+      "./images/cars/car_39_img_4.jpeg"
     ],
-    "pageImage": "/images/cars/car_39_page.jpg",
+    "pageImage": "./images/cars/car_39_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_39_img_5.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_39_img_5.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_39_img_1.jpeg",
-      "/images/cars/car_39_img_2.jpeg",
-      "/images/cars/car_39_img_3.jpeg",
-      "/images/cars/car_39_img_5.jpeg"
+      "./images/cars/car_39_img_1.jpeg",
+      "./images/cars/car_39_img_2.jpeg",
+      "./images/cars/car_39_img_3.jpeg",
+      "./images/cars/car_39_img_5.jpeg"
     ]
   },
   {
@@ -1101,22 +1101,22 @@
     "horsepower": "218",
     "esemplari": "819/823",
     "images": [
-      "/images/cars/car_40_img_1.jpeg",
-      "/images/cars/car_40_img_4.jpeg",
-      "/images/cars/car_40_img_2.jpeg",
-      "/images/cars/car_40_img_3.jpeg",
-      "/images/cars/car_40_img_5.jpeg"
+      "./images/cars/car_40_img_1.jpeg",
+      "./images/cars/car_40_img_4.jpeg",
+      "./images/cars/car_40_img_2.jpeg",
+      "./images/cars/car_40_img_3.jpeg",
+      "./images/cars/car_40_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_40_page.jpg",
+    "pageImage": "./images/cars/car_40_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_40_img_1.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_40_img_1.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_40_img_1.jpeg",
-      "/images/cars/car_40_img_2.jpeg",
-      "/images/cars/car_40_img_3.jpeg",
-      "/images/cars/car_40_img_4.jpeg"
+      "./images/cars/car_40_img_1.jpeg",
+      "./images/cars/car_40_img_2.jpeg",
+      "./images/cars/car_40_img_3.jpeg",
+      "./images/cars/car_40_img_4.jpeg"
     ]
   },
   {
@@ -1130,22 +1130,22 @@
     "horsepower": "350",
     "esemplari": "2.831",
     "images": [
-      "/images/cars/car_41_img_2.jpeg",
-      "/images/cars/car_41_img_3.jpeg",
-      "/images/cars/car_41_img_4.jpeg",
-      "/images/cars/car_41_img_5.jpeg",
-      "/images/cars/car_41_img_1.jpeg"
+      "./images/cars/car_41_img_2.jpeg",
+      "./images/cars/car_41_img_3.jpeg",
+      "./images/cars/car_41_img_4.jpeg",
+      "./images/cars/car_41_img_5.jpeg",
+      "./images/cars/car_41_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_41_page.jpg",
+    "pageImage": "./images/cars/car_41_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_41_img_2.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_41_img_2.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_41_img_2.jpeg",
-      "/images/cars/car_41_img_3.jpeg",
-      "/images/cars/car_41_img_4.jpeg",
-      "/images/cars/car_41_img_5.jpeg"
+      "./images/cars/car_41_img_2.jpeg",
+      "./images/cars/car_41_img_3.jpeg",
+      "./images/cars/car_41_img_4.jpeg",
+      "./images/cars/car_41_img_5.jpeg"
     ]
   },
   {
@@ -1159,22 +1159,22 @@
     "horsepower": "449",
     "esemplari": "288",
     "images": [
-      "/images/cars/car_42_img_5.jpeg",
-      "/images/cars/car_42_img_3.jpeg",
-      "/images/cars/car_42_img_1.jpeg",
-      "/images/cars/car_42_img_2.jpeg",
-      "/images/cars/car_42_img_4.jpeg"
+      "./images/cars/car_42_img_5.jpeg",
+      "./images/cars/car_42_img_3.jpeg",
+      "./images/cars/car_42_img_1.jpeg",
+      "./images/cars/car_42_img_2.jpeg",
+      "./images/cars/car_42_img_4.jpeg"
     ],
-    "pageImage": "/images/cars/car_42_page.jpg",
+    "pageImage": "./images/cars/car_42_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_42_img_5.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_42_img_5.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_42_img_1.jpeg",
-      "/images/cars/car_42_img_2.jpeg",
-      "/images/cars/car_42_img_3.jpeg",
-      "/images/cars/car_42_img_5.jpeg"
+      "./images/cars/car_42_img_1.jpeg",
+      "./images/cars/car_42_img_2.jpeg",
+      "./images/cars/car_42_img_3.jpeg",
+      "./images/cars/car_42_img_5.jpeg"
     ]
   },
   {
@@ -1188,22 +1188,22 @@
     "horsepower": "612",
     "esemplari": "1.270",
     "images": [
-      "/images/cars/car_43_img_2.jpeg",
-      "/images/cars/car_43_img_3.jpeg",
-      "/images/cars/car_43_img_4.jpeg",
-      "/images/cars/car_43_img_1.jpeg",
-      "/images/cars/car_43_img_5.jpeg"
+      "./images/cars/car_43_img_2.jpeg",
+      "./images/cars/car_43_img_3.jpeg",
+      "./images/cars/car_43_img_4.jpeg",
+      "./images/cars/car_43_img_1.jpeg",
+      "./images/cars/car_43_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_43_page.jpg",
+    "pageImage": "./images/cars/car_43_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_43_img_2.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_43_img_2.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_43_img_1.jpeg",
-      "/images/cars/car_43_img_2.jpeg",
-      "/images/cars/car_43_img_3.jpeg",
-      "/images/cars/car_43_img_4.jpeg"
+      "./images/cars/car_43_img_1.jpeg",
+      "./images/cars/car_43_img_2.jpeg",
+      "./images/cars/car_43_img_3.jpeg",
+      "./images/cars/car_43_img_4.jpeg"
     ]
   },
   {
@@ -1217,22 +1217,22 @@
     "horsepower": "525",
     "esemplari": "",
     "images": [
-      "/images/cars/car_44_img_3.jpeg",
-      "/images/cars/car_44_img_4.jpeg",
-      "/images/cars/car_44_img_5.jpeg",
-      "/images/cars/car_44_img_2.jpeg",
-      "/images/cars/car_44_img_1.jpeg"
+      "./images/cars/car_44_img_3.jpeg",
+      "./images/cars/car_44_img_4.jpeg",
+      "./images/cars/car_44_img_5.jpeg",
+      "./images/cars/car_44_img_2.jpeg",
+      "./images/cars/car_44_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_44_page.jpg",
+    "pageImage": "./images/cars/car_44_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_44_img_3.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_44_img_3.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_44_img_2.jpeg",
-      "/images/cars/car_44_img_3.jpeg",
-      "/images/cars/car_44_img_4.jpeg",
-      "/images/cars/car_44_img_5.jpeg"
+      "./images/cars/car_44_img_2.jpeg",
+      "./images/cars/car_44_img_3.jpeg",
+      "./images/cars/car_44_img_4.jpeg",
+      "./images/cars/car_44_img_5.jpeg"
     ]
   },
   {
@@ -1246,22 +1246,22 @@
     "horsepower": "501",
     "esemplari": "600",
     "images": [
-      "/images/cars/car_45_img_2.jpeg",
-      "/images/cars/car_45_img_1.jpeg",
-      "/images/cars/car_45_img_3.jpeg",
-      "/images/cars/car_45_img_4.jpeg",
-      "/images/cars/car_45_img_5.jpeg"
+      "./images/cars/car_45_img_2.jpeg",
+      "./images/cars/car_45_img_1.jpeg",
+      "./images/cars/car_45_img_3.jpeg",
+      "./images/cars/car_45_img_4.jpeg",
+      "./images/cars/car_45_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_45_page.jpg",
+    "pageImage": "./images/cars/car_45_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_45_img_2.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_45_img_2.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_45_img_1.jpeg",
-      "/images/cars/car_45_img_2.jpeg",
-      "/images/cars/car_45_img_3.jpeg",
-      "/images/cars/car_45_img_4.jpeg"
+      "./images/cars/car_45_img_1.jpeg",
+      "./images/cars/car_45_img_2.jpeg",
+      "./images/cars/car_45_img_3.jpeg",
+      "./images/cars/car_45_img_4.jpeg"
     ]
   },
   {
@@ -1275,22 +1275,22 @@
     "horsepower": "608 termici 887 complessivi",
     "esemplari": "918",
     "images": [
-      "/images/cars/car_46_img_3.jpeg",
-      "/images/cars/car_46_img_4.jpeg",
-      "/images/cars/car_46_img_1.jpeg",
-      "/images/cars/car_46_img_2.jpeg",
-      "/images/cars/car_46_img_5.jpeg"
+      "./images/cars/car_46_img_3.jpeg",
+      "./images/cars/car_46_img_4.jpeg",
+      "./images/cars/car_46_img_1.jpeg",
+      "./images/cars/car_46_img_2.jpeg",
+      "./images/cars/car_46_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_46_page.jpg",
+    "pageImage": "./images/cars/car_46_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_46_img_3.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_46_img_3.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_46_img_1.jpeg",
-      "/images/cars/car_46_img_2.jpeg",
-      "/images/cars/car_46_img_3.jpeg",
-      "/images/cars/car_46_img_4.jpeg"
+      "./images/cars/car_46_img_1.jpeg",
+      "./images/cars/car_46_img_2.jpeg",
+      "./images/cars/car_46_img_3.jpeg",
+      "./images/cars/car_46_img_4.jpeg"
     ]
   },
   {
@@ -1304,22 +1304,22 @@
     "horsepower": "510",
     "esemplari": "1.948",
     "images": [
-      "/images/cars/car_47_img_1.jpeg",
-      "/images/cars/car_47_img_2.jpeg",
-      "/images/cars/car_47_img_3.jpeg",
-      "/images/cars/car_47_img_4.jpeg",
-      "/images/cars/car_47_img_5.jpeg"
+      "./images/cars/car_47_img_1.jpeg",
+      "./images/cars/car_47_img_2.jpeg",
+      "./images/cars/car_47_img_3.jpeg",
+      "./images/cars/car_47_img_4.jpeg",
+      "./images/cars/car_47_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_47_page.jpg",
+    "pageImage": "./images/cars/car_47_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_47_img_1.jpeg",
-    "logoImg": "/images/cars/car_35_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_47_img_1.jpeg",
+    "logoImg": "./images/cars/car_35_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_47_img_1.jpeg",
-      "/images/cars/car_47_img_2.jpeg",
-      "/images/cars/car_47_img_3.jpeg",
-      "/images/cars/car_47_img_4.jpeg"
+      "./images/cars/car_47_img_1.jpeg",
+      "./images/cars/car_47_img_2.jpeg",
+      "./images/cars/car_47_img_3.jpeg",
+      "./images/cars/car_47_img_4.jpeg"
     ]
   },
   {
@@ -1333,22 +1333,22 @@
     "horsepower": "160",
     "esemplari": "Serie",
     "images": [
-      "/images/cars/car_48_img_1.jpeg",
-      "/images/cars/car_48_img_2.jpeg",
-      "/images/cars/car_48_img_3.jpeg",
-      "/images/cars/car_48_img_4.jpeg",
-      "/images/cars/car_48_img_5.jpeg"
+      "./images/cars/car_48_img_1.jpeg",
+      "./images/cars/car_48_img_2.jpeg",
+      "./images/cars/car_48_img_3.jpeg",
+      "./images/cars/car_48_img_4.jpeg",
+      "./images/cars/car_48_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_48_page.jpg",
+    "pageImage": "./images/cars/car_48_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_48_img_1.jpeg",
-    "logoImg": "/images/cars/car_48_img_5.png",
+    "mainPhoto": "./images/cars/car_48_img_1.jpeg",
+    "logoImg": "./images/cars/car_48_img_5.png",
     "carPhotos": [
-      "/images/cars/car_48_img_1.jpeg",
-      "/images/cars/car_48_img_2.jpeg",
-      "/images/cars/car_48_img_3.jpeg",
-      "/images/cars/car_48_img_4.jpeg"
+      "./images/cars/car_48_img_1.jpeg",
+      "./images/cars/car_48_img_2.jpeg",
+      "./images/cars/car_48_img_3.jpeg",
+      "./images/cars/car_48_img_4.jpeg"
     ]
   },
   {
@@ -1362,21 +1362,21 @@
     "horsepower": "571",
     "esemplari": "ND",
     "images": [
-      "/images/cars/car_49_img_1.jpeg",
-      "/images/cars/car_49_img_2.jpeg",
-      "/images/cars/car_49_img_3.jpeg",
-      "/images/cars/car_49_img_4.jpeg"
+      "./images/cars/car_49_img_1.jpeg",
+      "./images/cars/car_49_img_2.jpeg",
+      "./images/cars/car_49_img_3.jpeg",
+      "./images/cars/car_49_img_4.jpeg"
     ],
-    "pageImage": "/images/cars/car_49_page.jpg",
+    "pageImage": "./images/cars/car_49_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_49_img_1.jpeg",
-    "logoImg": "/images/cars/car_49_img_4.jpeg",
+    "mainPhoto": "./images/cars/car_49_img_1.jpeg",
+    "logoImg": "./images/cars/car_49_img_4.jpeg",
     "carPhotos": [
-      "/images/cars/car_49_img_1.jpeg",
-      "/images/cars/car_49_img_2.jpeg",
-      "/images/cars/car_49_img_3.jpeg",
-      "/images/cars/car_49_img_4.jpeg"
+      "./images/cars/car_49_img_1.jpeg",
+      "./images/cars/car_49_img_2.jpeg",
+      "./images/cars/car_49_img_3.jpeg",
+      "./images/cars/car_49_img_4.jpeg"
     ]
   },
   {
@@ -1390,23 +1390,23 @@
     "horsepower": "184",
     "esemplari": "",
     "images": [
-      "/images/cars/car_50_img_1.jpeg",
-      "/images/cars/car_50_img_2.jpeg",
-      "/images/cars/car_50_img_3.jpeg",
-      "/images/cars/car_50_img_4.jpeg",
-      "/images/cars/car_50_img_5.jpeg"
+      "./images/cars/car_50_img_1.jpeg",
+      "./images/cars/car_50_img_2.jpeg",
+      "./images/cars/car_50_img_3.jpeg",
+      "./images/cars/car_50_img_4.jpeg",
+      "./images/cars/car_50_img_5.jpeg"
     ],
-    "pageImage": "/images/cars/car_50_page.jpg",
+    "pageImage": "./images/cars/car_50_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_50_img_1.jpeg",
-    "logoImg": "/images/cars/car_50_img_5.jpeg",
+    "mainPhoto": "./images/cars/car_50_img_1.jpeg",
+    "logoImg": "./images/cars/car_50_img_5.jpeg",
     "carPhotos": [
-      "/images/cars/car_50_img_1.jpeg",
-      "/images/cars/car_50_img_2.jpeg",
-      "/images/cars/car_50_img_3.jpeg",
-      "/images/cars/car_50_img_4.jpeg",
-      "/images/cars/car_50_img_5.jpeg"
+      "./images/cars/car_50_img_1.jpeg",
+      "./images/cars/car_50_img_2.jpeg",
+      "./images/cars/car_50_img_3.jpeg",
+      "./images/cars/car_50_img_4.jpeg",
+      "./images/cars/car_50_img_5.jpeg"
     ]
   },
   {
@@ -1420,22 +1420,22 @@
     "horsepower": "172",
     "esemplari": "48.888",
     "images": [
-      "/images/cars/car_51_img_4.jpeg",
-      "/images/cars/car_51_img_3.jpeg",
-      "/images/cars/car_51_img_2.jpeg",
-      "/images/cars/car_51_img_5.jpeg",
-      "/images/cars/car_51_img_1.jpeg"
+      "./images/cars/car_51_img_4.jpeg",
+      "./images/cars/car_51_img_3.jpeg",
+      "./images/cars/car_51_img_2.jpeg",
+      "./images/cars/car_51_img_5.jpeg",
+      "./images/cars/car_51_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_51_page.jpg",
+    "pageImage": "./images/cars/car_51_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_51_img_4.jpeg",
-    "logoImg": "/images/cars/car_51_img_5.jpeg",
+    "mainPhoto": "./images/cars/car_51_img_4.jpeg",
+    "logoImg": "./images/cars/car_51_img_5.jpeg",
     "carPhotos": [
-      "/images/cars/car_51_img_2.jpeg",
-      "/images/cars/car_51_img_3.jpeg",
-      "/images/cars/car_51_img_4.jpeg",
-      "/images/cars/car_51_img_5.jpeg"
+      "./images/cars/car_51_img_2.jpeg",
+      "./images/cars/car_51_img_3.jpeg",
+      "./images/cars/car_51_img_4.jpeg",
+      "./images/cars/car_51_img_5.jpeg"
     ]
   },
   {
@@ -1449,17 +1449,17 @@
     "horsepower": "",
     "esemplari": "",
     "images": [
-      "/images/cars/car_52_img_2.jpeg",
-      "/images/cars/car_52_img_1.jpeg"
+      "./images/cars/car_52_img_2.jpeg",
+      "./images/cars/car_52_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_52_page.jpg",
+    "pageImage": "./images/cars/car_52_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_52_img_2.jpeg",
-    "logoImg": "/images/cars/car_52_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_52_img_2.jpeg",
+    "logoImg": "./images/cars/car_52_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_52_img_1.jpeg",
-      "/images/cars/car_52_img_2.jpeg"
+      "./images/cars/car_52_img_1.jpeg",
+      "./images/cars/car_52_img_2.jpeg"
     ]
   },
   {
@@ -1473,22 +1473,22 @@
     "horsepower": "150",
     "esemplari": "Serie",
     "images": [
-      "/images/cars/car_53_img_2.jpeg",
-      "/images/cars/car_53_img_3.jpeg",
-      "/images/cars/car_53_img_4.jpeg",
-      "/images/cars/car_53_img_5.jpeg",
-      "/images/cars/car_53_img_1.jpeg"
+      "./images/cars/car_53_img_2.jpeg",
+      "./images/cars/car_53_img_3.jpeg",
+      "./images/cars/car_53_img_4.jpeg",
+      "./images/cars/car_53_img_5.jpeg",
+      "./images/cars/car_53_img_1.jpeg"
     ],
-    "pageImage": "/images/cars/car_53_page.jpg",
+    "pageImage": "./images/cars/car_53_page.jpg",
     "isFavorite": false,
     "notes": "",
-    "mainPhoto": "/images/cars/car_53_img_2.jpeg",
-    "logoImg": "/images/cars/car_53_img_1.jpeg",
+    "mainPhoto": "./images/cars/car_53_img_2.jpeg",
+    "logoImg": "./images/cars/car_53_img_1.jpeg",
     "carPhotos": [
-      "/images/cars/car_53_img_2.jpeg",
-      "/images/cars/car_53_img_3.jpeg",
-      "/images/cars/car_53_img_4.jpeg",
-      "/images/cars/car_53_img_5.jpeg"
+      "./images/cars/car_53_img_2.jpeg",
+      "./images/cars/car_53_img_3.jpeg",
+      "./images/cars/car_53_img_4.jpeg",
+      "./images/cars/car_53_img_5.jpeg"
     ]
   }
 ]
