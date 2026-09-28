@@ -1,0 +1,708 @@
+[
+  {
+    "page": 1,
+    "image_count": 1,
+    "lines": [
+      "1"
+    ]
+  },
+  {
+    "page": 2,
+    "image_count": 5,
+    "lines": [
+      "Alfa Romeo",
+      "8C Spider",
+      "Immatricolazione: 21/09/2009",
+      "N° Telaio: ZAR92000000048519",
+      "Cilindrata: 4.691",
+      "Cavalli: 450",
+      "Esemplari: 329",
+      "2"
+    ]
+  },
+  {
+    "page": 3,
+    "image_count": 5,
+    "lines": [
+      "Aston Martin",
+      "DB5",
+      "Immatricolazione: 1965",
+      "N° Telaio: DB51521L",
+      "Cilindrata: 3.995",
+      "Cavalli: 286",
+      "Esemplari: 123",
+      "3"
+    ]
+  },
+  {
+    "page": 4,
+    "image_count": 2,
+    "lines": [
+      "Audi",
+      "A1",
+      "Immatricolazione: 2017",
+      "N° Telaio: A0677340VR18",
+      "Cilindrata: 1.790",
+      "4"
+    ]
+  },
+  {
+    "page": 5,
+    "image_count": 5,
+    "lines": [
+      "Audi",
+      "Quattro",
+      "Immatricolazione: 1984",
+      "N° Telaio: WAUZZZ852EA900705",
+      "Cilindrata: 2.144",
+      "Cavalli: 200",
+      "Esemplari: 11.452",
+      "5"
+    ]
+  },
+  {
+    "page": 6,
+    "image_count": 5,
+    "lines": [
+      "Audi",
+      "Quattro Sport",
+      "Immatricolazione: 08/11/1985",
+      "N° Telaio: WAUZZZ85ZEA905071",
+      "Cilindrata: 2.134",
+      "Cavalli: 306",
+      "Esemplari: 224",
+      "6"
+    ]
+  },
+  {
+    "page": 7,
+    "image_count": 5,
+    "lines": [
+      "Bentley",
+      "Azure",
+      "Immatricolazione: 2001",
+      "N° Telaio: SCBZK15C7WCX61662",
+      "Cilindrata: 6.761",
+      "Cavalli: 339",
+      "7"
+    ]
+  },
+  {
+    "page": 8,
+    "image_count": 5,
+    "lines": [
+      "Bizzarrini 5300",
+      "GT Strada",
+      "Immatricolazione: 1993",
+      "N° Telaio: IA30226",
+      "Cilindrata: 5.354",
+      "Cavalli: 410",
+      "Esemplari: 133",
+      "8"
+    ]
+  },
+  {
+    "page": 9,
+    "image_count": 5,
+    "lines": [
+      "BMW",
+      "Z8",
+      "Immatricolazione: 27/01/2004",
+      "N° Telaio: WBAEJ11000AF77564",
+      "Cilindrata: 4.941",
+      "Cavalli: 373",
+      "Esemplari: 5.703",
+      "9"
+    ]
+  },
+  {
+    "page": 10,
+    "image_count": 5,
+    "lines": [
+      "Immatricolazione: 1994",
+      "N° Telaio: ZA9AB01E0RCD39076",
+      "Cilindrata: 3.500",
+      "Cavalli: 561",
+      "Esemplari: 126",
+      "Bugatti",
+      "EB 110",
+      "10"
+    ]
+  },
+  {
+    "page": 11,
+    "image_count": 5,
+    "lines": [
+      "Immatricolazione: 27/09/1991",
+      "N° Telaio: VF7AYCA0012CA5247",
+      "Cilindrata: 602",
+      "Cavalli: 29",
+      "Esemplari: 144.953",
+      "Citroën",
+      "Mehari",
+      "11"
+    ]
+  },
+  {
+    "page": 12,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "275 GTB Berlinetta",
+      "Immatricolazione: 1965",
+      "N° Telaio: 06773",
+      "Cilindrata: 3.286",
+      "Cavalli: 245",
+      "Esemplari: 780",
+      "12"
+    ]
+  },
+  {
+    "page": 13,
+    "image_count": 4,
+    "lines": [
+      "Ferrari",
+      "348 TS",
+      "Immatricolazione: 1992",
+      "Cavalli: 300",
+      "Esemplari: 4228",
+      "13"
+    ]
+  },
+  {
+    "page": 14,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "456M GT",
+      "Immatricolazione: 2000",
+      "N° Telaio: ZFFWP44B000118438",
+      "Cilindrata:",
+      "Cavalli: 442",
+      "Esemplari: 688",
+      "14"
+    ]
+  },
+  {
+    "page": 15,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "365 GT4 BB",
+      "Immatricolazione: 1973",
+      "Cavalli: 380",
+      "Esemplari: 387",
+      "15"
+    ]
+  },
+  {
+    "page": 16,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "812 Competizione",
+      "Immatricolazione: 02/04/2026",
+      "N° Telaio: ZFF03TMB000271356",
+      "Cilindrata: 6.496",
+      "Cavalli: 826",
+      "Esemplari: 999",
+      "16"
+    ]
+  },
+  {
+    "page": 17,
+    "image_count": 3,
+    "lines": [
+      "Ferrari",
+      "Dino 246 GT (Serie L)",
+      "Immatricolazione: 1970",
+      "Cavalli: 195",
+      "Esemplari: 357",
+      "17"
+    ]
+  },
+  {
+    "page": 18,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "Enzo",
+      "Immatricolazione: 05/07/2003",
+      "N° Telaio: 2FFCZ563000132647",
+      "Cilindrata: 5.999",
+      "Cavalli: 655",
+      "Esemplari: 400",
+      "18"
+    ]
+  },
+  {
+    "page": 19,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "F 110 Testarossa",
+      "Immatricolazione: 27/05/1991",
+      "N° Telaio: ZFFAA17B000089572",
+      "Cilindrata: 4.943",
+      "Cavalli: 391",
+      "Esemplari: 10.000",
+      "19"
+    ]
+  },
+  {
+    "page": 20,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "F 40",
+      "Immatricolazione: 15/05/1992",
+      "N° Telaio: ZFFGJ34B000088821",
+      "Cilindrata: 2.936",
+      "Cavalli: 479",
+      "Esemplari: 1.337",
+      "20"
+    ]
+  },
+  {
+    "page": 21,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "599 GTO",
+      "Immatricolazione: 08/07/2011",
+      "N° Telaio: ZFF70RDB000181299",
+      "Cilindrata: 5.999",
+      "Cavalli: 665",
+      "Esemplari: 599",
+      "21"
+    ]
+  },
+  {
+    "page": 22,
+    "image_count": 5,
+    "lines": [
+      "Ferrari",
+      "F150 LaFerrari",
+      "Immatricolazione: 07/07/2015",
+      "N° Telaio: ZFF76ZHB000210128",
+      "Cilindrata: 6.262 Ibrido",
+      "Cavalli: 796",
+      "Esemplari: 499",
+      "22"
+    ]
+  },
+  {
+    "page": 23,
+    "image_count": 5,
+    "lines": [
+      "FIAT",
+      "500",
+      "Immatricolazione: 1969",
+      "N° Telaio: 2033591",
+      "Cilindrata: 500",
+      "23"
+    ]
+  },
+  {
+    "page": 24,
+    "image_count": 7,
+    "lines": [
+      "Ford",
+      "Bronco Jeep",
+      "Immatricolazione: 1985",
+      "N° Telaio: 1FMDU15N9FLA84306",
+      "Cilindrata: 4.885",
+      "24"
+    ]
+  },
+  {
+    "page": 25,
+    "image_count": 6,
+    "lines": [
+      "Lamborghini",
+      "Countach",
+      "Immatricolazione: 04/07/2022",
+      "N° Telaio: ZHWEA97D8NLA11261",
+      "Cilindrata: 6.498",
+      "Cavalli: 781",
+      "25"
+    ]
+  },
+  {
+    "page": 26,
+    "image_count": 5,
+    "lines": [
+      "Lancia",
+      "Aurelia GT 2500",
+      "Immatricolazione: 23/06/1989",
+      "N° Telaio: B24S1237",
+      "Cilindrata: 2.451",
+      "Cavalli: 1.183",
+      "Esemplari: 2.640",
+      "26"
+    ]
+  },
+  {
+    "page": 27,
+    "image_count": 5,
+    "lines": [
+      "Lancia",
+      "Flaminia Super Sport",
+      "Immatricolazione: 1965",
+      "N° Telaio: BSB93742",
+      "Cilindrata: 2.775",
+      "27"
+    ]
+  },
+  {
+    "page": 28,
+    "image_count": 5,
+    "lines": [
+      "Lancia",
+      "Fulvia Coupè",
+      "Immatricolazione: 11/04/1996",
+      "N° Telaio: 818630057592",
+      "Cilindrata: 1.298",
+      "Cavalli: 92",
+      "Esemplari: 161.832",
+      "28"
+    ]
+  },
+  {
+    "page": 29,
+    "image_count": 2,
+    "lines": [
+      "Land Rover",
+      "Defender",
+      "Immatricolazione: 06/05/2024",
+      "N° Telaio: SALEA7BN1L2004466",
+      "Cilindrata: 1.999",
+      "Cavalli: 297",
+      "29"
+    ]
+  },
+  {
+    "page": 30,
+    "image_count": 5,
+    "lines": [
+      "Mercedes-AMG",
+      "One",
+      "Immatricolazione: 2025",
+      "N° Telaio: WMXHJ6DB7PD000149",
+      "Cavalli: 1075",
+      "Esemplari: 275",
+      "30"
+    ]
+  },
+  {
+    "page": 31,
+    "image_count": 5,
+    "lines": [
+      "Mercedes-Benz",
+      "Classe G 463",
+      "Immatricolazione: 22/02/2002",
+      "N° Telaio: WDB4632481X130860",
+      "Cilindrata: 4.966",
+      "Cavalli: 297",
+      "31"
+    ]
+  },
+  {
+    "page": 32,
+    "image_count": 5,
+    "lines": [
+      "Mercedes-Benz",
+      "SLS AMGMG",
+      "Immatricolazione: 08/11/2017",
+      "N° Telaio: WMX1973771A003961",
+      "Cilindrata: 6.208",
+      "Cavalli: 571",
+      "Esemplari: 350",
+      "32"
+    ]
+  },
+  {
+    "page": 33,
+    "image_count": 2,
+    "lines": [
+      "Polaris",
+      "Ranger",
+      "33"
+    ]
+  },
+  {
+    "page": 34,
+    "image_count": 5,
+    "lines": [
+      "Pontiac",
+      "Firebird Trans Am",
+      "Immatricolazione: 21/09/2020",
+      "N° Telaio: 2W87K9L129031",
+      "Cilindrata: 6.598",
+      "Cavalli: 189",
+      "34"
+    ]
+  },
+  {
+    "page": 35,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "550 Spyder",
+      "Immatricolazione: 1956",
+      "N° Telaio: 550A0137",
+      "Cilindrata: 1.498",
+      "Cavalli: 135",
+      "Esemplari: 90",
+      "35"
+    ]
+  },
+  {
+    "page": 36,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "356 Speedster Carrera",
+      "Immatricolazione: 1956",
+      "N° Telaio: 81.096",
+      "Cilindrata: 1.498",
+      "Cavalli: 100",
+      "Esemplari: 1.900",
+      "36"
+    ]
+  },
+  {
+    "page": 37,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "356 B Roadster S-90",
+      "Immatricolazione: 1960/1961",
+      "N° Telaio: 87.726",
+      "Cilindrata: 1.582",
+      "Cavalli: 90",
+      "Esemplari: 2.149",
+      "37"
+    ]
+  },
+  {
+    "page": 38,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "356 Coupè",
+      "Immatricolazione: 21/02/1962",
+      "N° Telaio: 119160",
+      "Cilindrata: 1.582",
+      "Cavalli: 75",
+      "Esemplari: 76.303",
+      "38"
+    ]
+  },
+  {
+    "page": 39,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "911 Carrera",
+      "Immatricolazione: 1987",
+      "N° Telaio: WP0ZZZ91ZHS101088",
+      "Cilindrata: 3 .164",
+      "Cavalli: 232",
+      "Esemplari: 57.972",
+      "39"
+    ]
+  },
+  {
+    "page": 40,
+    "image_count": 5,
+    "lines": [
+      "Immatricolazione: 1989",
+      "N° Telaio: WP0ZZZ91ZKS173784",
+      "Cilindrata: 3.125",
+      "Cavalli: 218",
+      "Esemplari: 819/823",
+      "Porsche",
+      "911 Speedster Carrera",
+      "40"
+    ]
+  },
+  {
+    "page": 41,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "928 GTS",
+      "Immatricolazione: 13/04/1995",
+      "N° Telaio: WP0ZZZ92ZSS800155",
+      "Cilindrata: 5.397",
+      "Cavalli: 350",
+      "Esemplari: 2.831",
+      "41"
+    ]
+  },
+  {
+    "page": 42,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "959",
+      "Immatricolazione: 19/12/1991",
+      "N° Telaio: WP0ZZZ95ZJS900128",
+      "Cilindrata: 2.850",
+      "Cavalli: 449",
+      "Esemplari: 288",
+      "42"
+    ]
+  },
+  {
+    "page": 43,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "Carrera GT",
+      "Immatricolazione: 29/11/2005",
+      "N° Telaio: WP0ZZZ98Z6L000100",
+      "Cilindrata: 5.733",
+      "Cavalli: 612",
+      "Esemplari: 1.270",
+      "43"
+    ]
+  },
+  {
+    "page": 44,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "911 GT3 RS",
+      "Immatricolazione: 27/09/2024",
+      "N° Telaio: WP0ZZZ99XRS266629",
+      "Cilindrata: 3.996",
+      "Cavalli: 525",
+      "44"
+    ]
+  },
+  {
+    "page": 45,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "GT3 RS 4.0",
+      "Immatricolazione: 18/04/2012",
+      "N° Telaio: WP0ZZZ99ZBS7BS7B5264",
+      "Cilindrata: 3.996",
+      "Cavalli: 501",
+      "Esemplari: 600",
+      "45"
+    ]
+  },
+  {
+    "page": 46,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "918 Spyder",
+      "Immatricolazione: 13/10/2014",
+      "N° Telaio: WPOZZZ91ZFS800137",
+      "Cilindrata: 4.593 Ibrido",
+      "Cavalli: 608 termici 887 complessivi",
+      "Esemplari: 918",
+      "46"
+    ]
+  },
+  {
+    "page": 47,
+    "image_count": 5,
+    "lines": [
+      "Porsche",
+      "911 Speedster",
+      "Immatricolazione: 03/12/2019",
+      "N° Telaio: WP0ZZZ99ZKS171159",
+      "Cilindrata: 3.996",
+      "Cavalli: 510",
+      "Esemplari: 1.948",
+      "47"
+    ]
+  },
+  {
+    "page": 48,
+    "image_count": 5,
+    "lines": [
+      "Renault",
+      "5 Turbo",
+      "Immatricolazione: 28/10/1980",
+      "N° Telaio: VF1822000B0000520",
+      "Cilindrata: 1.397",
+      "Cavalli: 160",
+      "Esemplari: Serie",
+      "48"
+    ]
+  },
+  {
+    "page": 49,
+    "image_count": 4,
+    "lines": [
+      "Rolls-Royce",
+      "Ghost",
+      "Immatricolazione: 27/07/2017",
+      "N° Telaio: A0281BZ20",
+      "Cilindrata: 6.592",
+      "Cavalli: 571",
+      "Esemplari: ND",
+      "49"
+    ]
+  },
+  {
+    "page": 50,
+    "image_count": 5,
+    "lines": [
+      "Rover",
+      "3 Litre Coupèè",
+      "Immatricolazione: 1968",
+      "N° Telaio: M200432890M",
+      "Cilindrata: 3.528",
+      "Cavalli: 184",
+      "50"
+    ]
+  },
+  {
+    "page": 51,
+    "image_count": 5,
+    "lines": [
+      "SAAB",
+      "Cabriolet Turbo",
+      "Immatricolazione: 10/07/1991",
+      "N° Telaio: YS3AD75L5L7021225",
+      "Cilindrata: 1.985",
+      "Cavalli: 172",
+      "Esemplari: 48.888",
+      "51"
+    ]
+  },
+  {
+    "page": 52,
+    "image_count": 2,
+    "lines": [
+      "Toyota",
+      "Land Cruiser",
+      "Immatricolazione: 2024",
+      "N° Telaio: A112160C024",
+      "Cilindrata: 3.100",
+      "52"
+    ]
+  },
+  {
+    "page": 53,
+    "image_count": 5,
+    "lines": [
+      "Volkswagen",
+      "Maggiolino",
+      "Immatricolazione: 13/04/2017",
+      "N° Telaio: WWWZZZ16ZHM810393",
+      "Cilindrata: 1.900",
+      "Cavalli: 150",
+      "Esemplari: Serie",
+      "53"
+    ]
+  }
+]
