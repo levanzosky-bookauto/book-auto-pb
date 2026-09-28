@@ -25,9 +25,9 @@ export const USER_ROLES = {
 };
 
 export const DEFAULT_BACKGROUNDS = [
-  '/images/cars/car_1_page.jpg',
-  '/images/cars/car_2_page.jpg',
-  '/images/cars/car_3_page.jpg',
+  './images/cars/car_1_page.jpg',
+  './images/cars/car_2_page.jpg',
+  './images/cars/car_3_page.jpg',
   'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1920&q=80',
   'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80'
 ];

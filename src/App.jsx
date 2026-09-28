@@ -76,6 +76,25 @@ export default function App() {
     }
   }, [cars, loading]);
 
+  // Helper to normalize image paths for multi-environment hosting
+  const formatCarImages = (carList) => {
+    if (!Array.isArray(carList)) return carList;
+    const fixPath = (p) => {
+      if (!p || typeof p !== 'string') return p;
+      if (p.startsWith('/images/')) return '.' + p;
+      return p;
+    };
+
+    return carList.map(car => ({
+      ...car,
+      mainPhoto: fixPath(car.mainPhoto),
+      logoImg: fixPath(car.logoImg),
+      pageImage: fixPath(car.pageImage),
+      images: Array.isArray(car.images) ? car.images.map(fixPath) : [],
+      carPhotos: Array.isArray(car.carPhotos) ? car.carPhotos.map(fixPath) : []
+    }));
+  };
+
   // Load Initial Data (from localStorage or /data/cars.json)
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/cars.json`)
@@ -85,16 +104,18 @@ export default function App() {
         if (savedLocal) {
           try {
             const parsed = JSON.parse(savedLocal);
-            // Preserve user's saved state completely (photos, deletions, preview photo choices)
-            setCars(parsed);
+            const formatted = formatCarImages(parsed);
+            setCars(formatted);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
             setLoading(false);
             return;
           } catch (e) {
             console.error('Error parsing local storage:', e);
           }
         }
-        setCars(defaultCars);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(defaultCars));
+        const formattedDefault = formatCarImages(defaultCars);
+        setCars(formattedDefault);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedDefault));
         setLoading(false);
       })
       .catch(err => {

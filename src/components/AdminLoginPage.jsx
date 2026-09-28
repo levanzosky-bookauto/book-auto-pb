@@ -58,7 +58,7 @@ export default function AdminLoginPage({
     }
   };
 
-  const currentBgUrl = backgrounds[currentBgIndex] || '/images/cars/car_2_page.jpg';
+  const currentBgUrl = backgrounds[currentBgIndex] || './images/cars/car_2_page.jpg';
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in bg-slate-950">
