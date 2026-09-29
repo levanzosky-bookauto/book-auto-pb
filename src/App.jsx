@@ -15,7 +15,7 @@ import AutoEmailNotificationPopup from './components/AutoEmailNotificationPopup'
 import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkles, CheckSquare, Printer, Square, Trash2, Bell } from 'lucide-react';
 import { getLogoForBrand } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
-import { getCurrentUser, logoutUser } from './utils/auth';
+import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser } from './utils/auth';
 import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
 import { fetchCarsFromSupabase, syncCarsToSupabase } from './utils/supabase';
 
@@ -27,6 +27,11 @@ export default function App() {
   
   // Auth & User State
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
+
+  const handleLoginSuccess = (user) => {
+    setCurrentUserInStorage(user);
+    setCurrentUser(user);
+  };
 
   const handleLogout = () => {
     logoutUser();
@@ -373,7 +378,7 @@ export default function App() {
 
   // If user is not logged in, display the initial Admin Login Page with slideshow background
   if (!currentUser) {
-    return <AdminLoginPage onLoginSuccess={(user) => setCurrentUser(user)} />;
+    return <AdminLoginPage onLoginSuccess={handleLoginSuccess} />;
   }
 
   return (

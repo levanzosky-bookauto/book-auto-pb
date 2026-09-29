@@ -116,10 +116,7 @@ export function getCurrentUser() {
       console.error('Error parsing current user:', e);
     }
   }
-  // Default to Shirantha (super_admin)
-  const defaultUser = INITIAL_USERS[0];
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(defaultUser));
-  return defaultUser;
+  return null;
 }
 
 export function setCurrentUser(user) {
