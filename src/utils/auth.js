@@ -108,26 +108,31 @@ export function saveBackgroundImages(bgList) {
 const CURRENT_USER_KEY = 'book_auto_pb_current_user_v1';
 
 export function getCurrentUser() {
-  const saved = localStorage.getItem(CURRENT_USER_KEY);
+  // Clear any legacy persistent login stored in localStorage
+  localStorage.removeItem(CURRENT_USER_KEY);
+
+  const saved = sessionStorage.getItem(CURRENT_USER_KEY);
   if (saved) {
     try {
       return JSON.parse(saved);
     } catch (e) {
-      console.error('Error parsing current user:', e);
+      console.error('Error parsing current user session:', e);
     }
   }
   return null;
 }
 
 export function setCurrentUser(user) {
+  localStorage.removeItem(CURRENT_USER_KEY);
   if (!user) {
-    localStorage.removeItem(CURRENT_USER_KEY);
+    sessionStorage.removeItem(CURRENT_USER_KEY);
   } else {
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
   }
 }
 
 export function logoutUser() {
   localStorage.removeItem(CURRENT_USER_KEY);
+  sessionStorage.removeItem(CURRENT_USER_KEY);
 }
 
