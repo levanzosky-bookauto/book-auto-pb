@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Lock, 
   User, 
@@ -14,11 +14,13 @@ import {
   EyeOff
 } from 'lucide-react';
 import { authenticateUser, getBackgroundImages, USER_ROLES } from '../utils/auth';
+import BouncingCarsCanvas from './BouncingCarsCanvas';
 
 export default function AdminLoginPage({ 
   onLoginSuccess, 
   onClose 
 }) {
+  const loginCardRef = useRef(null);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -73,8 +75,12 @@ export default function AdminLoginPage({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-950/50 backdrop-blur-sm" />
       </div>
 
+      {/* Interactive 3D Bouncing Supercars Canvas (Ferrari, Lamborghini, Bugatti) */}
+      <BouncingCarsCanvas cardRef={loginCardRef} />
+
       {/* Login Card Shell */}
       <div 
+        ref={loginCardRef}
         className="relative z-10 glass-panel w-full max-w-md rounded-3xl overflow-hidden shadow-2xl border border-white/20 p-6 sm:p-8 bg-slate-900/90 text-slate-100 animate-fade-in"
         onClick={(e) => e.stopPropagation()}
       >

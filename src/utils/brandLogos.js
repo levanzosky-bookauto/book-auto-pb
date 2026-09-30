@@ -1,5 +1,8 @@
 const CUSTOM_LOGOS_STORAGE_KEY = 'book_auto_pb_custom_brand_logos_v1';
 
+// In-memory fallback cache so added brands are NEVER lost even if localStorage quota fails
+let memoryLogosCache = null;
+
 export const DEFAULT_BRAND_LOGOS = {
   'alfa romeo': './images/cars/car_2_img_4.jpeg',
   'aston martin': './images/cars/car_3_img_5.jpeg',
@@ -28,18 +31,62 @@ export const DEFAULT_BRAND_LOGOS = {
   'volkswagen': './images/cars/car_53_img_1.jpeg'
 };
 
-// Helper to get custom brand logos from localStorage
+// Automatic image compression helper to fit logos into localStorage
+export function compressLogoImage(dataUrl, maxDimension = 500, quality = 0.85) {
+  return new Promise((resolve) => {
+    if (!dataUrl || !dataUrl.startsWith('data:image')) {
+      resolve(dataUrl);
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxDimension || height > maxDimension) {
+        if (width > height) {
+          height = Math.round((height * maxDimension) / width);
+          width = maxDimension;
+        } else {
+          width = Math.round((width * maxDimension) / height);
+          height = maxDimension;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      try {
+        const compressed = canvas.toDataURL('image/jpeg', quality);
+        resolve(compressed);
+      } catch (err) {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+// Helper to get custom brand logos from localStorage & memory cache
 export function getCustomBrandLogos() {
+  if (memoryLogosCache) return { ...memoryLogosCache };
   try {
     const saved = localStorage.getItem(CUSTOM_LOGOS_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : {};
+    memoryLogosCache = saved ? JSON.parse(saved) : {};
+    return { ...memoryLogosCache };
   } catch (e) {
-    console.error('Error reading custom brand logos from localStorage:', e);
-    return {};
+    console.error('Error reading custom brand logos:', e);
+    return memoryLogosCache || {};
   }
 }
 
-// Get logo for a brand name (checks custom saved logos first, then defaults)
+// Get logo for a brand name
 export function getLogoForBrand(brandName) {
   if (!brandName) return null;
   const key = brandName.trim().toLowerCase();
@@ -52,33 +99,35 @@ export function getLogoForBrand(brandName) {
   return DEFAULT_BRAND_LOGOS[key] || null;
 }
 
-// Save or update custom brand logo in database/localStorage
+// Save or update custom brand logo
 export function saveCustomBrandLogo(brandName, logoUrl) {
   if (!brandName || !logoUrl) return;
   const key = brandName.trim().toLowerCase();
   
   const customLogos = getCustomBrandLogos();
   customLogos[key] = logoUrl;
+  memoryLogosCache = { ...customLogos };
   
   try {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
-    console.error('Error saving custom brand logo to localStorage:', e);
+    console.warn('LocalStorage save failed, keeping brand in memory:', e);
   }
 }
 
-// Remove custom logo override for a brand (resets to default)
+// Remove custom logo override for a brand
 export function resetCustomBrandLogo(brandName) {
   if (!brandName) return;
   const key = brandName.trim().toLowerCase();
   
   const customLogos = getCustomBrandLogos();
   delete customLogos[key];
+  memoryLogosCache = { ...customLogos };
   
   try {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
-    console.error('Error resetting custom brand logo in localStorage:', e);
+    console.warn('LocalStorage reset failed, updated memory:', e);
   }
 }
 
@@ -95,11 +144,12 @@ export function renameCustomBrand(oldBrandName, newBrandName) {
   if (existingLogo) {
     customLogos[newKey] = existingLogo;
   }
+  memoryLogosCache = { ...customLogos };
 
   try {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
-    console.error('Error renaming custom brand in localStorage:', e);
+    console.warn('LocalStorage rename failed:', e);
   }
 }
 
@@ -110,10 +160,11 @@ export function deleteCustomBrand(brandName) {
 
   const customLogos = getCustomBrandLogos();
   delete customLogos[key];
+  memoryLogosCache = { ...customLogos };
 
   try {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
-    console.error('Error deleting custom brand in localStorage:', e);
+    console.warn('LocalStorage delete failed:', e);
   }
 }

@@ -1345,6 +1345,7 @@ export default function AddEditCarModal({
               updatedImages[cropperTarget.index] = croppedUrl;
               setFormData(prev => ({ ...prev, images: updatedImages }));
             }
+            setCropperTarget(null);
           }}
           onClose={() => setCropperTarget(null)}
         />

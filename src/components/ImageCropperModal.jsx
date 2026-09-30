@@ -55,28 +55,47 @@ export default function ImageCropperModal({
     setOffset({ x: 0, y: 0 });
   };
 
-  // Load target image & auto fit
+  // Load target image & auto fit with CORS fallback logic
   useEffect(() => {
     if (!imageSrc) return;
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      imgRef.current = img;
+    let isCancelled = false;
+    setImgLoaded(false);
+
+    const initImageState = (loadedImg) => {
+      if (isCancelled) return;
+      imgRef.current = loadedImg;
       setImgLoaded(true);
       setOffset({ x: 0, y: 0 });
       setRotation(0);
       
-      // Calculate fit zoom immediately on load
       const isSquareLogo = selectedAspect === 1;
-      const scaleX = (cropBox.width * (isSquareLogo ? 0.92 : 1)) / img.width;
-      const scaleY = (cropBox.height * (isSquareLogo ? 0.92 : 1)) / img.height;
+      const scaleX = (cropBox.width * (isSquareLogo ? 0.92 : 1)) / (loadedImg.width || 500);
+      const scaleY = (cropBox.height * (isSquareLogo ? 0.92 : 1)) / (loadedImg.height || 500);
       const initialZoom = Math.min(scaleX, scaleY);
 
       setZoom(Math.max(0.05, Math.min(initialZoom, 4)));
     };
-    img.src = imageSrc;
-  }, [imageSrc, selectedAspect]);
 
+    const img = new Image();
+    if (typeof imageSrc === 'string' && (imageSrc.startsWith('http://') || imageSrc.startsWith('https://'))) {
+      img.crossOrigin = 'anonymous';
+    }
+    img.onload = () => initImageState(img);
+    img.onerror = () => {
+      // Fallback load without crossOrigin if CORS blocks
+      const fallbackImg = new Image();
+      fallbackImg.onload = () => initImageState(fallbackImg);
+      fallbackImg.onerror = () => {
+        console.error("Failed to load image for cropper:", imageSrc);
+      };
+      fallbackImg.src = imageSrc;
+    };
+    img.src = imageSrc;
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [imageSrc, selectedAspect]);
   // Render canvas preview
   useEffect(() => {
     if (!imgLoaded || !canvasRef.current || !imgRef.current) return;
@@ -167,49 +186,74 @@ export default function ImageCropperModal({
     handleFitToCropBox();
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   // Process & Export Cropped Canvas
   const handleSave = () => {
-    if (!imgRef.current || !canvasRef.current) return;
+    if (isSaving) return;
+    setIsSaving(true);
 
-    const img = imgRef.current;
+    try {
+      const img = imgRef.current;
+      if (!img || !canvasRef.current) {
+        console.warn("Image or canvas ref not ready, passing imageSrc directly");
+        if (onCropSave) onCropSave(imageSrc);
+        if (onClose) onClose();
+        setIsSaving(false);
+        return;
+      }
 
-    // High-resolution export canvas dimensions (exact 8.5cm x 6.5cm or 6cm x 6cm aspect ratio)
-    const outWidth = selectedAspect === 1 ? 720 : 1020;
-    const outHeight = Math.round(outWidth / selectedAspect);
+      // High-resolution export canvas dimensions (exact 8.5cm x 6.5cm or 6cm x 6cm aspect ratio)
+      const outWidth = selectedAspect === 1 ? 720 : 1020;
+      const outHeight = Math.round(outWidth / selectedAspect);
 
-    const exportCanvas = document.createElement('canvas');
-    exportCanvas.width = outWidth;
-    exportCanvas.height = outHeight;
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = outWidth;
+      exportCanvas.height = outHeight;
 
-    const ctx = exportCanvas.getContext('2d');
+      const ctx = exportCanvas.getContext('2d');
 
-    // Fill white background for transparent images
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, outWidth, outHeight);
+      // Fill white background for transparent images
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, outWidth, outHeight);
 
-    // Compute scale ratio from crop box to export canvas
-    const scaleToExport = outWidth / cropBox.width;
+      // Compute scale ratio from crop box to export canvas
+      const scaleToExport = outWidth / cropBox.width;
 
-    ctx.save();
-    // Center of export canvas
-    ctx.translate(outWidth / 2, outHeight / 2);
-    
-    // Apply pan offset relative to crop box center
-    ctx.translate(offset.x * scaleToExport, offset.y * scaleToExport);
-    
-    // Apply rotation
-    ctx.rotate((rotation * Math.PI) / 180);
-    
-    // Apply zoom & scale
-    ctx.scale(zoom * scaleToExport, zoom * scaleToExport);
+      ctx.save();
+      // Center of export canvas
+      ctx.translate(outWidth / 2, outHeight / 2);
+      
+      // Apply pan offset relative to crop box center
+      ctx.translate(offset.x * scaleToExport, offset.y * scaleToExport);
+      
+      // Apply rotation
+      ctx.rotate((rotation * Math.PI) / 180);
+      
+      // Apply zoom & scale
+      ctx.scale(zoom * scaleToExport, zoom * scaleToExport);
 
-    // Draw centered image
-    ctx.drawImage(img, -img.width / 2, -img.height / 2);
-    ctx.restore();
+      // Draw centered image
+      ctx.drawImage(img, -img.width / 2, -img.height / 2);
+      ctx.restore();
 
-    const croppedDataUrl = exportCanvas.toDataURL('image/jpeg', 0.94);
-    onCropSave(croppedDataUrl);
-    onClose();
+      let finalCroppedUrl = null;
+      try {
+        finalCroppedUrl = exportCanvas.toDataURL('image/jpeg', 0.94);
+      } catch (exportErr) {
+        console.warn("Canvas export toDataURL failed (CORS restriction), falling back to original imageSrc:", exportErr);
+        finalCroppedUrl = imageSrc;
+      }
+
+      if (onCropSave) onCropSave(finalCroppedUrl || imageSrc);
+      if (onClose) onClose();
+    } catch (err) {
+      console.error("Critical error in handleSave:", err);
+      if (onCropSave) onCropSave(imageSrc);
+      if (onClose) onClose();
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -464,10 +508,20 @@ export default function ImageCropperModal({
             <button
               type="button"
               onClick={handleSave}
-              className="flex items-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer"
+              disabled={isSaving}
+              className="flex items-center space-x-2 px-6 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all active:scale-95 cursor-pointer disabled:opacity-50"
             >
-              <Check className="w-4 h-4" />
-              <span>Salva Foto Ritagliata</span>
+              {isSaving ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Salvataggio...</span>
+                </>
+              ) : (
+                <>
+                  <Check className="w-4 h-4" />
+                  <span>Salva Foto Ritagliata</span>
+                </>
+              )}
             </button>
           </div>
 

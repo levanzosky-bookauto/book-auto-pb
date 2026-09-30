@@ -152,34 +152,71 @@ export default function CarDetailModal({
       >
         
         {/* Modal Top Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-slate-900/60 shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-white/10 bg-slate-900/80 shrink-0">
           <div className="flex items-center space-x-3">
-            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
               {car.brand}
+            </span>
+            <span className="text-sm font-bold text-white font-heading truncate max-w-[200px] sm:max-w-xs">
+              {car.model}
             </span>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Stampa PDF Button */}
+            <button
+              onClick={handlePrint}
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all cursor-pointer"
+              title="Stampa PDF"
+            >
+              <Printer className="w-3.5 h-3.5 text-amber-400" />
+              <span>Stampa PDF</span>
+            </button>
+
+            {/* Scarica PDF Button */}
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-xl text-xs font-semibold border border-amber-500/30 transition-all disabled:opacity-50 cursor-pointer"
+              title="Scarica PDF"
+            >
+              {isDownloadingPdf ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                  <span>PDF...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5 text-amber-400" />
+                  <span>Scarica PDF</span>
+                </>
+              )}
+            </button>
+
+            {/* Modifica Dati Button */}
+            <button
+              onClick={() => onEditCar(car)}
+              className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer active:scale-95"
+              title="Modifica Dati Vettura"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Modifica Dati</span>
+            </button>
+
+            {/* Preferito */}
             <button
               onClick={() => onToggleFavorite(car.id)}
-              className={`p-2 rounded-xl border transition-all ${
+              className={`p-1.5 rounded-xl border transition-all ${
                 car.isFavorite
                   ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
                   : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
               }`}
               title="Preferito"
             >
-              <Heart className={`w-5 h-5 ${car.isFavorite ? 'fill-rose-400' : ''}`} />
+              <Heart className={`w-4 h-4 ${car.isFavorite ? 'fill-rose-400' : ''}`} />
             </button>
 
-            <button
-              onClick={() => onEditCar(car)}
-              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl transition-all"
-              title="Modifica"
-            >
-              <Edit3 className="w-5 h-5" />
-            </button>
-
+            {/* Elimina */}
             <button
               onClick={() => {
                 if (window.confirm(`Sei sicuro di voler eliminare ${car.brand} ${car.model}?`)) {
@@ -187,17 +224,19 @@ export default function CarDetailModal({
                   onClose();
                 }
               }}
-              className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl transition-all"
+              className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl transition-all"
               title="Elimina"
             >
-              <Trash2 className="w-5 h-5" />
+              <Trash2 className="w-4 h-4" />
             </button>
 
+            {/* Chiudi */}
             <button
               onClick={onClose}
-              className="p-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all ml-2"
+              className="p-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all ml-1"
+              title="Chiudi"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -535,44 +574,7 @@ export default function CarDetailModal({
 
         </div>
 
-        {/* Modal Bottom Footer Actions */}
-        <div className="p-4 px-6 bg-slate-900/80 border-t border-white/10 flex items-center justify-between shrink-0">
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={handlePrint}
-              className="flex items-center space-x-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 transition-all"
-            >
-              <Printer className="w-4 h-4 text-amber-400" />
-              <span>Stampa PDF</span>
-            </button>
 
-            <button
-              onClick={handleDownloadPdf}
-              disabled={isDownloadingPdf}
-              className="flex items-center space-x-2 px-4 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-xl text-xs font-semibold border border-amber-500/30 transition-all disabled:opacity-50"
-            >
-              {isDownloadingPdf ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
-                  <span>Generazione PDF...</span>
-                </>
-              ) : (
-                <>
-                  <Download className="w-4 h-4 text-amber-400" />
-                  <span>Scarica PDF</span>
-                </>
-              )}
-            </button>
-          </div>
-
-          <button
-            onClick={() => onEditCar(car)}
-            className="flex items-center space-x-2 px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg shadow-amber-500/20 transition-all"
-          >
-            <Edit3 className="w-4 h-4" />
-            <span>Modifica Dati</span>
-          </button>
-        </div>
 
       </div>
 
@@ -589,6 +591,7 @@ export default function CarDetailModal({
             if (onUpdateCarPhotos) {
               onUpdateCarPhotos(car.id, updatedImages);
             }
+            setCropperTarget(null);
           }}
           onClose={() => setCropperTarget(null)}
         />

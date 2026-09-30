@@ -20,7 +20,8 @@ import {
   resetCustomBrandLogo, 
   getLogoForBrand,
   renameCustomBrand,
-  deleteCustomBrand
+  deleteCustomBrand,
+  compressLogoImage
 } from '../utils/brandLogos';
 import ImageCropperModal from './ImageCropperModal';
 
@@ -64,6 +65,15 @@ export default function BrandLogosModal({
     b.toLowerCase().includes(searchQuery.toLowerCase().trim())
   );
 
+  const triggerFeedback = (brandKey) => {
+    if (!brandKey) return;
+    const key = brandKey.toUpperCase();
+    setSavedFeedback(prev => ({ ...prev, [key]: true }));
+    setTimeout(() => {
+      setSavedFeedback(prev => ({ ...prev, [key]: false }));
+    }, 2500);
+  };
+
   const handleBrandInputChange = (brand, value) => {
     setBrandInputs(prev => ({ ...prev, [brand]: value }));
   };
@@ -73,11 +83,12 @@ export default function BrandLogosModal({
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
+      reader.onload = async (uploadEvent) => {
         const logoData = uploadEvent.target.result;
-        setBrandInputs(prev => ({ ...prev, [brand]: logoData }));
+        const compressed = await compressLogoImage(logoData);
+        setBrandInputs(prev => ({ ...prev, [brand]: compressed }));
         // Save immediately
-        saveCustomBrandLogo(brand, logoData);
+        saveCustomBrandLogo(brand, compressed);
         setCustomLogos(getCustomBrandLogos());
         triggerFeedback(brand);
         if (onLogosUpdated) onLogosUpdated();
@@ -91,17 +102,19 @@ export default function BrandLogosModal({
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        setNewBrandLogo(uploadEvent.target.result);
+      reader.onload = async (uploadEvent) => {
+        const compressed = await compressLogoImage(uploadEvent.target.result);
+        setNewBrandLogo(compressed);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveBrandLogo = (brand) => {
+  const handleSaveBrandLogo = async (brand) => {
     const logoUrl = brandInputs[brand] || getLogoForBrand(brand);
     if (logoUrl) {
-      saveCustomBrandLogo(brand, logoUrl);
+      const compressed = await compressLogoImage(logoUrl);
+      saveCustomBrandLogo(brand, compressed);
       setCustomLogos(getCustomBrandLogos());
       triggerFeedback(brand);
       if (onLogosUpdated) onLogosUpdated();
@@ -116,9 +129,10 @@ export default function BrandLogosModal({
     if (onLogosUpdated) onLogosUpdated();
   };
 
-  const handleAddNewBrand = (e) => {
+  const handleAddNewBrand = async (e) => {
     e.preventDefault();
-    if (!newBrandName.trim()) {
+    const cleanName = newBrandName.trim();
+    if (!cleanName) {
       alert('Inserisci il nome del marchio');
       return;
     }
@@ -127,9 +141,11 @@ export default function BrandLogosModal({
       return;
     }
 
-    saveCustomBrandLogo(newBrandName.trim(), newBrandLogo.trim());
+    const compressedLogo = await compressLogoImage(newBrandLogo.trim());
+
+    saveCustomBrandLogo(cleanName, compressedLogo);
     setCustomLogos(getCustomBrandLogos());
-    triggerFeedback(newBrandName.trim().toUpperCase());
+    triggerFeedback(cleanName.toUpperCase());
     
     setNewBrandName('');
     setNewBrandLogo('');
@@ -405,13 +421,18 @@ export default function BrandLogosModal({
                       <button
                         type="button"
                         onClick={() => {
-                          if (currentLogo) {
-                            setCropperTarget({ brandName, imageSrc: currentLogo });
+                          const targetImg = (brandInputs[brandName] !== undefined && brandInputs[brandName] !== '')
+                            ? brandInputs[brandName]
+                            : (customLogos[brandName.toLowerCase()] || getLogoForBrand(brandName));
+                          
+                          if (targetImg) {
+                            setCropperTarget({ brandName, imageSrc: targetImg });
+                          } else {
+                            alert(`Nessun logo disponibile per ${brandName}. Carica prima una foto!`);
                           }
                         }}
-                        disabled={!currentLogo}
-                        className="flex items-center space-x-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 disabled:opacity-30 rounded-xl border border-slate-700 text-xs font-semibold transition-all"
-                        title="Ritaglia Logo (1:1)"
+                        className="flex items-center space-x-1 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 hover:border-amber-500/50 hover:text-amber-400 text-slate-300 rounded-xl border border-slate-700 text-xs font-semibold transition-all cursor-pointer active:scale-95"
+                        title="Ritaglia & Modifica Foto Logo (1:1)"
                       >
                         <Crop className="w-3.5 h-3.5 text-amber-400" />
                       </button>
@@ -475,11 +496,19 @@ export default function BrandLogosModal({
           imageSrc={cropperTarget.imageSrc}
           aspectRatio={1}
           title={`Ritaglia & Modifica Logo - ${cropperTarget.brandName}`}
-          onCropSave={(croppedUrl) => {
-            saveCustomBrandLogo(cropperTarget.brandName, croppedUrl);
-            setBrandInputs(prev => ({ ...prev, [cropperTarget.brandName]: croppedUrl }));
-            setCustomLogos(getCustomBrandLogos());
-            if (onLogosUpdated) onLogosUpdated();
+          onCropSave={async (croppedUrl) => {
+            try {
+              const compressed = await compressLogoImage(croppedUrl);
+              saveCustomBrandLogo(cropperTarget.brandName, compressed);
+              setBrandInputs(prev => ({ ...prev, [cropperTarget.brandName]: compressed }));
+              setCustomLogos(getCustomBrandLogos());
+              triggerFeedback(cropperTarget.brandName);
+              if (onLogosUpdated) onLogosUpdated();
+            } catch (err) {
+              console.error("Error in BrandLogosModal onCropSave:", err);
+            } finally {
+              setCropperTarget(null);
+            }
           }}
           onClose={() => setCropperTarget(null)}
         />

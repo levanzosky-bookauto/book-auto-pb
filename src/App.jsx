@@ -13,7 +13,7 @@ import AdminModal from './components/AdminModal';
 import AdminLoginPage from './components/AdminLoginPage';
 import AutoEmailNotificationPopup from './components/AutoEmailNotificationPopup';
 import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkles, CheckSquare, Printer, Square, Trash2, Bell } from 'lucide-react';
-import { getLogoForBrand } from './utils/brandLogos';
+import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser } from './utils/auth';
 import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
@@ -101,10 +101,27 @@ export default function App() {
     }));
   };
 
-  // Load Initial Data (from Supabase, localStorage, or /data/cars.json)
+  // Load Initial Data (Preserve local edits first, fallback to Supabase or /data/cars.json)
   useEffect(() => {
     async function loadInitialCars() {
-      // 1. Try Supabase cloud database first
+      // 1. Check local storage first so user edits are NEVER reset or overwritten
+      const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (savedLocal) {
+        try {
+          const parsed = JSON.parse(savedLocal);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const formatted = formatCarImages(parsed);
+            setCars(formatted);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          console.error('Error parsing local storage:', e);
+        }
+      }
+
+      // 2. Try Supabase if local storage is empty
       const supabaseCars = await fetchCarsFromSupabase();
       if (supabaseCars && supabaseCars.length > 0) {
         const formatted = formatCarImages(supabaseCars);
@@ -114,28 +131,13 @@ export default function App() {
         return;
       }
 
-      // 2. Fallback to localStorage or cars.json
+      // 3. Fallback to default cars.json
       try {
         const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json`);
         const defaultCars = await res.json();
-        const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (savedLocal) {
-          try {
-            const parsed = JSON.parse(savedLocal);
-            const formatted = formatCarImages(parsed);
-            setCars(formatted);
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
-            syncCarsToSupabase(formatted);
-            setLoading(false);
-            return;
-          } catch (e) {
-            console.error('Error parsing local storage:', e);
-          }
-        }
         const formattedDefault = formatCarImages(defaultCars);
         setCars(formattedDefault);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedDefault));
-        syncCarsToSupabase(formattedDefault);
         setLoading(false);
       } catch (err) {
         console.error('Error loading default cars.json:', err);
@@ -297,7 +299,12 @@ export default function App() {
 
   // Extract list of all unique brands sorted alphabetically
   const brands = useMemo(() => {
-    const set = new Set(cars.map(c => c.brand).filter(Boolean));
+    const customLogos = getCustomBrandLogos();
+    const set = new Set([
+      ...cars.map(c => c.brand).filter(Boolean),
+      ...Object.keys(DEFAULT_BRAND_LOGOS).map(b => b.toUpperCase()),
+      ...Object.keys(customLogos).map(b => b.toUpperCase())
+    ]);
     return Array.from(set).sort();
   }, [cars]);
 
