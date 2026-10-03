@@ -265,6 +265,23 @@ export default function CarDetailModal({
                   className="w-full h-full object-contain"
                 />
 
+                {/* Floating Crop Button on Main Image */}
+                {images[selectedImgIndex] && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setCropperTarget({ index: selectedImgIndex, imageSrc: images[selectedImgIndex] });
+                    }}
+                    className="absolute top-3 right-3 px-3.5 py-2 bg-slate-900/85 hover:bg-amber-500 text-amber-300 hover:text-slate-950 backdrop-blur-md rounded-xl text-xs font-extrabold border border-amber-500/30 transition-all flex items-center space-x-1.5 shadow-lg z-10 active:scale-95 cursor-pointer"
+                    title="Ritaglia & Modifica questa foto (8,5 x 6,5 cm per stampa)"
+                  >
+                    <Crop className="w-4 h-4" />
+                    <span>Ritaglia Foto</span>
+                  </button>
+                )}
+
                 {images.length > 1 && (
                   <>
                     <button
@@ -283,8 +300,8 @@ export default function CarDetailModal({
                 )}
               </div>
 
-              {/* Thumbnails Bar with Large, Easy-to-Click Reordering Controls */}
-              {images.length > 1 && (
+              {/* Thumbnails Bar & Photo Tools (Renders even for 1 single photo) */}
+              {images.length > 0 && (
                 <div className="space-y-3 pt-2 border-t border-slate-800/80">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-slate-300">

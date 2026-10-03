@@ -158,26 +158,7 @@ export default function BackupModal({
               className="hidden"
             />
 
-            {/* Reset to Default */}
-            <button
-              onClick={() => {
-                if (window.confirm("Attenzione: questo ripristinerà il catalogo originale dal PDF cancellando eventuali modifiche locali. Continuare?")) {
-                  onResetData();
-                  onClose();
-                }
-              }}
-              className="w-full flex items-center justify-between p-4 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 rounded-2xl transition-all group"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2.5 bg-rose-500/20 text-rose-400 rounded-xl border border-rose-500/30">
-                  <RotateCcw className="w-5 h-5" />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-bold text-rose-300">Ripristina Catalogo PDF Originale</p>
-                  <p className="text-xs text-rose-400/80">Ricarica i dati ufficiali estratti dal PDF</p>
-                </div>
-              </div>
-            </button>
+
 
           </div>
 
