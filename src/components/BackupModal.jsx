@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
-import { X, Download, Upload, RotateCcw, FileSpreadsheet, Check, Database } from 'lucide-react';
+import React, { useRef, useState } from 'react';
+import { X, Download, Upload, FileSpreadsheet, Check, Database, UploadCloud, Loader2 } from 'lucide-react';
+import { syncCarsToSupabase } from '../utils/supabase';
 
 export default function BackupModal({ 
   cars, 
@@ -8,6 +9,28 @@ export default function BackupModal({
   onResetData 
 }) {
   const fileInputRef = useRef(null);
+  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
+  const [cloudSynced, setCloudSynced] = useState(false);
+
+  // Sync current local cars dataset straight to Supabase Cloud
+  const handleSyncCloud = async () => {
+    setIsSyncingCloud(true);
+    setCloudSynced(false);
+    try {
+      const success = await syncCarsToSupabase(cars);
+      if (success) {
+        setCloudSynced(true);
+        setTimeout(() => setCloudSynced(false), 5000);
+        alert(`✅ Sincronizzate con successo ${cars.length} vetture e foto sul Cloud! Ora il sito online ha tutte le tue modifiche locali.`);
+      } else {
+        alert('⚠️ Impossibile sincronizzare sul Cloud. Verifica la connessione internet.');
+      }
+    } catch (e) {
+      alert('Errore durante la sincronizzazione Cloud: ' + e.message);
+    } finally {
+      setIsSyncingCloud(false);
+    }
+  };
 
   // Export JSON backup
   const handleExportJSON = () => {
@@ -103,6 +126,33 @@ export default function BackupModal({
 
           <div className="space-y-3 pt-2">
             
+            {/* Sync Cloud Online Button */}
+            <button
+              onClick={handleSyncCloud}
+              disabled={isSyncingCloud}
+              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-slate-950/30 text-slate-950 rounded-xl border border-slate-950/20">
+                  {isSyncingCloud ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : cloudSynced ? (
+                    <Check className="w-5 h-5 text-emerald-950" />
+                  ) : (
+                    <UploadCloud className="w-5 h-5" />
+                  )}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-extrabold text-slate-950">
+                    {isSyncingCloud ? 'Invio Modifiche in Corso...' : cloudSynced ? 'Sito Online Sincronizzato!' : 'Pubblica & Sincronizza Modifiche Locali Online'}
+                  </p>
+                  <p className="text-xs text-slate-900/80 font-semibold">
+                    Invia tutte le foto, vetture e modifiche di questo computer al Cloud per il sito online
+                  </p>
+                </div>
+              </div>
+            </button>
+
             {/* Export JSON */}
             <button
               onClick={handleExportJSON}
