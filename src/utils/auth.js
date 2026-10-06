@@ -25,29 +25,29 @@ export const USER_ROLES = {
 };
 
 export const DEFAULT_BACKGROUNDS = [
-  './images/cars/car_1_page.jpg',
-  './images/cars/car_2_page.jpg',
-  './images/cars/car_3_page.jpg',
-  'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1920&q=80',
-  'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80'
+  "./images/cars/car_1_page.jpg",
+  "./images/cars/car_2_page.jpg",
+  "./images/cars/car_3_page.jpg",
+  "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1920&q=80",
+  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80"
 ];
 
 export const INITIAL_USERS = [
   {
-    id: 'user_shirantha',
-    username: 'shirantha',
-    password: 'Maduka0822',
-    name: 'Shirantha',
-    role: 'super_admin',
-    createdAt: '2026-10-03T20:03:13.022Z'
+    "id": "user_shirantha",
+    "username": "shirantha",
+    "password": "Maduka0822",
+    "name": "Shirantha",
+    "role": "super_admin",
+    "createdAt": "2026-10-03T20:03:13.022Z"
   },
   {
-    id: 'user_1791310116076',
-    username: 'luciano',
-    password: '1234',
-    name: 'Luciano',
-    role: 'editor',
-    createdAt: '2026-10-06T18:08:36.076Z'
+    "id": "user_1791310116076",
+    "username": "luciano",
+    "password": "1234",
+    "name": "Luciano",
+    "role": "editor",
+    "createdAt": "2026-10-06T18:08:36.076Z"
   }
 ];
 
