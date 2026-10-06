@@ -1,6 +1,6 @@
 // Authentication & Multi-User Management system with 3 Role Categories
 
-const USERS_STORAGE_KEY = 'book_auto_pb_users_v1';
+const USERS_STORAGE_KEY = 'book_auto_pb_users_v2';
 const BACKGROUNDS_STORAGE_KEY = 'book_auto_pb_bg_images_v1';
 
 export const USER_ROLES = {
@@ -36,26 +36,18 @@ export const INITIAL_USERS = [
   {
     id: 'user_shirantha',
     username: 'shirantha',
-    password: '1234',
+    password: 'Maduka0822',
     name: 'Shirantha',
     role: 'super_admin',
-    createdAt: new Date().toISOString()
+    createdAt: '2026-10-03T20:03:13.022Z'
   },
   {
-    id: 'user_editor',
-    username: 'gestore',
+    id: 'user_1791310116076',
+    username: 'luciano',
     password: '1234',
-    name: 'Gestore Garage',
+    name: 'Luciano',
     role: 'editor',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'user_viewer',
-    username: 'cliente',
-    password: '1234',
-    name: 'Cliente VIP',
-    role: 'viewer',
-    createdAt: new Date().toISOString()
+    createdAt: '2026-10-06T18:08:36.076Z'
   }
 ];
 
