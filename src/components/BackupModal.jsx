@@ -32,41 +32,57 @@ export default function BackupModal({
     }
   };
 
-  // Export JSON backup
+  // Export JSON backup (Smooth Blob Download)
   const handleExportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cars, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `book_auto_pb_backup_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    try {
+      const jsonStr = JSON.stringify(cars, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `book_auto_pb_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting JSON:', err);
+      alert('Errore durante l\'esportazione del backup JSON: ' + err.message);
+    }
   };
 
-  // Export CSV
+  // Export CSV (Excel compatible with UTF-8 BOM & Semicolon separator)
   const handleExportCSV = () => {
-    const headers = ["ID", "Page", "Brand", "Model", "Immatricolazione", "Chassis VIN", "Cilindrata", "Horsepower", "Esemplari", "Notes"];
-    const rows = cars.map(c => [
-      `"${c.id}"`,
-      `"${c.page}"`,
-      `"${c.brand.replace(/"/g, '""')}"`,
-      `"${c.model.replace(/"/g, '""')}"`,
-      `"${(c.immatricolazione || '').replace(/"/g, '""')}"`,
-      `"${(c.chassis || '').replace(/"/g, '""')}"`,
-      `"${(c.cilindrata || '').replace(/"/g, '""')}"`,
-      `"${(c.horsepower || '').replace(/"/g, '""')}"`,
-      `"${(c.esemplari || '').replace(/"/g, '""')}"`,
-      `"${(c.notes || '').replace(/"/g, '""')}"`
-    ]);
+    try {
+      const headers = ["ID", "Page", "Brand", "Model", "Immatricolazione", "Chassis VIN", "Cilindrata", "Horsepower", "Esemplari", "Notes", "Ubicazione"];
+      const rows = cars.map(c => [
+        `"${c.id}"`,
+        `"${c.page || 0}"`,
+        `"${(c.brand || '').replace(/"/g, '""')}"`,
+        `"${(c.model || '').replace(/"/g, '""')}"`,
+        `"${(c.immatricolazione || '').replace(/"/g, '""')}"`,
+        `"${(c.chassis || '').replace(/"/g, '""')}"`,
+        `"${(c.cilindrata || '').replace(/"/g, '""')}"`,
+        `"${(c.horsepower || '').replace(/"/g, '""')}"`,
+        `"${(c.esemplari || '').replace(/"/g, '""')}"`,
+        `"${(c.notes || '').replace(/"/g, '""')}"`,
+        `"${(c.location || '').replace(/"/g, '""')}"`
+      ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `book_auto_pb_export_${new Date().toISOString().slice(0,10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+      const csvString = "\uFEFF" + [headers.join(";"), ...rows.map(e => e.join(";"))].join("\n");
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `book_auto_pb_export_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error exporting CSV:', err);
+      alert('Errore durante l\'esportazione CSV: ' + err.message);
+    }
   };
 
   // Import JSON file
@@ -79,10 +95,10 @@ export default function BackupModal({
           const parsed = JSON.parse(event.target.result);
           if (Array.isArray(parsed)) {
             onImportData(parsed);
-            alert(`Ripristinate con successo ${parsed.length} vetture!`);
+            alert(`✅ Ripristinate con successo ${parsed.length} vetture dal file di backup!`);
             onClose();
           } else {
-            alert('Il file di backup selezionato non è valido.');
+            alert('⚠️ Il file di backup selezionato non è valido.');
           }
         } catch (err) {
           alert('Errore nella lettura del file JSON: ' + err.message);
@@ -94,7 +110,7 @@ export default function BackupModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col"
+        className="glass-panel w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         
