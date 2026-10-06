@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
-import { X, Download, Upload, FileSpreadsheet, Check, Database, UploadCloud, Loader2 } from 'lucide-react';
-import { syncCarsToSupabase } from '../utils/supabase';
+import React, { useRef } from 'react';
+import { X, Download, Upload, FileSpreadsheet, Database } from 'lucide-react';
+import { getUsers, saveUsers, getBackgroundImages, saveBackgroundImages } from '../utils/auth';
+import { getCustomBrandLogos } from '../utils/brandLogos';
 
 export default function BackupModal({ 
   cars, 
@@ -9,33 +10,19 @@ export default function BackupModal({
   onResetData 
 }) {
   const fileInputRef = useRef(null);
-  const [isSyncingCloud, setIsSyncingCloud] = useState(false);
-  const [cloudSynced, setCloudSynced] = useState(false);
 
-  // Sync current local cars dataset straight to Supabase Cloud
-  const handleSyncCloud = async () => {
-    setIsSyncingCloud(true);
-    setCloudSynced(false);
-    try {
-      const success = await syncCarsToSupabase(cars);
-      if (success) {
-        setCloudSynced(true);
-        setTimeout(() => setCloudSynced(false), 5000);
-        alert(`✅ Sincronizzate con successo ${cars.length} vetture e foto sul Cloud! Ora il sito online ha tutte le tue modifiche locali.`);
-      } else {
-        alert('⚠️ Impossibile sincronizzare sul Cloud. Verifica la connessione internet.');
-      }
-    } catch (e) {
-      alert('Errore durante la sincronizzazione Cloud: ' + e.message);
-    } finally {
-      setIsSyncingCloud(false);
-    }
-  };
-
-  // Export JSON backup (Smooth Blob Download)
+  // Export JSON backup (Full site payload: cars, users, backgrounds, custom logos)
   const handleExportJSON = () => {
     try {
-      const jsonStr = JSON.stringify(cars, null, 2);
+      const backupPayload = {
+        version: '1.0',
+        exportDate: new Date().toISOString(),
+        cars: cars,
+        users: getUsers(),
+        backgrounds: getBackgroundImages(),
+        customLogos: getCustomBrandLogos()
+      };
+      const jsonStr = JSON.stringify(backupPayload, null, 2);
       const blob = new Blob([jsonStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -85,7 +72,7 @@ export default function BackupModal({
     }
   };
 
-  // Import JSON file
+  // Import JSON file (handles both full backup objects and legacy raw car arrays)
   const handleFileChange = (e) => {
     const fileReader = new FileReader();
     if (e.target.files && e.target.files[0]) {
@@ -97,6 +84,20 @@ export default function BackupModal({
             onImportData(parsed);
             alert(`✅ Ripristinate con successo ${parsed.length} vetture dal file di backup!`);
             onClose();
+          } else if (parsed && typeof parsed === 'object' && Array.isArray(parsed.cars)) {
+            onImportData(parsed.cars);
+            if (Array.isArray(parsed.users) && parsed.users.length > 0) {
+              saveUsers(parsed.users);
+            }
+            if (Array.isArray(parsed.backgrounds) && parsed.backgrounds.length > 0) {
+              saveBackgroundImages(parsed.backgrounds);
+            }
+            if (parsed.customLogos && typeof parsed.customLogos === 'object') {
+              localStorage.setItem('book_auto_pb_custom_brand_logos_v1', JSON.stringify(parsed.customLogos));
+            }
+            alert(`✅ Ripristino completo eseguito con successo! (${parsed.cars.length} vetture, utenti ed impostazioni ripristinati)`);
+            onClose();
+            window.location.reload();
           } else {
             alert('⚠️ Il file di backup selezionato non è valido.');
           }
@@ -137,42 +138,15 @@ export default function BackupModal({
         <div className="p-6 space-y-4">
           
           <p className="text-xs text-slate-300">
-            Esporta ed importa l'intero database delle vetture per salvare le modifiche o trasferirle tra dispositivi.
+            Esporta ed importa l'intero database delle vetture per salvare le modifiche sul computer o trasferirle tra dispositivi.
           </p>
 
           <div className="space-y-3 pt-2">
-            
-            {/* Sync Cloud Online Button */}
-            <button
-              onClick={handleSyncCloud}
-              disabled={isSyncingCloud}
-              className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 disabled:opacity-50 cursor-pointer"
-            >
-              <div className="flex items-center space-x-3">
-                <div className="p-2.5 bg-slate-950/30 text-slate-950 rounded-xl border border-slate-950/20">
-                  {isSyncingCloud ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : cloudSynced ? (
-                    <Check className="w-5 h-5 text-emerald-950" />
-                  ) : (
-                    <UploadCloud className="w-5 h-5" />
-                  )}
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-extrabold text-slate-950">
-                    {isSyncingCloud ? 'Invio Modifiche in Corso...' : cloudSynced ? 'Sito Online Sincronizzato!' : 'Pubblica & Sincronizza Modifiche Locali Online'}
-                  </p>
-                  <p className="text-xs text-slate-900/80 font-semibold">
-                    Invia tutte le foto, vetture e modifiche di questo computer al Cloud per il sito online
-                  </p>
-                </div>
-              </div>
-            </button>
 
             {/* Export JSON */}
             <button
               onClick={handleExportJSON}
-              className="w-full flex items-center justify-between p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-2xl transition-all group"
+              className="w-full flex items-center justify-between p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-2xl transition-all group cursor-pointer"
             >
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 group-hover:scale-110 transition-transform">
@@ -180,7 +154,7 @@ export default function BackupModal({
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-bold text-white">Esporta Backup Completo (JSON)</p>
-                  <p className="text-xs text-slate-400">Scarica tutte le vetture, foto e modifiche in un unico file</p>
+                  <p className="text-xs text-slate-400">Scarica tutte le vetture, foto, utenti e impostazioni in un unico file</p>
                 </div>
               </div>
             </button>
@@ -188,7 +162,7 @@ export default function BackupModal({
             {/* Export CSV */}
             <button
               onClick={handleExportCSV}
-              className="w-full flex items-center justify-between p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-2xl transition-all group"
+              className="w-full flex items-center justify-between p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-blue-500/50 rounded-2xl transition-all group cursor-pointer"
             >
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 group-hover:scale-110 transition-transform">
@@ -204,7 +178,7 @@ export default function BackupModal({
             {/* Import JSON */}
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-between p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-2xl transition-all group"
+              className="w-full flex items-center justify-between p-4 bg-slate-900/80 hover:bg-slate-800 border border-slate-700 hover:border-emerald-500/50 rounded-2xl transition-all group cursor-pointer"
             >
               <div className="flex items-center space-x-3">
                 <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
@@ -223,8 +197,6 @@ export default function BackupModal({
               onChange={handleFileChange}
               className="hidden"
             />
-
-
 
           </div>
 
