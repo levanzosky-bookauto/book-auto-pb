@@ -29,8 +29,8 @@ export default function StatsBar({
           </button>
           
           {brands.map(brand => {
-            const count = cars.filter(c => c.brand === brand).length;
-            const isSelected = selectedBrand === brand;
+            const count = cars.filter(c => (c.brand || '').trim().toLowerCase() === brand.toLowerCase()).length;
+            const isSelected = selectedBrand.toLowerCase() === brand.toLowerCase();
             return (
               <button
                 key={brand}

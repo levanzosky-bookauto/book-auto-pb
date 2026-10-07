@@ -297,15 +297,17 @@ export default function App() {
       });
   };
 
-  // Extract list of all unique brands sorted alphabetically
+  // Extract list of all unique brands present in cars, case-insensitively deduplicated & sorted
   const brands = useMemo(() => {
-    const customLogos = getCustomBrandLogos();
-    const set = new Set([
-      ...cars.map(c => c.brand).filter(Boolean),
-      ...Object.keys(DEFAULT_BRAND_LOGOS).map(b => b.toUpperCase()),
-      ...Object.keys(customLogos).map(b => b.toUpperCase())
-    ]);
-    return Array.from(set).sort();
+    const brandMap = new Map();
+    cars.forEach(c => {
+      if (!c.brand || !c.brand.trim()) return;
+      const key = c.brand.trim().toLowerCase();
+      if (!brandMap.has(key)) {
+        brandMap.set(key, c.brand.trim());
+      }
+    });
+    return Array.from(brandMap.values()).sort((a, b) => a.localeCompare(b));
   }, [cars]);
 
   // Extract list of all unique locations present in cars
@@ -332,7 +334,7 @@ export default function App() {
       }
 
       // Brand filter
-      if (selectedBrand !== 'Tutti' && car.brand !== selectedBrand) {
+      if (selectedBrand !== 'Tutti' && (car.brand || '').trim().toLowerCase() !== selectedBrand.trim().toLowerCase()) {
         return false;
       }
 
@@ -593,13 +595,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="mt-16 border-t border-slate-800/80 py-8 text-center text-xs text-slate-500">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center space-x-2">
-            <span className="font-heading font-bold text-amber-400">BOOK AUTO PB</span>
-            <span>— Catalogo & Garage Vetture</span>
-          </div>
-          <p>© 2026 Book Auto PB. Ottimizzato per iPhone, iPad, Mac & Localhost.</p>
-        </div>
+        <p>© 2026 Book Auto PB</p>
       </footer>
 
       {/* Modals */}
