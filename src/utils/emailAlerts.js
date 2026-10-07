@@ -140,17 +140,18 @@ export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
     return { success: false, reason: 'Indirizzo email non valido.' };
   }
 
-  // 1. Try Custom Webhook if configured
+  // 1. Try Custom Webhook / Formspree if configured
   if (config.webhookUrl) {
     try {
       const res = await fetch(config.webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          to: recipientList,
-          subject: '[Book Auto PB] Avviso Scadenze Vetture',
+          email: targetEmail,
+          _subject: '[Book Auto PB] Avviso Scadenze Vetture',
           message: reportText,
-          date: new Date().toISOString()
+          to: recipientList,
+          subject: '[Book Auto PB] Avviso Scadenze Vetture'
         })
       });
       if (res.ok) return { success: true, method: 'webhook' };

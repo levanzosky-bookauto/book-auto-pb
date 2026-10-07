@@ -141,7 +141,7 @@ export default function AdminModal({
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [showPreviewReport, setShowPreviewReport] = useState(false);
 
-  // Advanced Background Auto-Send EmailJS State
+  // Advanced Background Auto-Send EmailJS & Webhook State
   const [emailjsServiceId, setEmailjsServiceId] = useState(() => {
     try { return getEmailJSConfig()?.serviceId || ''; } catch (e) { return ''; }
   });
@@ -150,6 +150,9 @@ export default function AdminModal({
   });
   const [emailjsPublicKey, setEmailjsPublicKey] = useState(() => {
     try { return getEmailJSConfig()?.publicKey || ''; } catch (e) { return ''; }
+  });
+  const [webhookUrl, setWebhookUrl] = useState(() => {
+    try { return getEmailJSConfig()?.webhookUrl || ''; } catch (e) { return ''; }
   });
   const [showAdvancedEmailJS, setShowAdvancedEmailJS] = useState(false);
 
@@ -301,7 +304,8 @@ export default function AdminModal({
     saveEmailJSConfig({
       serviceId: emailjsServiceId,
       templateId: emailjsTemplateId,
-      publicKey: emailjsPublicKey
+      publicKey: emailjsPublicKey,
+      webhookUrl: webhookUrl
     });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
@@ -487,6 +491,21 @@ export default function AdminModal({
                   </label>
                 </div>
 
+                {/* Single Webhook / Formspree URL Field (Simpler 1-Link Automatic Auto-Send) */}
+                <div className="pt-2 border-t border-slate-800">
+                  <label className="block text-slate-300 font-semibold mb-1">Link Webhook / Formspree (Opzionale — Invio Automatico a 1 Solo Link)</label>
+                  <input
+                    type="text"
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder="Es. https://formspree.io/f/xyz... (oppure lascia vuoto)"
+                    className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs font-mono"
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    💡 Per l'invio automatico in background con <strong>1 solo link</strong>: registrati gratis su <a href="https://formspree.io" target="_blank" rel="noreferrer" className="text-amber-400 underline">Formspree.io</a>, crea un modulo e incolla qui il link generato.
+                  </p>
+                </div>
+
                 {/* Optional EmailJS Auto-Send Background Integration */}
                 <div className="pt-2 border-t border-slate-800">
                   <button
@@ -494,7 +513,7 @@ export default function AdminModal({
                     onClick={() => setShowAdvancedEmailJS(!showAdvancedEmailJS)}
                     className="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center space-x-1"
                   >
-                    <span>{showAdvancedEmailJS ? '▲ Nascondi Configurazione EmailJS Background (Opzionale)' : '⚡ Configura Invio Email Automatico in Background (EmailJS)'}</span>
+                    <span>{showAdvancedEmailJS ? '▲ Nascondi Configurazione Avanzata EmailJS' : '⚙️ Configurazione Avanzata EmailJS (3 Chiavi API)'}</span>
                   </button>
 
                   {showAdvancedEmailJS && (
