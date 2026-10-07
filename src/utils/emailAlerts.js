@@ -113,6 +113,7 @@ export function copyEmailReportToClipboard(recipientEmail, cars = []) {
 // EmailJS / Webhook Auto Dispatcher Configuration
 export function getEmailJSConfig() {
   return {
+    provider: localStorage.getItem('book_auto_pb_email_provider') || 'formspree',
     serviceId: localStorage.getItem('book_auto_pb_emailjs_service_id') || '',
     templateId: localStorage.getItem('book_auto_pb_emailjs_template_id') || '',
     publicKey: localStorage.getItem('book_auto_pb_emailjs_public_key') || '',
@@ -120,48 +121,58 @@ export function getEmailJSConfig() {
   };
 }
 
-export function saveEmailJSConfig({ serviceId, templateId, publicKey, webhookUrl }) {
+export function saveEmailJSConfig({ provider, serviceId, templateId, publicKey, webhookUrl }) {
+  if (provider !== undefined) localStorage.setItem('book_auto_pb_email_provider', provider);
   if (serviceId !== undefined) localStorage.setItem('book_auto_pb_emailjs_service_id', serviceId.trim());
   if (templateId !== undefined) localStorage.setItem('book_auto_pb_emailjs_template_id', templateId.trim());
   if (publicKey !== undefined) localStorage.setItem('book_auto_pb_emailjs_public_key', publicKey.trim());
   if (webhookUrl !== undefined) localStorage.setItem('book_auto_pb_webhook_url', webhookUrl.trim());
 }
 
-// Send background REST email via EmailJS or Webhook
+// Send background REST email via Formspree, EmailJS, or Webhook
 export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
-  const targetEmail = (recipientEmail || getAdminEmail()).trim();
-  if (!targetEmail) return { success: false, reason: 'Nessun indirizzo email configurato nelle impostazioni.' };
-
   const config = getEmailJSConfig();
   const reportText = generateEmailReportText(cars);
-  const recipientList = targetEmail.split(',').map(e => e.trim()).filter(Boolean);
+  const targetEmail = (recipientEmail || getAdminEmail()).trim();
+  const recipientList = targetEmail ? targetEmail.split(',').map(e => e.trim()).filter(Boolean) : [];
 
-  if (recipientList.length === 0) {
-    return { success: false, reason: 'Indirizzo email non valido.' };
-  }
+  // 1. FORMSPREE / WEBHOOK (Selected or configured)
+  if (config.provider === 'formspree' || (config.webhookUrl && config.provider !== 'emailjs')) {
+    if (!config.webhookUrl) {
+      return { success: false, reason: 'Inserisci il tuo link Formspree.io nelle impostazioni.' };
+    }
 
-  // 1. Try Custom Webhook / Formspree if configured
-  if (config.webhookUrl) {
     try {
       const res = await fetch(config.webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
-          email: targetEmail,
+          email: targetEmail || 'notifiche@bookautopb.com',
           _subject: '[Book Auto PB] Avviso Scadenze Vetture',
           message: reportText,
           to: recipientList,
           subject: '[Book Auto PB] Avviso Scadenze Vetture'
         })
       });
-      if (res.ok) return { success: true, method: 'webhook' };
+      if (res.ok) {
+        return { success: true, method: 'formspree' };
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        return { success: false, reason: 'Formspree ha restituito un avviso. Controlla il link formspree.io.' };
+      }
     } catch (e) {
-      console.warn('Webhook auto email failed:', e);
+      console.warn('Formspree auto email failed:', e);
+      return { success: false, reason: 'Errore di connessione a Formspree. Verifica la rete internet.' };
     }
   }
 
-  // 2. Try EmailJS REST API if configured
-  if (config.serviceId && config.templateId && config.publicKey) {
+  // 2. EMAILJS (Selected)
+  if (config.provider === 'emailjs' || (config.serviceId && config.templateId && config.publicKey)) {
+    if (!targetEmail) return { success: false, reason: 'Nessun indirizzo email configurato nelle impostazioni.' };
+    if (!config.serviceId || !config.templateId || !config.publicKey) {
+      return { success: false, reason: 'Compila Service ID, Template ID e Public Key per usare EmailJS.' };
+    }
+
     let sentCount = 0;
     let lastErr = '';
 
@@ -215,8 +226,8 @@ export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
     }
   }
 
-  // 3. Fallback: EmailJS / Webhook not configured in settings
-  return { success: false, reason: 'EmailJS / Webhook non ancora configurato nel Pannello Admin.' };
+  // 3. Fallback: Mailto App
+  return { success: false, reason: 'Seleziona un metodo di invio nelle impostazioni.' };
 }
 
 /**
