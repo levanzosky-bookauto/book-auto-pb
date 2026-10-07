@@ -41,7 +41,7 @@ export default function StatsBar({
                     : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:bg-slate-800 hover:text-slate-200'
                 }`}
               >
-                <span>{brand}</span>
+                <span className="uppercase font-bold tracking-wider">{brand}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                   isSelected ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'
                 }`}>
