@@ -324,23 +324,23 @@ export default function AdminModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fade-in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[90vh] bg-slate-900 text-slate-100"
+        className="glass-panel w-full max-w-2xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[90vh] bg-slate-900 text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-slate-900/90 shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-white/10 bg-slate-900/90 shrink-0">
           <div className="flex items-center space-x-3">
-            <div className="p-2.5 bg-amber-500/10 text-amber-400 rounded-2xl border border-amber-500/20">
+            <div className="p-2 sm:p-2.5 bg-amber-500/10 text-amber-400 rounded-xl sm:rounded-2xl border border-amber-500/20">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold font-heading text-white">
+              <h2 className="text-base sm:text-lg font-bold font-heading text-white">
                 Pannello Amministrazione & Riservato
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-[11px] sm:text-xs text-slate-400">
                 Gestione illimitata utenti, sfondi login, backup e notifiche
               </p>
             </div>
@@ -348,69 +348,69 @@ export default function AdminModal({
 
           <button
             onClick={onClose}
-            className="p-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all"
+            className="p-1.5 sm:p-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all shrink-0 ml-2"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* 3-Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950/80 text-xs font-bold shrink-0">
+        {/* 4-Tab Navigation */}
+        <div className="flex border-b border-slate-800 bg-slate-950/80 text-xs font-bold shrink-0 overflow-x-auto no-scrollbar flex-nowrap">
           <button
             type="button"
             onClick={() => setActiveTab('tools')}
-            className={`flex-1 py-3 px-3 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
               activeTab === 'tools'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-4 h-4 shrink-0" />
             <span>Strumenti & Email</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('users')}
-            className={`flex-1 py-3 px-3 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
               activeTab === 'users'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-4 h-4 shrink-0" />
             <span>Gestione Utenti ({users.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('backgrounds')}
-            className={`flex-1 py-3 px-3 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
               activeTab === 'backgrounds'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <ImageIcon className="w-4 h-4" />
+            <ImageIcon className="w-4 h-4 shrink-0" />
             <span>Sfondi ({backgrounds.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('locations')}
-            className={`flex-1 py-3 px-3 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
               activeTab === 'locations'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
             }`}
           >
-            <MapPin className="w-4 h-4" />
+            <MapPin className="w-4 h-4 shrink-0" />
             <span>Ubicazioni ({locationsList.length})</span>
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="overflow-y-auto p-6 space-y-6 flex-1 text-xs">
+        <div className="overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6 flex-1 text-xs">
           
           {/* TAB 1: STRUMENTI & NOTIFICHE EMAIL */}
           {activeTab === 'tools' && (
@@ -1004,17 +1004,17 @@ export default function AdminModal({
                   </label>
                 </div>
 
-                <form onSubmit={handleAddBackground} className="flex gap-2">
+                <form onSubmit={handleAddBackground} className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     value={newBgUrl}
                     onChange={(e) => setNewBgUrl(e.target.value)}
                     placeholder="Oppure incolla URL foto grande carrozzeria/auto..."
-                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100"
+                    className="w-full flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition-all"
+                    className="w-full sm:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all shrink-0"
                   >
                     Aggiungi URL
                   </button>
@@ -1067,18 +1067,18 @@ export default function AdminModal({
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     value={newLocationName}
                     onChange={(e) => setNewLocationName(e.target.value)}
                     placeholder="Nome nuova posizione (es. Garage Milano, Casa al Mare, Deposito 2)..."
-                    className="flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
+                    className="w-full flex-1 px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
                     required
                   />
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center space-x-1 shrink-0"
+                    className="w-full sm:w-auto px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1 shrink-0"
                   >
                     <Plus className="w-4 h-4" />
                     <span>Aggiungi Ubicazione</span>

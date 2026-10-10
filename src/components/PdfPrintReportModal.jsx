@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Printer, Image as ImageIcon, FileText, Download, Loader2, Type, Wrench, ShieldCheck, Calendar, Euro, Paperclip, Eye, FileCheck } from 'lucide-react';
+import { X, Printer, Image as ImageIcon, FileText, Download, Loader2, Type, Wrench, ShieldCheck, Calendar, Euro, Paperclip, Eye, FileCheck, Smartphone, ZoomIn } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { getLogoForBrand } from '../utils/brandLogos';
@@ -15,9 +15,47 @@ export default function PdfPrintReportModal({
   const [includeDocuments, setIncludeDocuments] = useState(true);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [selectedFontId, setSelectedFontId] = useState(() => getDefaultPdfFont().id);
+  const [scaleFactor, setScaleFactor] = useState(1);
+  const [isFullSize, setIsFullSize] = useState(false);
+  const [forceFullScale, setForceFullScale] = useState(false);
   const reportContainerRef = useRef(null);
 
   const currentFont = PDF_FONT_OPTIONS.find(f => f.id === selectedFontId) || PDF_FONT_OPTIONS[0];
+
+  // Dynamically calculate scale factor so 210mm (~794px) A4 sheet fits phone screen width perfectly
+  useEffect(() => {
+    const updateScale = () => {
+      if (!reportContainerRef.current) return;
+      const containerWidth = reportContainerRef.current.clientWidth;
+      // 210mm in pixels is approximately 794px at standard 96 DPI
+      const targetWidth = 794;
+      // Margin on mobile: 8px each side = 16px
+      const availableWidth = Math.max(260, containerWidth - 16);
+      if (availableWidth < targetWidth) {
+        setScaleFactor(availableWidth / targetWidth);
+      } else {
+        setScaleFactor(1);
+      }
+    };
+
+    updateScale();
+    const timer = setTimeout(updateScale, 150);
+
+    let resizeObserver = null;
+    if (typeof window !== 'undefined' && window.ResizeObserver && reportContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        updateScale();
+      });
+      resizeObserver.observe(reportContainerRef.current);
+    }
+
+    window.addEventListener('resize', updateScale);
+    return () => {
+      clearTimeout(timer);
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', updateScale);
+    };
+  }, [selectedCars]);
 
   // Helper functions to auto-append currency (€) and consumption (km/L) if missing
   const formatCurrency = (val) => {
@@ -78,6 +116,9 @@ export default function PdfPrintReportModal({
   const handleDownloadDirectPdf = async () => {
     if (!reportContainerRef.current) return;
     setIsGeneratingPdf(true);
+    setForceFullScale(true);
+    // Allow state change to render full 1:1 scale before html2canvas captures
+    await new Promise(r => setTimeout(r, 60));
 
     try {
       const pdf = new jsPDF({
@@ -118,6 +159,7 @@ export default function PdfPrintReportModal({
       console.error('Error generating PDF:', error);
       handlePrint();
     } finally {
+      setForceFullScale(false);
       setIsGeneratingPdf(false);
     }
   };
@@ -134,29 +176,64 @@ export default function PdfPrintReportModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Helper to wrap A4 page in responsive mobile scaler
+  const renderScaledPage = (key, content) => {
+    const currentScale = forceFullScale || isFullSize ? 1 : scaleFactor;
+    const isScaled = currentScale < 0.99;
+
+    return (
+      <div 
+        key={key}
+        className="pdf-page-scaler-wrapper flex justify-center items-start mx-auto print:block print:w-auto print:h-auto"
+        style={{
+          width: isScaled ? `${Math.round(794 * currentScale)}px` : 'auto',
+          height: isScaled ? `${Math.round(1123 * currentScale)}px` : 'auto',
+          position: isScaled ? 'relative' : 'static',
+          marginBottom: isScaled ? '1.5rem' : '2.5rem'
+        }}
+      >
+        <div 
+          style={{
+            position: isScaled ? 'absolute' : 'relative',
+            top: 0,
+            left: 0,
+            transform: isScaled ? `scale(${currentScale})` : 'none',
+            transformOrigin: 'top left',
+            width: '210mm',
+            minWidth: '210mm',
+            height: '297mm',
+            minHeight: '297mm'
+          }}
+          className="print:static print:transform-none print:w-[210mm] print:h-[297mm]"
+        >
+          {content}
+        </div>
+      </div>
+    );
+  };
+
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:static print:inset-auto">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-6 bg-slate-950/90 backdrop-blur-md overflow-y-auto animate-fade-in print:p-0 print:bg-white print:static print:inset-auto">
       
       {/* Printable Report Modal Outer Shell */}
       <div 
-        className="printable-report-modal glass-panel w-full max-w-5xl rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:w-full print:rounded-none print:bg-white text-slate-100 print:text-slate-900"
+        className="printable-report-modal glass-panel w-full max-w-5xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[92vh] print:max-h-none print:shadow-none print:border-none print:w-full print:rounded-none print:bg-white text-slate-100 print:text-slate-900"
         onClick={(e) => e.stopPropagation()}
       >
-        
-        {/* Modal Controls Top Bar (Hidden during printing via 'no-print') */}
-        <div className="no-print flex flex-col gap-3 px-6 py-4 border-b border-white/10 bg-slate-900/90 shrink-0">
+         {/* Modal Controls Top Bar (Hidden during printing via 'no-print') */}
+        <div className="no-print flex flex-col gap-2.5 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/90 shrink-0">
           
           {/* Header Row: Title & Top-Right Close Button */}
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
+            <div className="flex items-center space-x-2.5 sm:space-x-3">
+              <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 shrink-0">
                 <Printer className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-bold font-heading text-white">
+                <h2 className="text-base sm:text-lg font-bold font-heading text-white">
                   Stampa PDF ({selectedCars.length} {selectedCars.length === 1 ? 'vettura' : 'vetture'})
                 </h2>
-                <p className="text-xs text-slate-400">
+                <p className="text-[11px] sm:text-xs text-slate-400">
                   Layout ufficiale 1 pagina A4 per vettura con Logo Marchio, Dettagli e Galleria Foto
                 </p>
               </div>
@@ -164,7 +241,7 @@ export default function PdfPrintReportModal({
 
             <button
               onClick={onClose}
-              className="p-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all shrink-0 ml-auto"
+              className="p-1.5 sm:p-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all shrink-0 ml-auto"
               title="Chiudi Finestra"
             >
               <X className="w-5 h-5" />
@@ -172,7 +249,7 @@ export default function PdfPrintReportModal({
           </div>
 
           {/* Controls Toolbar Row */}
-          <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-2 border-t border-slate-800/80">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-2 border-t border-slate-800/80">
             
             {/* Font Selection Dropdown */}
             <div className="flex items-center space-x-2 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
@@ -293,6 +370,32 @@ export default function PdfPrintReportModal({
               <span>Stampa PDF</span>
             </button>
 
+            {/* Mobile Fit vs 100% Zoom Toggle */}
+            {scaleFactor < 0.99 && (
+              <button
+                type="button"
+                onClick={() => setIsFullSize(!isFullSize)}
+                className={`flex items-center space-x-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all border ${
+                  isFullSize
+                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-bold shadow-md'
+                    : 'bg-slate-950 text-slate-300 border-slate-700 hover:text-white'
+                }`}
+                title={isFullSize ? 'Adatta il foglio alla larghezza dello schermo' : 'Mostra dimensione 100% reale'}
+              >
+                {isFullSize ? (
+                  <>
+                    <Smartphone className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>📱 Adatta Schermo</span>
+                  </>
+                ) : (
+                  <>
+                    <ZoomIn className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span>🔍 Zoom 100%</span>
+                  </>
+                )}
+              </button>
+            )}
+
           </div>
 
           {/* Quick Buttons Row for Attached Documents (Libretto, Assicurazione, Bollo) */}
@@ -311,7 +414,7 @@ export default function PdfPrintReportModal({
                     className="p-1 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 rounded transition-all"
                     title="Apri e Visualizza Documento"
                   >
-                    <Eye className="w-3 h-3" />
+                    <Eye className="w-3.5 h-3.5" />
                   </button>
                   <button
                     type="button"
@@ -319,7 +422,7 @@ export default function PdfPrintReportModal({
                     className="p-1 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 rounded transition-all"
                     title="Stampa Singolo Documento"
                   >
-                    <Printer className="w-3 h-3" />
+                    <Printer className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
@@ -329,7 +432,10 @@ export default function PdfPrintReportModal({
         </div>
 
         {/* Printable Pages Container (1 page per 4 photos matching reference layout) */}
-        <div ref={reportContainerRef} className="overflow-y-auto p-4 sm:p-8 space-y-12 flex-1 flex flex-col items-center bg-slate-900/60 print:overflow-visible print:p-0 print:space-y-0 print:bg-white">
+        <div 
+          ref={reportContainerRef} 
+          className="overflow-y-auto overflow-x-auto p-2 sm:p-8 space-y-4 sm:space-y-12 flex-1 flex flex-col items-center bg-slate-900/60 print:overflow-visible print:p-0 print:space-y-0 print:bg-white w-full"
+        >
           
           {selectedCars.map((car) => {
             const logoImage = getLogoForBrand(car.brand) || car.logoImg;
@@ -357,10 +463,11 @@ export default function PdfPrintReportModal({
                 {photoPages.map((pagePhotos, pageIndex) => {
                   const isFirstPage = pageIndex === 0;
 
-                  return (
+                  return renderScaledPage(
+                    `${car.id}_page_${pageIndex}`,
                     <div 
                       key={`${car.id}_page_${pageIndex}`} 
-                      className="print-car-page bg-white text-slate-900 shadow-2xl rounded-sm print:rounded-none print:shadow-none border border-slate-200 print:border-none w-[210mm] max-w-full min-h-[297mm] h-[297mm] p-[12mm] flex flex-col justify-between box-border shrink-0 my-0 mx-auto"
+                      className="print-car-page bg-white text-slate-900 shadow-2xl rounded-sm print:rounded-none print:shadow-none border border-slate-200 print:border-none w-[210mm] min-w-[210mm] min-h-[297mm] h-[297mm] p-[12mm] flex flex-col justify-between box-border shrink-0 my-0 mx-auto"
                     >
                       
                       {isFirstPage ? (
@@ -553,10 +660,11 @@ export default function PdfPrintReportModal({
                 })}
 
                 {/* OPTIONAL EXTENDED MAINTENANCE & DOCUMENTATION PAGE (PAGE 2) */}
-                {includeExtendedReport && (
+                {includeExtendedReport && renderScaledPage(
+                  `${car.id}_extended_page`,
                   <div 
                     key={`${car.id}_extended_page`} 
-                    className="print-car-page bg-white text-slate-900 shadow-2xl rounded-sm print:rounded-none print:shadow-none border border-slate-200 print:border-none w-[210mm] max-w-full min-h-[297mm] h-[297mm] p-[12mm] flex flex-col justify-between box-border shrink-0 my-0 mx-auto"
+                    className="print-car-page bg-white text-slate-900 shadow-2xl rounded-sm print:rounded-none print:shadow-none border border-slate-200 print:border-none w-[210mm] min-w-[210mm] min-h-[297mm] h-[297mm] p-[12mm] flex flex-col justify-between box-border shrink-0 my-0 mx-auto"
                   >
                     {/* Extended Page Header */}
                     <div className="flex items-center justify-between pb-3 border-b-2 border-slate-900">
@@ -723,10 +831,11 @@ export default function PdfPrintReportModal({
                 {includeDocuments && car.documents && car.documents.map((doc, docIdx) => {
                   const isImage = doc.fileData && (doc.fileData.startsWith('data:image/') || doc.fileType?.includes('image'));
 
-                  return (
+                  return renderScaledPage(
+                    `${car.id}_doc_${doc.id || docIdx}`,
                     <div 
                       key={`${car.id}_doc_${doc.id || docIdx}`} 
-                      className="print-car-page bg-white text-slate-900 shadow-2xl rounded-sm print:rounded-none print:shadow-none border border-slate-200 print:border-none w-[210mm] max-w-full min-h-[297mm] h-[297mm] p-[10mm] flex flex-col justify-between box-border shrink-0 my-0 mx-auto"
+                      className="print-car-page bg-white text-slate-900 shadow-2xl rounded-sm print:rounded-none print:shadow-none border border-slate-200 print:border-none w-[210mm] min-w-[210mm] min-h-[297mm] h-[297mm] p-[10mm] flex flex-col justify-between box-border shrink-0 my-0 mx-auto"
                     >
                       {/* Top Action Bar (ONLY VISIBLE ON SCREEN IN MODAL, HIDDEN ON PRINT) */}
                       <div className="no-print flex items-center justify-between pb-2 mb-2 border-b border-slate-200">

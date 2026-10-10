@@ -171,6 +171,23 @@
     color: #000000 !important;
   }
 
+  /* Scaler wrapper override for print - reset scaling and force exact A4 */
+  .pdf-page-scaler-wrapper {
+    height: auto !important;
+    margin: 0 !important;
+    margin-bottom: 0 !important;
+    transform: none !important;
+    display: block !important;
+    width: 210mm !important;
+  }
+  .pdf-page-scaler-wrapper > div {
+    transform: none !important;
+    width: 210mm !important;
+    min-width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+  }
+
   /* Printable car page rules - EXACTLY 1 A4 SHEET PER CAR */
   .print-car-page {
     position: relative !important;
