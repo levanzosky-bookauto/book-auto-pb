@@ -288,6 +288,30 @@ export default function Navbar({
 
             <div className="flex flex-col space-y-2 pt-2">
               <button
+                type="button"
+                onClick={() => { setMobileMenuOpen(false); onOpenExpirationsModal && onOpenExpirationsModal(); }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                  hasUrgentExpirations
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse'
+                    : expirationsCount > 0
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    : 'bg-slate-900 text-slate-300 border-slate-700'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Bell className="w-4 h-4 text-amber-400" />
+                  <span>Scadenze & Promemoria Vetture</span>
+                </div>
+                {expirationsCount > 0 && (
+                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
+                  }`}>
+                    {expirationsCount}
+                  </span>
+                )}
+              </button>
+
+              <button
                 onClick={onOpenAdminModal}
                 className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-xl text-xs font-extrabold shadow-md"
               >

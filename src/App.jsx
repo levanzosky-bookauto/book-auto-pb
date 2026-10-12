@@ -101,32 +101,54 @@ export default function App() {
     }));
   };
 
-  // Load Initial Data (Preserve local edits first, fallback to Supabase or /data/cars.json)
+  // Load Initial Data with Real-Time Cloud Sync (Supabase + LocalStorage)
   useEffect(() => {
     async function loadInitialCars() {
-      // 1. Check local storage first so user edits are NEVER reset or overwritten
+      // 1. Check if this device has local edits / expirations
       const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
+      let localCars = null;
       if (savedLocal) {
         try {
           const parsed = JSON.parse(savedLocal);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const formatted = formatCarImages(parsed);
-            setCars(formatted);
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
-            setLoading(false);
-            return;
+            localCars = formatCarImages(parsed);
           }
         } catch (e) {
           console.error('Error parsing local storage:', e);
         }
       }
 
-      // 2. Try Supabase if local storage is empty
+      // 2. Fetch latest shared cars from Supabase Cloud (Central truth)
       const supabaseCars = await fetchCarsFromSupabase();
       if (supabaseCars && supabaseCars.length > 0) {
-        const formatted = formatCarImages(supabaseCars);
-        setCars(formatted);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+        const formattedSupabase = formatCarImages(supabaseCars);
+
+        // Check if this device has expiration dates that haven't reached Supabase yet (e.g. Admin device)
+        if (localCars && localCars.length > 0) {
+          const localHasExpirations = localCars.some(c => c.scadenzaBollo || c.scadenzaAssicurazione || c.scadenzaRevisione || c.prossimoTagliandoData);
+          const supabaseHasExpirations = formattedSupabase.some(c => c.scadenzaBollo || c.scadenzaAssicurazione || c.scadenzaRevisione || c.prossimoTagliandoData);
+
+          if (localHasExpirations && !supabaseHasExpirations) {
+            console.log('🚀 Pushing local expirations to Supabase Cloud so all users see them...');
+            setCars(localCars);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localCars));
+            syncCarsToSupabase(localCars);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Supabase has the shared truth! Update state and localStorage
+        setCars(formattedSupabase);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedSupabase));
+        setLoading(false);
+        return;
+      }
+
+      // If Supabase is empty or offline, use localCars
+      if (localCars && localCars.length > 0) {
+        setCars(localCars);
+        syncCarsToSupabase(localCars);
         setLoading(false);
         return;
       }
@@ -138,6 +160,7 @@ export default function App() {
         const formattedDefault = formatCarImages(defaultCars);
         setCars(formattedDefault);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedDefault));
+        syncCarsToSupabase(formattedDefault);
         setLoading(false);
       } catch (err) {
         console.error('Error loading default cars.json:', err);

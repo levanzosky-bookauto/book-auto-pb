@@ -9,9 +9,21 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
-// Map DB row to Car object format
+// Map DB row to Car object format with full expiration and document details
 export function mapRowToCar(row) {
   if (!row) return null;
+
+  let extra = {};
+  if (row.notes && typeof row.notes === 'string' && (row.notes.startsWith('{') || row.notes.startsWith('['))) {
+    try {
+      extra = JSON.parse(row.notes);
+    } catch (e) {
+      extra = { userNotes: row.notes };
+    }
+  } else {
+    extra = { userNotes: row.notes || '' };
+  }
+
   return {
     id: row.id,
     page: row.page,
@@ -25,15 +37,60 @@ export function mapRowToCar(row) {
     images: row.images || [],
     pageImage: row.pageimage || row.pageImage || '',
     isFavorite: Boolean(row.isfavorite ?? row.isFavorite),
-    notes: row.notes || '',
+    notes: extra.userNotes !== undefined ? extra.userNotes : (row.notes || ''),
     mainPhoto: row.mainphoto || row.mainPhoto || '',
     logoImg: row.logoimg || row.logoImg || '',
-    carPhotos: row.carphotos || row.carPhotos || []
+    carPhotos: row.carphotos || row.carPhotos || [],
+    // Synchronized Expiration Dates & Specifications
+    scadenzaBollo: extra.scadenzaBollo || '',
+    scadenzaAssicurazione: extra.scadenzaAssicurazione || '',
+    scadenzaRevisione: extra.scadenzaRevisione || '',
+    prossimoTagliandoData: extra.prossimoTagliandoData || '',
+    targa: extra.targa || '',
+    location: extra.location || '',
+    prezzo: extra.prezzo || '',
+    prezzoAcquisto: extra.prezzoAcquisto || '',
+    potenzaKw: extra.potenzaKw || '',
+    peso: extra.peso || '',
+    colore: extra.colore || '',
+    interni: extra.interni || '',
+    cambio: extra.cambio || '',
+    trazione: extra.trazione || '',
+    carburante: extra.carburante || '',
+    consumo: extra.consumo || '',
+    proprietariPrecedenti: extra.proprietariPrecedenti || '',
+    noteManutenzione: extra.noteManutenzione || '',
+    documents: Array.isArray(extra.documents) ? extra.documents : [],
+    maintenanceHistory: Array.isArray(extra.maintenanceHistory) ? extra.maintenanceHistory : []
   };
 }
 
-// Map Car object to DB row format
+// Map Car object to DB row format preserving all fields safely in notes JSON payload
 export function mapCarToRow(car) {
+  const extraPayload = {
+    userNotes: car.notes || '',
+    scadenzaBollo: car.scadenzaBollo || '',
+    scadenzaAssicurazione: car.scadenzaAssicurazione || '',
+    scadenzaRevisione: car.scadenzaRevisione || '',
+    prossimoTagliandoData: car.prossimoTagliandoData || '',
+    targa: car.targa || '',
+    location: car.location || '',
+    prezzo: car.prezzo || '',
+    prezzoAcquisto: car.prezzoAcquisto || '',
+    potenzaKw: car.potenzaKw || '',
+    peso: car.peso || '',
+    colore: car.colore || '',
+    interni: car.interni || '',
+    cambio: car.cambio || '',
+    trazione: car.trazione || '',
+    carburante: car.carburante || '',
+    consumo: car.consumo || '',
+    proprietariPrecedenti: car.proprietariPrecedenti || '',
+    noteManutenzione: car.noteManutenzione || '',
+    documents: Array.isArray(car.documents) ? car.documents : [],
+    maintenanceHistory: Array.isArray(car.maintenanceHistory) ? car.maintenanceHistory : []
+  };
+
   return {
     id: String(car.id),
     page: car.page || 0,
@@ -47,7 +104,7 @@ export function mapCarToRow(car) {
     images: car.images || [],
     pageimage: car.pageImage || '',
     isfavorite: Boolean(car.isFavorite),
-    notes: car.notes || '',
+    notes: JSON.stringify(extraPayload),
     mainphoto: car.mainPhoto || '',
     logoimg: car.logoImg || '',
     carphotos: car.carPhotos || []
