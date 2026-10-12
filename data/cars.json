@@ -1426,5 +1426,23 @@
       "./images/cars/car_53_img_5.jpeg",
       "./images/cars/car_53_img_2.jpeg"
     ]
+  },
+  {
+    "id": "car_new_1791701751933",
+    "page": 53,
+    "brand": "FIAT",
+    "model": "Tipo 61",
+    "immatricolazione": "1981",
+    "chassis": "123456",
+    "cilindrata": "2000",
+    "horsepower": "200",
+    "esemplari": "",
+    "images": [],
+    "pageImage": "./images/cars/car_2_page.jpg",
+    "isFavorite": false,
+    "notes": "",
+    "mainPhoto": "./images/cars/car_2_page.jpg",
+    "logoImg": "./images/cars/car_23_img_1.jpeg",
+    "carPhotos": []
   }
 ]
