@@ -45,6 +45,7 @@ import {
   sendBackgroundEmailJS
 } from '../utils/emailAlerts';
 import { getClientPermissions, saveClientPermissions, DEFAULT_CLIENT_PERMISSIONS } from '../utils/permissions';
+import { syncPermissionsToSupabase } from '../utils/supabase';
 import { Send, Copy, FileText } from 'lucide-react';
 
 export default function AdminModal({ 
@@ -70,23 +71,26 @@ export default function AdminModal({
     const updated = { ...permissions, [key]: val };
     setPermissions(updated);
     saveClientPermissions(updated);
+    syncPermissionsToSupabase(updated);
     if (onPermissionsUpdated) onPermissionsUpdated(updated);
-    setPermsMsg('Impostazione visibilità aggiornata!');
+    setPermsMsg('Impostazione visibilità aggiornata e sincronizzata nel Cloud!');
     setTimeout(() => setPermsMsg(''), 2500);
   };
 
   const handleSavePerms = () => {
     saveClientPermissions(permissions);
+    syncPermissionsToSupabase(permissions);
     if (onPermissionsUpdated) onPermissionsUpdated(permissions);
-    setPermsMsg('✅ Tutte le preferenze di visibilità per clienti e visitatori sono state salvate con successo!');
+    setPermsMsg('✅ Tutte le preferenze di visibilità sono state salvate e sincronizzate nel Cloud Supabase per tutti i visitatori!');
     setTimeout(() => setPermsMsg(''), 4000);
   };
 
   const handleResetPerms = () => {
     setPermissions(DEFAULT_CLIENT_PERMISSIONS);
     saveClientPermissions(DEFAULT_CLIENT_PERMISSIONS);
+    syncPermissionsToSupabase(DEFAULT_CLIENT_PERMISSIONS);
     if (onPermissionsUpdated) onPermissionsUpdated(DEFAULT_CLIENT_PERMISSIONS);
-    setPermsMsg('Valori predefiniti ripristinati con successo!');
+    setPermsMsg('Valori predefiniti ripristinati e sincronizzati nel Cloud!');
     setTimeout(() => setPermsMsg(''), 3000);
   };
 

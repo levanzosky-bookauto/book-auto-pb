@@ -111,7 +111,7 @@ export function mapCarToRow(car) {
   };
 }
 
-// Fetch all cars from Supabase with safe timeout
+// Fetch all cars from Supabase with safe timeout (filtering out system configs)
 export async function fetchCarsFromSupabase(timeoutMs = 8000) {
   if (!supabase) return null;
   try {
@@ -132,7 +132,9 @@ export async function fetchCarsFromSupabase(timeoutMs = 8000) {
     }
 
     if (Array.isArray(data) && data.length > 0) {
-      return data.map(mapRowToCar);
+      return data
+        .filter(r => r && r.id && !String(r.id).startsWith('__'))
+        .map(mapRowToCar);
     }
     return null;
   } catch (e) {
@@ -141,11 +143,13 @@ export async function fetchCarsFromSupabase(timeoutMs = 8000) {
   }
 }
 
-// Upsert all cars to Supabase
+// Upsert all cars to Supabase (excluding system configs)
 export async function syncCarsToSupabase(cars) {
   if (!supabase || !Array.isArray(cars) || cars.length === 0) return false;
   try {
-    const rows = cars.map(mapCarToRow);
+    const rows = cars
+      .filter(c => c && c.id && !String(c.id).startsWith('__'))
+      .map(mapCarToRow);
     const { error } = await supabase.from('cars').upsert(rows, { onConflict: 'id' });
     if (error) {
       console.error('Supabase sync error:', error);
@@ -154,6 +158,57 @@ export async function syncCarsToSupabase(cars) {
     return true;
   } catch (e) {
     console.error('Supabase sync exception:', e);
+    return false;
+  }
+}
+
+// Fetch Client & Visitor Permissions from Supabase Cloud
+export async function fetchPermissionsFromSupabase(timeoutMs = 6000) {
+  if (!supabase) return null;
+  try {
+    const fetchPromise = supabase
+      .from('cars')
+      .select('notes')
+      .eq('id', '__app_permissions__')
+      .maybeSingle();
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase permissions timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    if (error || !data || !data.notes) return null;
+
+    try {
+      const parsed = JSON.parse(data.notes);
+      return parsed;
+    } catch (parseErr) {
+      return null;
+    }
+  } catch (e) {
+    console.warn('Error fetching permissions from Supabase:', e);
+    return null;
+  }
+}
+
+// Upsert Client & Visitor Permissions to Supabase Cloud
+export async function syncPermissionsToSupabase(permissions) {
+  if (!supabase || !permissions) return false;
+  try {
+    const payload = {
+      id: '__app_permissions__',
+      brand: 'SYSTEM',
+      model: 'CLIENT_PERMISSIONS',
+      notes: JSON.stringify(permissions)
+    };
+    const { error } = await supabase.from('cars').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.error('Supabase sync permissions error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase sync permissions exception:', e);
     return false;
   }
 }

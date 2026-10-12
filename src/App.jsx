@@ -17,8 +17,8 @@ import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS } from './uti
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser } from './utils/auth';
 import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
-import { fetchCarsFromSupabase, syncCarsToSupabase } from './utils/supabase';
-import { getClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
+import { fetchCarsFromSupabase, syncCarsToSupabase, fetchPermissionsFromSupabase, syncPermissionsToSupabase } from './utils/supabase';
+import { getClientPermissions, saveClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
 
 const LOCAL_STORAGE_KEY = 'book_auto_pb_cars_v1';
 
@@ -149,6 +149,14 @@ export default function App() {
         });
       };
 
+      // Fetch latest client permissions from Supabase Cloud
+      fetchPermissionsFromSupabase().then(remotePerms => {
+        if (remotePerms) {
+          saveClientPermissions(remotePerms);
+          setClientPermissions(remotePerms);
+        }
+      }).catch(err => console.warn('Permissions initial fetch:', err));
+
       // 2. Fetch latest shared cars from Supabase Cloud (Central truth)
       const supabaseCars = await fetchCarsFromSupabase();
       if (supabaseCars && supabaseCars.length > 0) {
@@ -216,6 +224,19 @@ export default function App() {
           return prev;
         });
       }
+
+      // Also check if permissions have been changed remotely by Admin
+      fetchPermissionsFromSupabase().then(freshPerms => {
+        if (freshPerms) {
+          setClientPermissions(prev => {
+            if (JSON.stringify(prev) !== JSON.stringify(freshPerms)) {
+              saveClientPermissions(freshPerms);
+              return freshPerms;
+            }
+            return prev;
+          });
+        }
+      }).catch(() => {});
     }, 30000);
     return () => clearInterval(interval);
   }, []);
@@ -239,6 +260,13 @@ export default function App() {
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
           }
         }
+      }
+
+      // Refresh permissions
+      const freshPerms = await fetchPermissionsFromSupabase();
+      if (freshPerms) {
+        saveClientPermissions(freshPerms);
+        setClientPermissions(freshPerms);
       }
     } catch (err) {
       console.error('Manual refresh error:', err);
@@ -790,7 +818,11 @@ export default function App() {
             localStorage.setItem('book_auto_pb_expiration_bar', JSON.stringify(val));
           }}
           clientPermissions={clientPermissions}
-          onPermissionsUpdated={(updated) => setClientPermissions(updated)}
+          onPermissionsUpdated={(updated) => {
+            setClientPermissions(updated);
+            saveClientPermissions(updated);
+            syncPermissionsToSupabase(updated);
+          }}
         />
       )}
 
