@@ -45,7 +45,9 @@ export default function Navbar({
   viewMode,
   setViewMode,
   currentUser,
-  onLogout
+  onLogout,
+  onRefreshCloudData,
+  isSyncing = false
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -223,14 +225,38 @@ export default function Navbar({
           </div>
 
           {/* Mobile Right Controls */}
-          <div className="flex lg:hidden items-center space-x-2">
+          <div className="flex lg:hidden items-center space-x-1.5 sm:space-x-2">
             <button
               onClick={() => setOnlyFavorites(!onlyFavorites)}
               className={`p-2 rounded-xl border ${
                 onlyFavorites ? 'bg-rose-500/20 text-rose-400 border-rose-500/40' : 'bg-slate-900/60 text-slate-300 border-slate-700'
               }`}
+              title="Filtra Preferiti"
             >
               <Heart className={`w-5 h-5 ${onlyFavorites ? 'fill-rose-400' : ''}`} />
+            </button>
+
+            {/* Mobile Expirations Bell Button (Directly visible on phones!) */}
+            <button
+              type="button"
+              onClick={onOpenExpirationsModal}
+              className={`relative p-2 rounded-xl border transition-all ${
+                hasUrgentExpirations
+                  ? 'bg-rose-500/25 text-rose-300 border-rose-500/60 shadow-lg shadow-rose-500/30 animate-pulse'
+                  : expirationsCount > 0
+                  ? 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-md shadow-amber-500/20'
+                  : 'bg-slate-900/60 text-slate-300 border-slate-700'
+              }`}
+              title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
+            >
+              <Bell className={`w-5 h-5 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
+              {expirationsCount > 0 && (
+                <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-extrabold shadow-md ${
+                  hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
+                }`}>
+                  {expirationsCount}
+                </span>
+              )}
             </button>
             
             <button
@@ -243,9 +269,13 @@ export default function Navbar({
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-300 bg-slate-900/80 rounded-xl border border-slate-700"
+              className="relative p-2 text-slate-300 bg-slate-900/80 rounded-xl border border-slate-700"
+              title="Menu Opzioni, Utente & Admin"
             >
               <SlidersHorizontal className="w-5 h-5" />
+              {expirationsCount > 0 && (
+                <span className="absolute 1 top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+              )}
             </button>
           </div>
 
@@ -268,6 +298,35 @@ export default function Navbar({
         {/* Mobile Menu Panel */}
         {mobileMenuOpen && (
           <div className="lg:hidden pb-4 space-y-3 animate-fade-in border-t border-slate-800 pt-3">
+            
+            {/* User Profile Card */}
+            {currentUser && (
+              <div className="flex items-center justify-between p-3 bg-slate-900/90 rounded-2xl border border-amber-500/30">
+                <div className="flex items-center space-x-2.5">
+                  <div className="p-2 bg-amber-500/20 text-amber-300 rounded-xl border border-amber-500/30">
+                    <User className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-amber-300 flex items-center space-x-1">
+                      <span>{currentUser.name || currentUser.username}</span>
+                    </p>
+                    <p className="text-[10px] text-slate-400 font-mono">
+                      {currentUser.roleLabel || (currentUser.role === 'super_admin' ? 'Super Admin (Proprietario)' : 'Gestore / Editor')}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); onLogout && onLogout(); }}
+                  className="flex items-center space-x-1 px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-xl text-xs font-bold transition-all"
+                  title="Disconnetti"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Esci</span>
+                </button>
+              </div>
+            )}
+
             <div className="flex items-center justify-between px-1">
               <span className="text-xs font-semibold text-slate-400">Modalità di Visualizzazione</span>
               <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800">
@@ -294,7 +353,7 @@ export default function Navbar({
                   hasUrgentExpirations
                     ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse'
                     : expirationsCount > 0
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md'
                     : 'bg-slate-900 text-slate-300 border-slate-700'
                 }`}
               >
@@ -312,12 +371,24 @@ export default function Navbar({
               </button>
 
               <button
-                onClick={onOpenAdminModal}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-xl text-xs font-extrabold shadow-md"
+                type="button"
+                onClick={() => { setMobileMenuOpen(false); onOpenAdminModal && onOpenAdminModal(); }}
+                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-xl text-xs font-extrabold shadow-md active:scale-95 transition-transform"
               >
                 <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
                 <span>Pannello Admin & Notifiche Email</span>
               </button>
+
+              {onRefreshCloudData && (
+                <button
+                  type="button"
+                  onClick={() => { onRefreshCloudData(); }}
+                  className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-900/90 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-bold shadow transition-all active:scale-95"
+                >
+                  <RotateCcw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-cyan-400' : 'text-cyan-400'}`} />
+                  <span>{isSyncing ? 'Sincronizzazione Cloud in corso...' : 'Aggiorna / Sincronizza Dati Cloud'}</span>
+                </button>
+              )}
 
               <div className="flex space-x-2">
                 <button

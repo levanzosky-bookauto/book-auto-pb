@@ -111,14 +111,20 @@ export function mapCarToRow(car) {
   };
 }
 
-// Fetch all cars from Supabase
-export async function fetchCarsFromSupabase() {
+// Fetch all cars from Supabase with safe timeout
+export async function fetchCarsFromSupabase(timeoutMs = 8000) {
   if (!supabase) return null;
   try {
-    const { data, error } = await supabase
+    const fetchPromise = supabase
       .from('cars')
       .select('*')
       .order('page', { ascending: true });
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase fetch timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
 
     if (error) {
       console.error('Supabase fetch error:', error);
@@ -130,7 +136,7 @@ export async function fetchCarsFromSupabase() {
     }
     return null;
   } catch (e) {
-    console.error('Supabase fetch exception:', e);
+    console.warn('Supabase fetch exception or timeout:', e);
     return null;
   }
 }

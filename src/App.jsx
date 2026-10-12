@@ -24,6 +24,7 @@ const LOCAL_STORAGE_KEY = 'book_auto_pb_cars_v1';
 export default function App() {
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   
   // Auth & User State
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
@@ -101,7 +102,7 @@ export default function App() {
     }));
   };
 
-  // Load Initial Data with Real-Time Cloud Sync (Supabase + LocalStorage)
+  // Load Initial Data with Real-Time Cloud Sync (Supabase + LocalStorage + baseline cars.json)
   useEffect(() => {
     async function loadInitialCars() {
       // 1. Check if this device has local edits / expirations
@@ -118,10 +119,39 @@ export default function App() {
         }
       }
 
+      // Fetch baseline cars.json (always guaranteed to have catalog & baseline expirations)
+      let baselineCars = [];
+      try {
+        const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json?t=${Date.now()}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json)) baselineCars = formatCarImages(json);
+        }
+      } catch (err) {
+        console.warn('Error loading baseline cars.json:', err);
+      }
+
+      // Helper to merge baseline expirations if missing in a car list
+      const mergeWithBaseline = (carList) => {
+        if (!Array.isArray(carList) || baselineCars.length === 0) return carList;
+        return carList.map(c => {
+          const base = baselineCars.find(b => String(b.id) === String(c.id));
+          if (!base) return c;
+          return {
+            ...c,
+            scadenzaBollo: c.scadenzaBollo || base.scadenzaBollo || '',
+            scadenzaAssicurazione: c.scadenzaAssicurazione || base.scadenzaAssicurazione || '',
+            scadenzaRevisione: c.scadenzaRevisione || base.scadenzaRevisione || '',
+            prossimoTagliandoData: c.prossimoTagliandoData || base.prossimoTagliandoData || ''
+          };
+        });
+      };
+
       // 2. Fetch latest shared cars from Supabase Cloud (Central truth)
       const supabaseCars = await fetchCarsFromSupabase();
       if (supabaseCars && supabaseCars.length > 0) {
-        const formattedSupabase = formatCarImages(supabaseCars);
+        let formattedSupabase = formatCarImages(supabaseCars);
+        formattedSupabase = mergeWithBaseline(formattedSupabase);
 
         // Check if this device has expiration dates that haven't reached Supabase yet (e.g. Admin device)
         if (localCars && localCars.length > 0) {
@@ -145,31 +175,75 @@ export default function App() {
         return;
       }
 
-      // If Supabase is empty or offline, use localCars
+      // If Supabase is empty or offline, use localCars with baseline merge
       if (localCars && localCars.length > 0) {
-        setCars(localCars);
-        syncCarsToSupabase(localCars);
+        const mergedLocal = mergeWithBaseline(localCars);
+        setCars(mergedLocal);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mergedLocal));
         setLoading(false);
         return;
       }
 
-      // 3. Fallback to default cars.json
-      try {
-        const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json`);
-        const defaultCars = await res.json();
-        const formattedDefault = formatCarImages(defaultCars);
-        setCars(formattedDefault);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedDefault));
-        syncCarsToSupabase(formattedDefault);
+      // 3. Fallback to default baselineCars
+      if (baselineCars && baselineCars.length > 0) {
+        setCars(baselineCars);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(baselineCars));
+        syncCarsToSupabase(baselineCars);
         setLoading(false);
-      } catch (err) {
-        console.error('Error loading default cars.json:', err);
-        setLoading(false);
+        return;
       }
+
+      setLoading(false);
     }
 
     loadInitialCars();
   }, []);
+
+  // Periodic background check against Supabase (every 30s) so changes made on Mac appear on phone automatically
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const freshSupabase = await fetchCarsFromSupabase();
+      if (freshSupabase && freshSupabase.length > 0) {
+        const formatted = formatCarImages(freshSupabase);
+        setCars(prev => {
+          // Compare JSON string to prevent unnecessary re-renders
+          if (JSON.stringify(prev) !== JSON.stringify(formatted)) {
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+            return formatted;
+          }
+          return prev;
+        });
+      }
+    }, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Manual Cloud Data Refresh Handler
+  const handleRefreshCloudData = async () => {
+    setIsSyncing(true);
+    try {
+      const freshSupabase = await fetchCarsFromSupabase();
+      if (freshSupabase && freshSupabase.length > 0) {
+        const formatted = formatCarImages(freshSupabase);
+        setCars(formatted);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+      } else {
+        const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json?t=${Date.now()}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json)) {
+            const formatted = formatCarImages(json);
+            setCars(formatted);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Manual refresh error:', err);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Save to state, localStorage, and sync to Supabase Cloud
   const saveCarsState = (newCars) => {
@@ -452,6 +526,8 @@ export default function App() {
         setViewMode={setViewMode}
         currentUser={currentUser}
         onLogout={handleLogout}
+        onRefreshCloudData={handleRefreshCloudData}
+        isSyncing={isSyncing}
       />
 
       {/* Top Expiration Notification Banner (Animated Progress Color Gradient) */}

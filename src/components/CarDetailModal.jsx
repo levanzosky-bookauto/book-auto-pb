@@ -25,12 +25,14 @@ import {
   Paperclip,
   Eye,
   ShieldCheck,
-  FileCheck
+  FileCheck,
+  Bell
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ImageCropperModal from './ImageCropperModal';
 import { openDocument, downloadDocument } from '../utils/documentViewer';
+import { getVehicleExpirations } from '../utils/notifications';
 
 export default function CarDetailModal({ 
   car, 
@@ -60,9 +62,14 @@ export default function CarDetailModal({
     }
   }, [car]);
 
-  if (!car) return null;
-
   const images = imagesList.length > 0 ? imagesList : (car.images || [car.pageImage]);
+  const carExpirations = React.useMemo(() => getVehicleExpirations([car]), [car]);
+  const bolloAlert = carExpirations.find(a => a.typeKey === 'scadenzaBollo');
+  const insuranceAlert = carExpirations.find(a => a.typeKey === 'scadenzaAssicurazione');
+  const revisionAlert = carExpirations.find(a => a.typeKey === 'scadenzaRevisione');
+  const tagliandoAlert = carExpirations.find(a => a.typeKey === 'prossimoTagliandoData');
+
+  if (!car) return null;
 
   const handleMovePhoto = (e, fromIdx, toIdx) => {
     if (e) {
@@ -416,6 +423,112 @@ export default function CarDetailModal({
                 </div>
               )}
             </div>
+
+          {/* Scadenze & Promemoria Vettura Section */}
+          <div className="space-y-3 pt-3 border-t border-slate-800/80">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold font-heading text-white flex items-center">
+                <Bell className="w-5 h-5 mr-2 text-amber-400" />
+                <span>Scadenze & Promemoria Ministeriali</span>
+              </h3>
+              {onEditCar && (
+                <button
+                  type="button"
+                  onClick={() => onEditCar(car)}
+                  className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center space-x-1"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Modifica Scadenze</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Bollo Auto */}
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Bollo Auto</p>
+                  <p className="text-sm font-extrabold text-white">{car.scadenzaBollo || 'Non inserito'}</p>
+                </div>
+                {bolloAlert ? (
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                    bolloAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                    bolloAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                    'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                  }`}>
+                    {bolloAlert.badgeLabel}
+                  </span>
+                ) : car.scadenzaBollo ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                ) : null}
+              </div>
+
+              {/* Assicurazione RC */}
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Assicurazione RC</p>
+                  <p className="text-sm font-extrabold text-white">{car.scadenzaAssicurazione || 'Non inserita'}</p>
+                </div>
+                {insuranceAlert ? (
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                    insuranceAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                    insuranceAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                    'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                  }`}>
+                    {insuranceAlert.badgeLabel}
+                  </span>
+                ) : car.scadenzaAssicurazione ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                ) : null}
+              </div>
+
+              {/* Revisione Ministeriale */}
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Revisione Ministeriale</p>
+                  <p className="text-sm font-extrabold text-white">{car.scadenzaRevisione || 'Non inserita'}</p>
+                </div>
+                {revisionAlert ? (
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                    revisionAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                    revisionAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                    'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                  }`}>
+                    {revisionAlert.badgeLabel}
+                  </span>
+                ) : car.scadenzaRevisione ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                ) : null}
+              </div>
+
+              {/* Prossimo Tagliando */}
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Prossimo Tagliando</p>
+                  <p className="text-sm font-extrabold text-white">{car.prossimoTagliandoData || 'Non inserito'}</p>
+                </div>
+                {tagliandoAlert ? (
+                  <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                    tagliandoAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                    tagliandoAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                    'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                  }`}>
+                    {tagliandoAlert.badgeLabel}
+                  </span>
+                ) : car.prossimoTagliandoData ? (
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Targa */}
+            {car.targa && (
+              <div className="bg-slate-900/90 px-4 py-2.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
+                <span className="text-xs text-slate-400 font-bold tracking-wider">TARGA VEICOLO:</span>
+                <span className="text-sm font-mono font-extrabold text-amber-300 tracking-widest bg-slate-950 px-3 py-1 rounded-lg border border-slate-800">{car.targa}</span>
+              </div>
+            )}
+          </div>
 
           {/* Technical Specs Section */}
           <div className="space-y-4 pt-2">

@@ -12,8 +12,10 @@ import {
   Award,
   Maximize2,
   Trash2,
-  MapPin
+  MapPin,
+  Bell
 } from 'lucide-react';
+import { getVehicleExpirations } from '../utils/notifications';
 
 export default function CarCard({ 
   car, 
@@ -25,6 +27,7 @@ export default function CarCard({
   onToggleSelect
 }) {
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
+  const carExpirations = React.useMemo(() => getVehicleExpirations([car]), [car]);
 
   // Determine image list (use images extracted or fallback to page render)
   const images = car.images && car.images.length > 0 ? car.images : [car.pageImage];
@@ -81,6 +84,16 @@ export default function CarCard({
             <span className="w-3.5 h-3.5 rounded border border-slate-400 block" />
           )}
         </button>
+
+        {/* Expirations Badge on Card Photo */}
+        {carExpirations.length > 0 && (
+          <div className="absolute top-12 left-3 z-10 pointer-events-none">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-slate-950 flex items-center space-x-1 shadow-lg border border-amber-300 animate-pulse">
+              <Bell className="w-3 h-3 text-slate-950" />
+              <span>{carExpirations.length} Scadenz{carExpirations.length === 1 ? 'a' : 'e'}</span>
+            </span>
+          </div>
+        )}
 
         {/* Favorite Button (Top-Right) */}
         <button
@@ -202,6 +215,19 @@ export default function CarCard({
           <div className="text-[11px] font-medium text-amber-300 truncate bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20 flex items-center space-x-1">
             <MapPin className="w-3 h-3 text-amber-400 shrink-0" />
             <span className="truncate">{car.location}</span>
+          </div>
+        )}
+
+        {/* Active Expirations Highlight Badge */}
+        {carExpirations.length > 0 && (
+          <div className="text-[11px] font-bold text-amber-200 bg-amber-500/15 p-2 rounded-xl border border-amber-500/40 flex items-center justify-between shadow-sm">
+            <div className="flex items-center space-x-1.5">
+              <Bell className="w-3.5 h-3.5 text-amber-400 shrink-0 animate-bounce" />
+              <span>{carExpirations.length} {carExpirations.length === 1 ? 'Scadenza Vettura' : 'Scadenze Vettura'}</span>
+            </div>
+            <span className="text-[10px] px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-extrabold">
+              {carExpirations[0].typeLabel} ({carExpirations[0].daysRemaining} gg)
+            </span>
           </div>
         )}
 

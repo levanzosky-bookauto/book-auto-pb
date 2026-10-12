@@ -25,7 +25,11 @@
       "./images/cars/car_2_img_5.jpeg",
       "./images/cars/car_2_img_1.jpeg",
       "./images/cars/car_2_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "08/12/2026",
+    "scadenzaAssicurazione": "08/01/2027",
+    "scadenzaRevisione": "08/11/2026",
+    "prossimoTagliandoData": "29/10/2026"
   },
   {
     "id": "car_3",

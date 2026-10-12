@@ -1,5 +1,6 @@
 import React from 'react';
-import { Heart, Eye, Edit3, Calendar, Zap, Gauge, Award, Trash2, MapPin } from 'lucide-react';
+import { Heart, Eye, Edit3, Calendar, Zap, Gauge, Award, Trash2, MapPin, Bell } from 'lucide-react';
+import { getVehicleExpirations } from '../utils/notifications';
 
 export default function CarListView({ 
   cars, 
@@ -42,6 +43,7 @@ export default function CarListView({
             {cars.map((car) => {
               const mainImg = car.images && car.images.length > 0 ? car.images[0] : car.pageImage;
               const isSelected = selectedCarIds.includes(car.id);
+              const carExpirations = getVehicleExpirations([car]);
               return (
                 <tr 
                   key={car.id} 
@@ -67,8 +69,16 @@ export default function CarListView({
                         <img src={mainImg} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                       </div>
                       <div>
-                        <div className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">
-                          {car.brand}
+                        <div className="flex items-center space-x-2">
+                          <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">
+                            {car.brand}
+                          </span>
+                          {carExpirations.length > 0 && (
+                            <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-500 text-slate-950 flex items-center space-x-1 animate-pulse">
+                              <Bell className="w-2.5 h-2.5" />
+                              <span>{carExpirations.length} Scadenze</span>
+                            </span>
+                          )}
                         </div>
                         <div className="font-bold text-sm text-white group-hover:text-amber-300 transition-colors">
                           {car.model}
