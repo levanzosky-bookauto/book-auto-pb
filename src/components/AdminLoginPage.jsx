@@ -14,11 +14,13 @@ import {
   EyeOff
 } from 'lucide-react';
 import { authenticateUser, getBackgroundImages, USER_ROLES } from '../utils/auth';
+import { getClientPermissions } from '../utils/permissions';
 import BouncingCarsCanvas from './BouncingCarsCanvas';
 
 export default function AdminLoginPage({ 
   onLoginSuccess, 
-  onClose 
+  onClose,
+  clientPermissions 
 }) {
   const loginCardRef = useRef(null);
   const [username, setUsername] = useState('');
@@ -175,6 +177,33 @@ export default function AdminLoginPage({
             <span>Accedi all'Area Riservata</span>
             <ArrowRight className="w-4 h-4" />
           </button>
+
+          {/* Quick Client / Guest Exploration Mode Button */}
+          {(clientPermissions || getClientPermissions())?.allowGuestBrowsing && (
+            <div className="pt-2 text-center">
+              <div className="flex items-center my-2.5">
+                <div className="flex-1 border-t border-slate-700/60"></div>
+                <span className="px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">oppure</span>
+                <div className="flex-1 border-t border-slate-700/60"></div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onLoginSuccess({
+                    id: 'guest_visitor',
+                    username: 'visitatore',
+                    name: 'Visitatore / Cliente',
+                    role: 'viewer',
+                    roleLabel: 'Visitatore / Cliente'
+                  });
+                }}
+                className="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700/90 text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 hover:border-cyan-400/50 font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-2"
+              >
+                <Eye className="w-4 h-4 text-cyan-400" />
+                <span>Esplora Catalogo come Visitatore</span>
+              </button>
+            </div>
+          )}
         </form>
 
         {/* Background Selector Indicator */}

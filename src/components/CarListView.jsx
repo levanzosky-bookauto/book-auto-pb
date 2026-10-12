@@ -1,18 +1,25 @@
 import React from 'react';
 import { Heart, Eye, Edit3, Calendar, Zap, Gauge, Award, Trash2, MapPin, Bell } from 'lucide-react';
 import { getVehicleExpirations } from '../utils/notifications';
+import { isStaffUser, canViewExpirations, canViewChassis, canViewLocation } from '../utils/permissions';
 
 export default function CarListView({ 
   cars, 
   onToggleFavorite, 
   onSelectCar, 
-  onEditCar,
+  onEditCar, 
   onDeleteCar,
   selectedCarIds = [],
   onToggleSelect,
-  onToggleSelectAll
+  onToggleSelectAll,
+  currentUser,
+  clientPermissions
 }) {
   const allSelected = cars.length > 0 && cars.every(c => selectedCarIds.includes(c.id));
+  const showExpirations = canViewExpirations(currentUser, clientPermissions);
+  const showChassis = canViewChassis(currentUser, clientPermissions);
+  const showLocation = canViewLocation(currentUser, clientPermissions);
+  const isStaff = isStaffUser(currentUser);
 
   return (
     <div className="glass-panel rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
@@ -73,7 +80,7 @@ export default function CarListView({
                           <span className="text-[10px] font-bold uppercase text-amber-400 tracking-wider">
                             {car.brand}
                           </span>
-                          {carExpirations.length > 0 && (
+                          {showExpirations && carExpirations.length > 0 && (
                             <span className="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-500 text-slate-950 flex items-center space-x-1 animate-pulse">
                               <Bell className="w-2.5 h-2.5" />
                               <span>{carExpirations.length} Scadenze</span>
@@ -89,7 +96,7 @@ export default function CarListView({
 
                   {/* Ubicazione / Garage */}
                   <td className="py-3 px-4 text-amber-300 font-semibold text-xs">
-                    {car.location ? (
+                    {showLocation && car.location ? (
                       <span className="inline-flex items-center space-x-1 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
                         <MapPin className="w-3 h-3 text-amber-400 shrink-0" />
                         <span>{car.location}</span>
@@ -106,7 +113,7 @@ export default function CarListView({
 
                   {/* Telaio */}
                   <td className="py-3 px-4 font-mono text-slate-400">
-                    {car.chassis || '—'}
+                    {showChassis ? (car.chassis || '—') : '••••••••'}
                   </td>
 
                   {/* Potenza */}
@@ -137,13 +144,15 @@ export default function CarListView({
                         <Heart className={`w-4 h-4 ${car.isFavorite ? 'fill-rose-400' : ''}`} />
                       </button>
 
-                      <button
-                        onClick={() => onEditCar(car)}
-                        className="p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
-                        title="Modifica"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
+                      {isStaff && (
+                        <button
+                          onClick={() => onEditCar(car)}
+                          className="p-1.5 text-slate-400 hover:text-amber-400 transition-colors"
+                          title="Modifica"
+                        >
+                          <Edit3 className="w-4 h-4" />
+                        </button>
+                      )}
 
                       <button
                         onClick={() => onSelectCar(car)}
@@ -153,7 +162,7 @@ export default function CarListView({
                         <Eye className="w-4 h-4" />
                       </button>
 
-                      {onDeleteCar && (
+                      {isStaff && onDeleteCar && (
                         <button
                           onClick={() => {
                             if (window.confirm(`Sei sicuro di voler eliminare la scheda ${car.brand} ${car.model}?`)) {

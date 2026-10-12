@@ -20,7 +20,9 @@ import {
   Upload,
   MapPin,
   Sparkles,
-  Bell
+  Bell,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { 
   getUsers, 
@@ -42,6 +44,7 @@ import {
   saveEmailJSConfig,
   sendBackgroundEmailJS
 } from '../utils/emailAlerts';
+import { getClientPermissions, saveClientPermissions, DEFAULT_CLIENT_PERMISSIONS } from '../utils/permissions';
 import { Send, Copy, FileText } from 'lucide-react';
 
 export default function AdminModal({ 
@@ -53,9 +56,39 @@ export default function AdminModal({
   showSideGlow,
   setShowSideGlow,
   showExpirationBar,
-  setShowExpirationBar
+  setShowExpirationBar,
+  clientPermissions,
+  onPermissionsUpdated
 }) {
-  const [activeTab, setActiveTab] = useState('tools'); // 'tools' | 'users' | 'backgrounds'
+  const [activeTab, setActiveTab] = useState('tools'); // 'tools' | 'permissions' | 'users' | 'backgrounds' | 'locations'
+
+  // Client Permissions State
+  const [permissions, setPermissions] = useState(() => clientPermissions || getClientPermissions());
+  const [permsMsg, setPermsMsg] = useState('');
+
+  const handleTogglePerm = (key, val) => {
+    const updated = { ...permissions, [key]: val };
+    setPermissions(updated);
+    saveClientPermissions(updated);
+    if (onPermissionsUpdated) onPermissionsUpdated(updated);
+    setPermsMsg('Impostazione visibilità aggiornata!');
+    setTimeout(() => setPermsMsg(''), 2500);
+  };
+
+  const handleSavePerms = () => {
+    saveClientPermissions(permissions);
+    if (onPermissionsUpdated) onPermissionsUpdated(permissions);
+    setPermsMsg('✅ Tutte le preferenze di visibilità per clienti e visitatori sono state salvate con successo!');
+    setTimeout(() => setPermsMsg(''), 4000);
+  };
+
+  const handleResetPerms = () => {
+    setPermissions(DEFAULT_CLIENT_PERMISSIONS);
+    saveClientPermissions(DEFAULT_CLIENT_PERMISSIONS);
+    if (onPermissionsUpdated) onPermissionsUpdated(DEFAULT_CLIENT_PERMISSIONS);
+    setPermsMsg('Valori predefiniti ripristinati con successo!');
+    setTimeout(() => setPermsMsg(''), 3000);
+  };
 
   // Users State
   const [users, setUsersList] = useState([]);
@@ -354,7 +387,7 @@ export default function AdminModal({
           </button>
         </div>
 
-        {/* 4-Tab Navigation */}
+        {/* 5-Tab Navigation */}
         <div className="flex border-b border-slate-800 bg-slate-950/80 text-xs font-bold shrink-0 overflow-x-auto no-scrollbar flex-nowrap">
           <button
             type="button"
@@ -367,6 +400,19 @@ export default function AdminModal({
           >
             <Settings className="w-4 h-4 shrink-0" />
             <span>Strumenti & Email</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('permissions')}
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+              activeTab === 'permissions'
+                ? 'border-amber-400 text-amber-400 bg-amber-500/10'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <Eye className="w-4 h-4 shrink-0 text-cyan-400" />
+            <span>Permessi Clienti</span>
           </button>
 
           <button
@@ -1115,6 +1161,404 @@ export default function AdminModal({
                     </div>
                   ))}
                 </div>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 5: PERMESSI & VISIBILITÀ CLIENTI E VISITATORI */}
+          {activeTab === 'permissions' && (
+            <div className="space-y-6 animate-fade-in">
+              
+              {/* Header Box */}
+              <div className="bg-gradient-to-r from-cyan-950/40 via-slate-900 to-amber-950/30 p-4 sm:p-5 rounded-2xl border border-cyan-500/30">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h4 className="font-bold text-cyan-400 text-sm flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-cyan-400" />
+                      <span>Controllo Visibilità: Clienti & Visitatori</span>
+                    </h4>
+                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                      Scegli cosa possono vedere o non vedere le persone esterne (clienti e visitatori del sito).
+                      <br className="hidden sm:inline" />
+                      <strong className="text-amber-300"> Nota:</strong> Tu come <span className="underline">Super Admin</span> (Shirantha) e Luciano come <span className="underline">Gestore</span> avrete <strong>SEMPRE visibilità completa al 100%</strong> su scadenze e dati riservati.
+                    </p>
+                  </div>
+                  <span className="shrink-0 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5">
+                    <Shield className="w-3.5 h-3.5" />
+                    <span>Controllo Privacy</span>
+                  </span>
+                </div>
+
+                {permsMsg && (
+                  <div className="mt-3.5 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-semibold flex items-center gap-2 animate-fade-in">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
+                    <span>{permsMsg}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Toggles List */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h5 className="font-bold text-slate-300 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <Settings className="w-3.5 h-3.5 text-cyan-400" />
+                    <span>Cosa possono visualizzare Clienti e Visitatori:</span>
+                  </h5>
+                  <span className="text-[10px] text-slate-400 italic">Clicca sulle caselle per attivare/disattivare</span>
+                </div>
+
+                {/* 1. SCADENZE (DEFAULT OFF) */}
+                <div 
+                  onClick={() => handleTogglePerm('showExpirations', !permissions.showExpirations)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.showExpirations 
+                      ? 'bg-amber-950/20 border-amber-500/40 hover:border-amber-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.showExpirations 
+                        ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <Bell className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Avvisi e Scadenze (Bollo, Assicurazione, Revisione, Tagliando)
+                        </span>
+                        {!permissions.showExpirations ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                            Nascosto ai clienti (Consigliato)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                            Visibile anche ai clienti
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Se disattivato, i clienti non vedranno il banner arancione in alto, la campanella con notifiche e le date di scadenza di bollo, revisione e assicurazione nelle auto.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Switch */}
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.showExpirations ? 'bg-amber-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. NUMERO DI TELAIO (VIN) */}
+                <div 
+                  onClick={() => handleTogglePerm('showChassis', !permissions.showChassis)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.showChassis 
+                      ? 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.showChassis 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <KeyRound className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Numero di Telaio (VIN Completo)
+                        </span>
+                        {!permissions.showChassis ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                            Riservato / Protetto
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            Visibile a tutti
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Se disattivato, il codice di telaio (VIN) sarà oscurato o visibile solo a te e a Luciano.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.showChassis ? 'bg-cyan-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. UBICAZIONE / POSIZIONE GARAGE */}
+                <div 
+                  onClick={() => handleTogglePerm('showLocation', !permissions.showLocation)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.showLocation 
+                      ? 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.showLocation 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Ubicazione / Sede Garage o Box
+                        </span>
+                        {!permissions.showLocation ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                            Riservato / Nascosto
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            Visibile a tutti
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Se disattivato, il nome della sede interna, magazzino o box auto non viene mostrato ai visitatori.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.showLocation ? 'bg-cyan-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. DOCUMENTI SCANSIONATI */}
+                <div 
+                  onClick={() => handleTogglePerm('showDocuments', !permissions.showDocuments)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.showDocuments 
+                      ? 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.showDocuments 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <FileSpreadsheet className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Documenti Allegati (Libretto di Circolazione, Polizze)
+                        </span>
+                        {!permissions.showDocuments ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                            Riservato ad Amministrazione
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                            Visibile a tutti
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Se disattivato, i documenti PDF e le foto scansionate del libretto non sono visualizzabili da clienti esterni.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.showDocuments ? 'bg-cyan-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. PREZZI DI VENDITA */}
+                <div 
+                  onClick={() => handleTogglePerm('showPrices', !permissions.showPrices)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.showPrices 
+                      ? 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.showPrices 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Prezzi di Vendita delle Auto
+                        </span>
+                        {permissions.showPrices ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            Prezzi Esposti
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                            Trattativa Riservata
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Se disattivato, il prezzo viene sostituito dalla dicitura "Trattativa Riservata" per visitatori e clienti.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.showPrices ? 'bg-cyan-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. DOWNLOAD SCHEDA PDF */}
+                <div 
+                  onClick={() => handleTogglePerm('allowPdfDownload', !permissions.allowPdfDownload)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.allowPdfDownload 
+                      ? 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.allowPdfDownload 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <Download className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Pulsante Download / Stampa Scheda PDF
+                        </span>
+                        {permissions.allowPdfDownload ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            Download Abilitato
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-rose-500/15 text-rose-300 border border-rose-500/30">
+                            Download Disabilitato
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Permette o impedisce ai visitatori di esportare o stampare la scheda del veicolo in formato PDF.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.allowPdfDownload ? 'bg-cyan-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 7. ACCESSO OSPITE / VISITATORE */}
+                <div 
+                  onClick={() => handleTogglePerm('allowGuestBrowsing', !permissions.allowGuestBrowsing)}
+                  className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-4 ${
+                    permissions.allowGuestBrowsing 
+                      ? 'bg-cyan-950/20 border-cyan-500/40 hover:border-cyan-400' 
+                      : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3.5">
+                    <div className={`p-2.5 rounded-xl border mt-0.5 shrink-0 transition-colors ${
+                      permissions.allowGuestBrowsing 
+                        ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/40' 
+                        : 'bg-slate-800 text-slate-400 border-slate-700'
+                    }`}>
+                      <Users className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white text-xs sm:text-sm">
+                          Esplorazione Libera Senza Login (Accesso Ospite)
+                        </span>
+                        {permissions.allowGuestBrowsing ? (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                            Catalogo Aperto
+                          </span>
+                        ) : (
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded-md bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                            Login Richiesto
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-400 mt-1 leading-snug">
+                        Se attivo, nella pagina di login iniziale compare il pulsante per entrare subito nel catalogo come visitatore senza digitare password.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 flex items-center">
+                    <div className={`w-11 h-6 flex items-center rounded-full p-1 duration-300 ease-in-out ${
+                      permissions.allowGuestBrowsing ? 'bg-cyan-500 justify-end' : 'bg-slate-800 justify-start'
+                    }`}>
+                      <div className="bg-white w-4 h-4 rounded-full shadow-md transform transition-all duration-300"></div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={handleResetPerms}
+                  className="w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-800 border border-slate-700 transition-all flex items-center justify-center gap-2"
+                >
+                  <EyeOff className="w-4 h-4" />
+                  <span>Ripristina Predefiniti</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSavePerms}
+                  className="w-full sm:w-auto px-6 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-amber-400 hover:from-cyan-300 hover:to-amber-300 shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  <span>Salva Configurazione Visibilità</span>
+                </button>
               </div>
 
             </div>

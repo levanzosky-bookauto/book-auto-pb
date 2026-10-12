@@ -21,6 +21,7 @@ import {
   LogOut,
   User
 } from 'lucide-react';
+import { isStaffUser, canViewExpirations } from '../utils/permissions';
 
 export default function Navbar({ 
   searchQuery, 
@@ -45,11 +46,14 @@ export default function Navbar({
   viewMode,
   setViewMode,
   currentUser,
+  clientPermissions,
   onLogout,
   onRefreshCloudData,
   isSyncing = false
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const showExpirations = canViewExpirations(currentUser, clientPermissions);
+  const isStaff = isStaffUser(currentUser);
 
   return (
     <header className="sticky top-0 z-40 glass-panel border-b border-white/10 shadow-2xl">
@@ -146,27 +150,29 @@ export default function Navbar({
             </button>
 
             {/* Expirations & Notifications Bell Button */}
-            <button
-              onClick={onOpenExpirationsModal}
-              className={`relative flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
-                hasUrgentExpirations
-                  ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse shadow-lg shadow-rose-500/20'
-                  : expirationsCount > 0
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md shadow-amber-500/10'
-                  : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800'
-              }`}
-              title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
-            >
-              <Bell className={`w-4 h-4 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
-              <span className="hidden xl:inline">Scadenze</span>
-              {expirationsCount > 0 && (
-                <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                  hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
-                }`}>
-                  {expirationsCount}
-                </span>
-              )}
-            </button>
+            {showExpirations && (
+              <button
+                onClick={onOpenExpirationsModal}
+                className={`relative flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                  hasUrgentExpirations
+                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse shadow-lg shadow-rose-500/20'
+                    : expirationsCount > 0
+                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md shadow-amber-500/10'
+                    : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800'
+                }`}
+                title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
+              >
+                <Bell className={`w-4 h-4 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
+                <span className="hidden xl:inline">Scadenze</span>
+                {expirationsCount > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                    hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
+                  }`}>
+                    {expirationsCount}
+                  </span>
+                )}
+              </button>
+            )}
 
             {/* PDF Print Selected Cars Button (if selected) */}
             {selectedCount > 0 && (
@@ -183,34 +189,49 @@ export default function Navbar({
             {/* Active User Chip & Admin Controls */}
             {currentUser && (
               <div className="flex items-center space-x-2 pl-2 border-l border-slate-800">
-                <button
-                  type="button"
-                  onClick={onOpenAdminModal}
-                  className="hidden xl:flex flex-col text-right hover:opacity-80 transition-opacity cursor-pointer text-left"
-                  title="Apri Pannello Amministratore (Gestione Utenti, Email & Sfondi)"
-                >
-                  <span className="text-xs font-bold text-amber-300 flex items-center justify-end space-x-1">
-                    <User className="w-3 h-3 text-amber-400 inline mr-1" />
-                    {currentUser.name || currentUser.username}
-                  </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {currentUser.roleLabel || 'Utente Admin'} ⚙️
-                  </span>
-                </button>
+                {isStaff && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={onOpenAdminModal}
+                      className="hidden xl:flex flex-col text-right hover:opacity-80 transition-opacity cursor-pointer text-left"
+                      title="Apri Pannello Amministratore (Gestione Utenti, Email & Sfondi)"
+                    >
+                      <span className="text-xs font-bold text-amber-300 flex items-center justify-end space-x-1">
+                        <User className="w-3 h-3 text-amber-400 inline mr-1" />
+                        {currentUser.name || currentUser.username}
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {currentUser.roleLabel || 'Utente Admin'} ⚙️
+                      </span>
+                    </button>
 
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onOpenAdminModal && onOpenAdminModal();
-                  }}
-                  className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/25 transition-all active:scale-95 shrink-0 cursor-pointer"
-                  title="Apri Pannello Amministratore (Gestione Utenti, Email & Sfondi)"
-                >
-                  <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
-                  <span className="font-extrabold">Pannello Admin</span>
-                </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onOpenAdminModal && onOpenAdminModal();
+                      }}
+                      className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/25 transition-all active:scale-95 shrink-0 cursor-pointer"
+                      title="Apri Pannello Amministratore (Gestione Utenti, Email & Sfondi)"
+                    >
+                      <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
+                      <span className="font-extrabold">Pannello Admin</span>
+                    </button>
+                  </>
+                )}
+
+                {!isStaff && (
+                  <div className="hidden sm:flex flex-col text-right px-2">
+                    <span className="text-xs font-bold text-slate-200">
+                      {currentUser.name || currentUser.username}
+                    </span>
+                    <span className="text-[10px] text-cyan-400 font-mono">
+                      Visitatore / Cliente
+                    </span>
+                  </div>
+                )}
 
                 <button
                   onClick={onLogout}
@@ -236,36 +257,40 @@ export default function Navbar({
               <Heart className={`w-5 h-5 ${onlyFavorites ? 'fill-rose-400' : ''}`} />
             </button>
 
-            {/* Mobile Expirations Bell Button (Directly visible on phones!) */}
-            <button
-              type="button"
-              onClick={onOpenExpirationsModal}
-              className={`relative p-2 rounded-xl border transition-all ${
-                hasUrgentExpirations
-                  ? 'bg-rose-500/25 text-rose-300 border-rose-500/60 shadow-lg shadow-rose-500/30 animate-pulse'
-                  : expirationsCount > 0
-                  ? 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-md shadow-amber-500/20'
-                  : 'bg-slate-900/60 text-slate-300 border-slate-700'
-              }`}
-              title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
-            >
-              <Bell className={`w-5 h-5 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
-              {expirationsCount > 0 && (
-                <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-extrabold shadow-md ${
-                  hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
-                }`}>
-                  {expirationsCount}
-                </span>
-              )}
-            </button>
+            {/* Mobile Expirations Bell Button (Directly visible on phones if allowed) */}
+            {showExpirations && (
+              <button
+                type="button"
+                onClick={onOpenExpirationsModal}
+                className={`relative p-2 rounded-xl border transition-all ${
+                  hasUrgentExpirations
+                    ? 'bg-rose-500/25 text-rose-300 border-rose-500/60 shadow-lg shadow-rose-500/30 animate-pulse'
+                    : expirationsCount > 0
+                    ? 'bg-amber-500/25 text-amber-300 border-amber-500/50 shadow-md shadow-amber-500/20'
+                    : 'bg-slate-900/60 text-slate-300 border-slate-700'
+                }`}
+                title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
+              >
+                <Bell className={`w-5 h-5 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
+                {expirationsCount > 0 && (
+                  <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-extrabold shadow-md ${
+                    hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
+                  }`}>
+                    {expirationsCount}
+                  </span>
+                )}
+              </button>
+            )}
             
-            <button
-              onClick={onOpenAddModal}
-              className="p-2 bg-amber-500 text-slate-950 font-bold rounded-xl shadow-md"
-              title="Aggiungi Auto"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
+            {isStaff && (
+              <button
+                onClick={onOpenAddModal}
+                className="p-2 bg-amber-500 text-slate-950 font-bold rounded-xl shadow-md"
+                title="Aggiungi Auto"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -346,38 +371,42 @@ export default function Navbar({
             </div>
 
             <div className="flex flex-col space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={() => { setMobileMenuOpen(false); onOpenExpirationsModal && onOpenExpirationsModal(); }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all ${
-                  hasUrgentExpirations
-                    ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse'
-                    : expirationsCount > 0
-                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md'
-                    : 'bg-slate-900 text-slate-300 border-slate-700'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <Bell className="w-4 h-4 text-amber-400" />
-                  <span>Scadenze & Promemoria Vetture</span>
-                </div>
-                {expirationsCount > 0 && (
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
-                    hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
-                  }`}>
-                    {expirationsCount}
-                  </span>
-                )}
-              </button>
+              {showExpirations && (
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); onOpenExpirationsModal && onOpenExpirationsModal(); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                    hasUrgentExpirations
+                      ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse'
+                      : expirationsCount > 0
+                      ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md'
+                      : 'bg-slate-900 text-slate-300 border-slate-700'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <Bell className="w-4 h-4 text-amber-400" />
+                    <span>Scadenze & Promemoria Vetture</span>
+                  </div>
+                  {expirationsCount > 0 && (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
+                      hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
+                    }`}>
+                      {expirationsCount}
+                    </span>
+                  )}
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => { setMobileMenuOpen(false); onOpenAdminModal && onOpenAdminModal(); }}
-                className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-xl text-xs font-extrabold shadow-md active:scale-95 transition-transform"
-              >
-                <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
-                <span>Pannello Admin & Notifiche Email</span>
-              </button>
+              {isStaff && (
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); onOpenAdminModal && onOpenAdminModal(); }}
+                  className="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 rounded-xl text-xs font-extrabold shadow-md active:scale-95 transition-transform"
+                >
+                  <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
+                  <span>Pannello Admin & Notifiche Email</span>
+                </button>
+              )}
 
               {onRefreshCloudData && (
                 <button
@@ -390,23 +419,25 @@ export default function Navbar({
                 </button>
               )}
 
-              <div className="flex space-x-2">
-                <button
-                  onClick={onOpenBackupModal}
-                  className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-slate-900 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold"
-                >
-                  <Download className="w-4 h-4 text-amber-400" />
-                  <span>Backup & Export</span>
-                </button>
-                
-                <button
-                  onClick={onResetData}
-                  className="flex items-center justify-center p-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl text-xs"
-                  title="Ripristina Catalogo PDF"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                </button>
-              </div>
+              {isStaff && (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={onOpenBackupModal}
+                    className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-slate-900 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold"
+                  >
+                    <Download className="w-4 h-4 text-amber-400" />
+                    <span>Backup & Export</span>
+                  </button>
+                  
+                  <button
+                    onClick={onResetData}
+                    className="flex items-center justify-center p-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl text-xs"
+                    title="Ripristina Catalogo PDF"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

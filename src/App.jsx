@@ -18,6 +18,7 @@ import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser } from './utils/auth';
 import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
 import { fetchCarsFromSupabase, syncCarsToSupabase } from './utils/supabase';
+import { getClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
 
 const LOCAL_STORAGE_KEY = 'book_auto_pb_cars_v1';
 
@@ -28,6 +29,7 @@ export default function App() {
   
   // Auth & User State
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
+  const [clientPermissions, setClientPermissions] = useState(() => getClientPermissions());
 
   const handleLoginSuccess = (user) => {
     setCurrentUserInStorage(user);
@@ -484,7 +486,12 @@ export default function App() {
 
   // If user is not logged in, display the initial Admin Login Page with slideshow background
   if (!currentUser) {
-    return <AdminLoginPage onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <AdminLoginPage 
+        onLoginSuccess={handleLoginSuccess} 
+        clientPermissions={clientPermissions} 
+      />
+    );
   }
 
   return (
@@ -525,13 +532,14 @@ export default function App() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         currentUser={currentUser}
+        clientPermissions={clientPermissions}
         onLogout={handleLogout}
         onRefreshCloudData={handleRefreshCloudData}
         isSyncing={isSyncing}
       />
 
-      {/* Top Expiration Notification Banner (Animated Progress Color Gradient) */}
-      {showExpirationBar && expirationsAlerts.length > 0 && (
+      {/* Top Expiration Notification Banner (Shown ONLY if allowed for clients, or always for staff) */}
+      {canViewExpirations(currentUser, clientPermissions) && showExpirationBar && expirationsAlerts.length > 0 && (
         <div className="relative z-10 animate-alert-glow border-b border-amber-500/40 px-4 py-2.5 text-xs text-amber-100 shadow-lg">
           <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center space-x-2.5">
@@ -674,6 +682,8 @@ export default function App() {
                 onSelectCar={setSelectedCar}
                 onEditCar={(c) => { setCarToEdit(c); setIsAddModalOpen(true); }}
                 onDeleteCar={handleDeleteCar}
+                currentUser={currentUser}
+                clientPermissions={clientPermissions}
               />
             ))}
           </div>
@@ -687,6 +697,8 @@ export default function App() {
             onSelectCar={setSelectedCar}
             onEditCar={(c) => { setCarToEdit(c); setIsAddModalOpen(true); }}
             onDeleteCar={handleDeleteCar}
+            currentUser={currentUser}
+            clientPermissions={clientPermissions}
           />
         )}
 
@@ -711,6 +723,8 @@ export default function App() {
           onDeleteCar={handleDeleteCar}
           onUpdateCarPhotos={handleUpdateCarImages}
           onOpenPrintPdf={handleOpenPrintPdfForCar}
+          currentUser={currentUser}
+          clientPermissions={clientPermissions}
         />
       )}
 
@@ -775,6 +789,8 @@ export default function App() {
             setShowExpirationBar(val);
             localStorage.setItem('book_auto_pb_expiration_bar', JSON.stringify(val));
           }}
+          clientPermissions={clientPermissions}
+          onPermissionsUpdated={(updated) => setClientPermissions(updated)}
         />
       )}
 
