@@ -19,6 +19,7 @@ import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser }
 import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
 import { fetchCarsFromSupabase, syncCarsToSupabase, fetchPermissionsFromSupabase, syncPermissionsToSupabase } from './utils/supabase';
 import { getClientPermissions, saveClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
+import { markCarAsPermanentlyDeleted, markCarsAsPermanentlyDeleted, filterOutDeletedCars, syncDeletedCarsWithCloud } from './utils/deletedCars';
 
 const LOCAL_STORAGE_KEY = 'book_auto_pb_cars_v1';
 
@@ -107,6 +108,9 @@ export default function App() {
   // Load Initial Data with Real-Time Cloud Sync (Supabase + LocalStorage + baseline cars.json)
   useEffect(() => {
     async function loadInitialCars() {
+      // 0. Sync deleted car tombstones with Supabase Cloud
+      await syncDeletedCarsWithCloud();
+
       // 1. Check if this device has local edits / expirations
       const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
       let localCars = null;
@@ -114,7 +118,7 @@ export default function App() {
         try {
           const parsed = JSON.parse(savedLocal);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            localCars = formatCarImages(parsed);
+            localCars = formatCarImages(filterOutDeletedCars(parsed));
           }
         } catch (e) {
           console.error('Error parsing local storage:', e);
@@ -127,7 +131,7 @@ export default function App() {
         const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json?t=${Date.now()}`);
         if (res.ok) {
           const json = await res.json();
-          if (Array.isArray(json)) baselineCars = formatCarImages(json);
+          if (Array.isArray(json)) baselineCars = formatCarImages(filterOutDeletedCars(json));
         }
       } catch (err) {
         console.warn('Error loading baseline cars.json:', err);
@@ -135,8 +139,8 @@ export default function App() {
 
       // Helper to merge baseline expirations if missing in a car list
       const mergeWithBaseline = (carList) => {
-        if (!Array.isArray(carList) || baselineCars.length === 0) return carList;
-        return carList.map(c => {
+        if (!Array.isArray(carList) || baselineCars.length === 0) return filterOutDeletedCars(carList);
+        return filterOutDeletedCars(carList).map(c => {
           const base = baselineCars.find(b => String(b.id) === String(c.id));
           if (!base) return c;
           return {
@@ -160,7 +164,8 @@ export default function App() {
       // 2. Fetch latest shared cars from Supabase Cloud (Central truth)
       const supabaseCars = await fetchCarsFromSupabase();
       if (supabaseCars && supabaseCars.length > 0) {
-        let formattedSupabase = formatCarImages(supabaseCars);
+        const activeSupabase = filterOutDeletedCars(supabaseCars);
+        let formattedSupabase = formatCarImages(activeSupabase);
         formattedSupabase = mergeWithBaseline(formattedSupabase);
 
         // Check if this device has expiration dates that haven't reached Supabase yet (e.g. Admin device)
@@ -214,7 +219,8 @@ export default function App() {
     const interval = setInterval(async () => {
       const freshSupabase = await fetchCarsFromSupabase();
       if (freshSupabase && freshSupabase.length > 0) {
-        const formatted = formatCarImages(freshSupabase);
+        const activeSupabase = filterOutDeletedCars(freshSupabase);
+        const formatted = formatCarImages(activeSupabase);
         setCars(prev => {
           // Compare JSON string to prevent unnecessary re-renders
           if (JSON.stringify(prev) !== JSON.stringify(formatted)) {
@@ -245,9 +251,11 @@ export default function App() {
   const handleRefreshCloudData = async () => {
     setIsSyncing(true);
     try {
+      await syncDeletedCarsWithCloud();
       const freshSupabase = await fetchCarsFromSupabase();
       if (freshSupabase && freshSupabase.length > 0) {
-        const formatted = formatCarImages(freshSupabase);
+        const activeSupabase = filterOutDeletedCars(freshSupabase);
+        const formatted = formatCarImages(activeSupabase);
         setCars(formatted);
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
       } else {
@@ -255,7 +263,8 @@ export default function App() {
         if (res.ok) {
           const json = await res.json();
           if (Array.isArray(json)) {
-            const formatted = formatCarImages(json);
+            const activeCars = filterOutDeletedCars(json);
+            const formatted = formatCarImages(activeCars);
             setCars(formatted);
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
           }
@@ -346,11 +355,19 @@ export default function App() {
     setCarToEdit(null);
   };
 
-  // Delete Single Car
-  const handleDeleteCar = (carId) => {
-    const updated = cars.filter(c => c.id !== carId);
-    saveCarsState(updated);
-    setSelectedCarIds(prev => prev.filter(id => id !== carId));
+  // Delete Single Car Permanently across Local & Supabase Cloud
+  const handleDeleteCar = async (carId) => {
+    // 1. Mark permanently deleted (local storage tombstone + delete from Supabase row + sync tombstone)
+    await markCarAsPermanentlyDeleted(carId);
+
+    // 2. Filter state & localStorage
+    const updated = cars.filter(c => String(c.id) !== String(carId));
+    setCars(updated);
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    setSelectedCarIds(prev => prev.filter(id => String(id) !== String(carId)));
+    if (selectedCar && String(selectedCar.id) === String(carId)) {
+      setSelectedCar(null);
+    }
   };
 
   // Update Car Photos order (reordering & setting cover photo)
@@ -400,23 +417,34 @@ export default function App() {
     }
   };
 
-  // Bulk Delete Selected Cars
-  const handleDeleteSelectedCars = () => {
+  // Bulk Delete Selected Cars Permanently across Local & Supabase Cloud
+  const handleDeleteSelectedCars = async () => {
     if (selectedCarIds.length === 0) return;
-    if (window.confirm(`Sei sicuro di voler eliminare le ${selectedCarIds.length} schede selezionate?`)) {
-      const updated = cars.filter(c => !selectedCarIds.includes(c.id));
-      saveCarsState(updated);
+    if (window.confirm(`Sei sicuro di voler eliminare DEFINITIVAMENTE le ${selectedCarIds.length} schede selezionate?`)) {
+      const idsToDelete = [...selectedCarIds];
       setSelectedCarIds([]);
+
+      // 1. Mark permanently deleted across local storage & Supabase Cloud
+      await markCarsAsPermanentlyDeleted(idsToDelete);
+
+      // 2. Filter state & localStorage
+      const updated = cars.filter(c => !idsToDelete.map(String).includes(String(c.id)));
+      setCars(updated);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      if (selectedCar && idsToDelete.map(String).includes(String(selectedCar.id))) {
+        setSelectedCar(null);
+      }
     }
   };
 
-  // Reset to original PDF dataset
+  // Reset to original PDF dataset (preserving permanently deleted vehicles)
   const handleResetData = () => {
-    fetch(`${import.meta.env.BASE_URL}data/cars.json`)
+    fetch(`${import.meta.env.BASE_URL}data/cars.json?t=${Date.now()}`)
       .then(res => res.json())
       .then(data => {
-        setCars(data);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+        const active = filterOutDeletedCars(data);
+        setCars(active);
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(active));
         setSelectedBrand('Tutti');
         setSearchQuery('');
         setOnlyFavorites(false);

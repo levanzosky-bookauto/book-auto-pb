@@ -212,3 +212,91 @@ export async function syncPermissionsToSupabase(permissions) {
     return false;
   }
 }
+
+// Permanently delete a car from Supabase Cloud
+export async function deleteCarFromSupabase(carId) {
+  if (!supabase || !carId) return false;
+  try {
+    const { error } = await supabase
+      .from('cars')
+      .delete()
+      .eq('id', String(carId));
+    if (error) {
+      console.error('Supabase deleteCar error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase deleteCar exception:', e);
+    return false;
+  }
+}
+
+// Permanently delete multiple cars from Supabase Cloud
+export async function deleteCarsFromSupabase(carIds) {
+  if (!supabase || !Array.isArray(carIds) || carIds.length === 0) return false;
+  try {
+    const { error } = await supabase
+      .from('cars')
+      .delete()
+      .in('id', carIds.map(String));
+    if (error) {
+      console.error('Supabase deleteCars error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase deleteCars exception:', e);
+    return false;
+  }
+}
+
+// Fetch Deleted Car IDs (Tombstones) from Supabase Cloud
+export async function fetchDeletedCarIdsFromSupabase(timeoutMs = 6000) {
+  if (!supabase) return [];
+  try {
+    const fetchPromise = supabase
+      .from('cars')
+      .select('notes')
+      .eq('id', '__deleted_cars__')
+      .maybeSingle();
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase deleted_cars timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    if (error || !data || !data.notes) return [];
+
+    try {
+      const parsed = JSON.parse(data.notes);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (parseErr) {
+      return [];
+    }
+  } catch (e) {
+    return [];
+  }
+}
+
+// Sync Deleted Car IDs (Tombstones) to Supabase Cloud
+export async function syncDeletedCarIdsToSupabase(deletedIds) {
+  if (!supabase || !Array.isArray(deletedIds)) return false;
+  try {
+    const payload = {
+      id: '__deleted_cars__',
+      brand: 'SYSTEM',
+      model: 'DELETED_CARS_TOMBSTONES',
+      notes: JSON.stringify(deletedIds)
+    };
+    const { error } = await supabase.from('cars').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.error('Supabase sync deleted_cars error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase sync deleted_cars exception:', e);
+    return false;
+  }
+}
