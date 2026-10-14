@@ -300,3 +300,53 @@ export async function syncDeletedCarIdsToSupabase(deletedIds) {
     return false;
   }
 }
+
+// Fetch Email Configuration from Supabase Cloud
+export async function fetchEmailConfigFromSupabase(timeoutMs = 6000) {
+  if (!supabase) return null;
+  try {
+    const fetchPromise = supabase
+      .from('cars')
+      .select('notes')
+      .eq('id', '__email_config__')
+      .maybeSingle();
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase email_config timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    if (error || !data || !data.notes) return null;
+
+    try {
+      const parsed = JSON.parse(data.notes);
+      return (parsed && typeof parsed === 'object') ? parsed : null;
+    } catch (parseErr) {
+      return null;
+    }
+  } catch (e) {
+    return null;
+  }
+}
+
+// Sync Email Configuration to Supabase Cloud
+export async function syncEmailConfigToSupabase(config) {
+  if (!supabase || !config || typeof config !== 'object') return false;
+  try {
+    const payload = {
+      id: '__email_config__',
+      brand: 'SYSTEM',
+      model: 'EMAIL_CONFIG',
+      notes: JSON.stringify(config)
+    };
+    const { error } = await supabase.from('cars').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.error('Supabase sync email_config error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase sync email_config exception:', e);
+    return false;
+  }
+}

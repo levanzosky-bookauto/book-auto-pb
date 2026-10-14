@@ -42,13 +42,17 @@ import {
   generateEmailReportText,
   getEmailJSConfig,
   saveEmailJSConfig,
-  sendBackgroundEmailJS
+  sendBackgroundEmailJS,
+  normalizeFormspreeUrl,
+  validateFormspreeUrl,
+  saveAllEmailSettingsToCloud
 } from '../utils/emailAlerts';
 import { getClientPermissions, saveClientPermissions, DEFAULT_CLIENT_PERMISSIONS } from '../utils/permissions';
 import { syncPermissionsToSupabase } from '../utils/supabase';
 import { Send, Copy, FileText } from 'lucide-react';
 
 export default function AdminModal({ 
+  cars = [],
   onClose, 
   onOpenAddModal, 
   onOpenBrandLogosModal, 
@@ -202,13 +206,13 @@ export default function AdminModal({
 
     if (emailProvider === 'mailto') {
       setIsSendingTest(false);
-      sendTestEmailMailto(adminEmail);
+      sendTestEmailMailto(adminEmail, cars);
       setTestEmailMsg('✉️ Apertura App Mail di sistema in corso...');
       setTimeout(() => setTestEmailMsg(''), 6000);
       return;
     }
 
-    const res = await sendBackgroundEmailJS(adminEmail);
+    const res = await sendBackgroundEmailJS(adminEmail, cars);
     setIsSendingTest(false);
 
     if (res && res.success) {
@@ -344,20 +348,20 @@ export default function AdminModal({
     saveBackgroundImages(updated);
   };
 
-  // Save Email Settings
-  const handleSaveEmailSettings = (e) => {
+  // Save Email Settings across Local & Supabase Cloud
+  const handleSaveEmailSettings = async (e) => {
     e.preventDefault();
-    setAdminEmail(adminEmail);
-    localStorage.setItem('book_auto_pb_email_alerts', emailAlertsEnabled);
-    saveEmailJSConfig({
+    await saveAllEmailSettingsToCloud({
       provider: emailProvider,
+      adminEmail: adminEmail,
+      emailAlertsEnabled: emailAlertsEnabled,
+      webhookUrl: webhookUrl,
       serviceId: emailjsServiceId,
       templateId: emailjsTemplateId,
-      publicKey: emailjsPublicKey,
-      webhookUrl: webhookUrl
+      publicKey: emailjsPublicKey
     });
     setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 3000);
+    setTimeout(() => setSavedSuccess(false), 3500);
   };
 
   return (
@@ -615,16 +619,38 @@ export default function AdminModal({
                 {/* Formspree Section */}
                 {emailProvider === 'formspree' && (
                   <div className="pt-2 border-t border-slate-800 space-y-2 animate-fade-in">
-                    <label className="block text-slate-300 font-semibold mb-1">Link Formspree.io (Invio Automatico a 1 Solo Link)</label>
+                    <div className="flex items-center justify-between">
+                      <label className="block text-slate-300 font-semibold text-xs">
+                        Link Formspree.io (Invio Automatico a 1 Solo Link)
+                      </label>
+                      {webhookUrl && (
+                        validateFormspreeUrl(webhookUrl).valid ? (
+                          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                            ✓ Formato Valido
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                            ⚠️ Verifica Link
+                          </span>
+                        )
+                      )}
+                    </div>
                     <input
                       type="text"
                       value={webhookUrl}
                       onChange={(e) => setWebhookUrl(e.target.value)}
                       placeholder="Es. https://formspree.io/f/xaeqeqzl"
-                      className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs font-mono text-amber-300"
+                      className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs font-mono text-amber-300 focus:border-amber-400"
                     />
-                    <p className="text-[10px] text-slate-400">
-                      💡 <strong>Come attivare Formspree</strong>: registrati gratis su <a href="https://formspree.io" target="_blank" rel="noreferrer" className="text-amber-400 underline font-bold">Formspree.io</a>, crea un modulo e incolla qui il link generato (es. <code className="text-amber-300">https://formspree.io/f/xaeqeqzl</code>).
+
+                    {webhookUrl && !validateFormspreeUrl(webhookUrl).valid && (
+                      <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] leading-relaxed">
+                        {validateFormspreeUrl(webhookUrl).reason}
+                      </div>
+                    )}
+
+                    <p className="text-[10px] text-slate-400 leading-relaxed">
+                      💡 <strong>Come attivare Formspree</strong>: registrati gratis su <a href="https://formspree.io" target="_blank" rel="noreferrer" className="text-amber-400 underline font-bold">Formspree.io</a>, crea un modulo con il pulsante <strong>"+ New Form"</strong> e incolla qui il link generato (deve contenere il codice ID finale, es. <code className="text-amber-300">https://formspree.io/f/xaeqeqzl</code>).
                     </p>
                   </div>
                 )}

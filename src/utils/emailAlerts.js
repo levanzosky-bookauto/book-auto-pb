@@ -110,14 +110,62 @@ export function copyEmailReportToClipboard(recipientEmail, cars = []) {
   }
 }
 
+import { fetchEmailConfigFromSupabase, syncEmailConfigToSupabase } from './supabase';
+
+// Normalize any Formspree URL or raw ID into a full clean URL
+export function normalizeFormspreeUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') return '';
+  let trimmed = rawUrl.trim();
+  if (!trimmed) return '';
+
+  // If user pasted just the ID e.g. "xaeqeqzl"
+  if (/^[a-zA-Z0-9_-]{6,16}$/.test(trimmed)) {
+    return `https://formspree.io/f/${trimmed}`;
+  }
+
+  // If user pasted without protocol e.g. "formspree.io/f/xaeqeqzl"
+  if (trimmed.startsWith('formspree.io/f/')) {
+    return `https://${trimmed}`;
+  }
+
+  // Remove trailing slashes
+  trimmed = trimmed.replace(/\/+$/, '');
+
+  return trimmed;
+}
+
+// Validate whether a URL is a valid Formspree endpoint
+export function validateFormspreeUrl(url) {
+  if (!url) return { valid: false, reason: 'Nessun link Formspree inserito nelle impostazioni.' };
+  const clean = normalizeFormspreeUrl(url);
+
+  // If user just typed https://formspree.io without /f/ID
+  if (clean === 'https://formspree.io' || clean === 'https://formspree.io/') {
+    return { 
+      valid: false, 
+      reason: 'Hai inserito solo "https://formspree.io". Devi inserire il link completo con il codice del tuo form (es. https://formspree.io/f/xxxxxx).' 
+    };
+  }
+
+  if (!/^https:\/\/formspree\.io\/f\/[a-zA-Z0-9_-]+$/i.test(clean)) {
+    return { 
+      valid: false, 
+      reason: 'Il link deve avere il formato https://formspree.io/f/codice-del-tuo-modulo' 
+    };
+  }
+
+  return { valid: true, url: clean };
+}
+
 // EmailJS / Webhook Auto Dispatcher Configuration
 export function getEmailJSConfig() {
+  const rawUrl = localStorage.getItem('book_auto_pb_webhook_url') || '';
   return {
     provider: localStorage.getItem('book_auto_pb_email_provider') || 'formspree',
     serviceId: localStorage.getItem('book_auto_pb_emailjs_service_id') || '',
     templateId: localStorage.getItem('book_auto_pb_emailjs_template_id') || '',
     publicKey: localStorage.getItem('book_auto_pb_emailjs_public_key') || '',
-    webhookUrl: localStorage.getItem('book_auto_pb_webhook_url') || ''
+    webhookUrl: normalizeFormspreeUrl(rawUrl)
   };
 }
 
@@ -126,7 +174,58 @@ export function saveEmailJSConfig({ provider, serviceId, templateId, publicKey, 
   if (serviceId !== undefined) localStorage.setItem('book_auto_pb_emailjs_service_id', serviceId.trim());
   if (templateId !== undefined) localStorage.setItem('book_auto_pb_emailjs_template_id', templateId.trim());
   if (publicKey !== undefined) localStorage.setItem('book_auto_pb_emailjs_public_key', publicKey.trim());
-  if (webhookUrl !== undefined) localStorage.setItem('book_auto_pb_webhook_url', webhookUrl.trim());
+  if (webhookUrl !== undefined) localStorage.setItem('book_auto_pb_webhook_url', normalizeFormspreeUrl(webhookUrl));
+}
+
+// Sync Email Config with Supabase Cloud so all devices share the same notification settings
+export async function syncEmailConfigWithCloud() {
+  try {
+    const cloud = await fetchEmailConfigFromSupabase();
+    if (cloud && typeof cloud === 'object') {
+      if (cloud.provider) localStorage.setItem('book_auto_pb_email_provider', cloud.provider);
+      if (cloud.adminEmail) localStorage.setItem('book_auto_pb_admin_email', cloud.adminEmail);
+      if (cloud.webhookUrl) localStorage.setItem('book_auto_pb_webhook_url', normalizeFormspreeUrl(cloud.webhookUrl));
+      if (cloud.emailAlertsEnabled !== undefined) {
+        localStorage.setItem('book_auto_pb_email_alerts', String(cloud.emailAlertsEnabled));
+      }
+      if (cloud.serviceId) localStorage.setItem('book_auto_pb_emailjs_service_id', cloud.serviceId);
+      if (cloud.templateId) localStorage.setItem('book_auto_pb_emailjs_template_id', cloud.templateId);
+      if (cloud.publicKey) localStorage.setItem('book_auto_pb_emailjs_public_key', cloud.publicKey);
+      return cloud;
+    }
+  } catch (e) {
+    console.error('Error syncing email config with cloud:', e);
+  }
+  return null;
+}
+
+// Save all email settings to both localStorage and Supabase Cloud
+export async function saveAllEmailSettingsToCloud({ provider, adminEmail, emailAlertsEnabled, webhookUrl, serviceId, templateId, publicKey }) {
+  const cleanUrl = normalizeFormspreeUrl(webhookUrl || '');
+  const cleanEmail = (adminEmail || '').trim();
+
+  // 1. Save to local storage
+  if (provider !== undefined) localStorage.setItem('book_auto_pb_email_provider', provider);
+  if (cleanEmail !== undefined) localStorage.setItem('book_auto_pb_admin_email', cleanEmail);
+  if (emailAlertsEnabled !== undefined) localStorage.setItem('book_auto_pb_email_alerts', String(emailAlertsEnabled));
+  if (webhookUrl !== undefined) localStorage.setItem('book_auto_pb_webhook_url', cleanUrl);
+  if (serviceId !== undefined) localStorage.setItem('book_auto_pb_emailjs_service_id', (serviceId || '').trim());
+  if (templateId !== undefined) localStorage.setItem('book_auto_pb_emailjs_template_id', (templateId || '').trim());
+  if (publicKey !== undefined) localStorage.setItem('book_auto_pb_emailjs_public_key', (publicKey || '').trim());
+
+  // 2. Sync to Supabase Cloud
+  const payload = {
+    provider: provider || 'formspree',
+    adminEmail: cleanEmail,
+    emailAlertsEnabled: Boolean(emailAlertsEnabled),
+    webhookUrl: cleanUrl,
+    serviceId: (serviceId || '').trim(),
+    templateId: (templateId || '').trim(),
+    publicKey: (publicKey || '').trim(),
+    updatedAt: new Date().toISOString()
+  };
+  await syncEmailConfigToSupabase(payload);
+  return payload;
 }
 
 // Send background REST email via Formspree, EmailJS, or Webhook
@@ -138,12 +237,13 @@ export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
 
   // 1. FORMSPREE / WEBHOOK (Selected or configured)
   if (config.provider === 'formspree' || (config.webhookUrl && config.provider !== 'emailjs')) {
-    if (!config.webhookUrl) {
-      return { success: false, reason: 'Inserisci il tuo link Formspree.io nelle impostazioni.' };
+    const validation = validateFormspreeUrl(config.webhookUrl);
+    if (!validation.valid) {
+      return { success: false, reason: validation.reason };
     }
 
     try {
-      const res = await fetch(config.webhookUrl, {
+      const res = await fetch(validation.url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
         body: JSON.stringify({
@@ -154,11 +254,18 @@ export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
           subject: '[Book Auto PB] Avviso Scadenze Vetture'
         })
       });
+
       if (res.ok) {
         return { success: true, method: 'formspree' };
       } else {
         const errJson = await res.json().catch(() => ({}));
-        return { success: false, reason: 'Formspree ha restituito un avviso. Controlla il link formspree.io.' };
+        let reason = 'Formspree ha restituito un avviso.';
+        if (errJson.error) {
+          reason = `Formspree: ${errJson.error}`;
+        } else if (Array.isArray(errJson.errors) && errJson.errors.length > 0) {
+          reason = `Formspree: ${errJson.errors.map(e => e.message).join(', ')}`;
+        }
+        return { success: false, reason };
       }
     } catch (e) {
       console.warn('Formspree auto email failed:', e);

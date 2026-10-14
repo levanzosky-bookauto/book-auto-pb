@@ -16,7 +16,7 @@ import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkl
 import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser } from './utils/auth';
-import { checkAndTriggerAutomaticEmailAlerts } from './utils/emailAlerts';
+import { checkAndTriggerAutomaticEmailAlerts, syncEmailConfigWithCloud } from './utils/emailAlerts';
 import { fetchCarsFromSupabase, syncCarsToSupabase, fetchPermissionsFromSupabase, syncPermissionsToSupabase } from './utils/supabase';
 import { getClientPermissions, saveClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
 import { markCarAsPermanentlyDeleted, markCarsAsPermanentlyDeleted, filterOutDeletedCars, syncDeletedCarsWithCloud } from './utils/deletedCars';
@@ -108,8 +108,9 @@ export default function App() {
   // Load Initial Data with Real-Time Cloud Sync (Supabase + LocalStorage + baseline cars.json)
   useEffect(() => {
     async function loadInitialCars() {
-      // 0. Sync deleted car tombstones with Supabase Cloud
+      // 0. Sync deleted car tombstones and email configuration with Supabase Cloud
       await syncDeletedCarsWithCloud();
+      await syncEmailConfigWithCloud();
 
       // 1. Check if this device has local edits / expirations
       const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -830,6 +831,7 @@ export default function App() {
 
       {isAdminModalOpen && (
         <AdminModal
+          cars={cars}
           onClose={() => setIsAdminModalOpen(false)}
           onOpenAddModal={() => { setCarToEdit(null); setIsAddModalOpen(true); }}
           onOpenBrandLogosModal={() => setIsBrandLogosModalOpen(true)}
