@@ -13,9 +13,36 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { authenticateUser, authenticateUserAsync, syncUsersWithCloud, getBackgroundImages, USER_ROLES } from '../utils/auth';
+import { authenticateUser, authenticateUserAsync, getUsers, syncUsersWithCloud, getBackgroundImages, USER_ROLES } from '../utils/auth';
 import { getClientPermissions } from '../utils/permissions';
 import BouncingCarsCanvas from './BouncingCarsCanvas';
+
+const getRoleBadge = (role) => {
+  switch (role) {
+    case 'super_admin':
+      return {
+        label: '👑 Super Admin',
+        color: 'text-amber-400',
+        badgeBg: 'bg-amber-500/10 border-amber-500/30',
+        btnBg: 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/20'
+      };
+    case 'editor':
+      return {
+        label: '🛠️ Gestore / Editor',
+        color: 'text-emerald-400',
+        badgeBg: 'bg-emerald-500/10 border-emerald-500/30',
+        btnBg: 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20'
+      };
+    case 'viewer':
+    default:
+      return {
+        label: '👁️ Visitatore / Cliente',
+        color: 'text-sky-400',
+        badgeBg: 'bg-sky-500/10 border-sky-500/30',
+        btnBg: 'bg-sky-500 hover:bg-sky-400 text-slate-950 shadow-sky-500/20'
+      };
+  }
+};
 
 export default function AdminLoginPage({ 
   onLoginSuccess, 
@@ -28,6 +55,7 @@ export default function AdminLoginPage({
   const [showPassword, setShowPassword] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [showHelpCredentials, setShowHelpCredentials] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState(() => getUsers());
   const [errorMsg, setErrorMsg] = useState('');
   const [backgrounds, setBackgrounds] = useState([]);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -36,7 +64,11 @@ export default function AdminLoginPage({
     const bgList = getBackgroundImages();
     setBackgrounds(bgList);
     // Sync freshest users from Supabase Cloud on login page mount
-    syncUsersWithCloud().catch(() => {});
+    syncUsersWithCloud().then(users => {
+      if (Array.isArray(users) && users.length > 0) {
+        setAvailableUsers(users);
+      }
+    }).catch(() => {});
   }, []);
 
   // Cycle background image automatically every 6 seconds
@@ -215,39 +247,41 @@ export default function AdminLoginPage({
               <div className="mt-2.5 p-3 bg-slate-950/95 border border-amber-500/30 rounded-2xl text-[11px] text-slate-300 text-left space-y-2 animate-fade-in shadow-xl">
                 <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
                   <span className="font-bold text-amber-300 flex items-center space-x-1">
-                    <span>🔑 Credenziali Predefinite Book Auto:</span>
+                    <span>🔑 Utenti & Credenziali Registrati:</span>
                   </span>
-                  <span className="text-[9px] text-slate-400">Sincronizzate nel Cloud</span>
+                  <span className="text-[9px] text-slate-400">Cloud Sync ({availableUsers.length})</span>
                 </div>
 
-                <div className="space-y-1.5 text-[10px]">
-                  <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800">
-                    <div>
-                      <span className="font-bold text-amber-300 block">Super Admin:</span>
-                      <span className="text-slate-300">Utente: <code className="text-amber-300 font-bold">shirantha</code> • Pass: <code className="text-amber-300 font-bold">Maduka0822</code></span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setUsername('shirantha'); setPassword('Maduka0822'); }}
-                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[10px] shadow transition-all active:scale-95"
-                    >
-                      Inserisci
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800">
-                    <div>
-                      <span className="font-bold text-emerald-300 block">Gestore / Editor:</span>
-                      <span className="text-slate-300">Utente: <code className="text-emerald-300 font-bold">luciano</code> • Pass: <code className="text-emerald-300 font-bold">1234</code></span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setUsername('luciano'); setPassword('1234'); }}
-                      className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-[10px] shadow transition-all active:scale-95"
-                    >
-                      Inserisci
-                    </button>
-                  </div>
+                <div className="space-y-1.5 text-[10px] max-h-56 overflow-y-auto pr-1">
+                  {(availableUsers || []).map((u) => {
+                    const badge = getRoleBadge(u.role);
+                    return (
+                      <div 
+                        key={u.id || u.username} 
+                        className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800 hover:border-slate-700 transition-colors"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <span className={`font-bold ${badge.color} block truncate`}>
+                            {badge.label}: {u.name || u.username}
+                          </span>
+                          <span className="text-slate-300 block truncate">
+                            Utente: <code className={`${badge.color} font-bold`}>{u.username}</code> • Pass: <code className={`${badge.color} font-bold`}>{u.password}</code>
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { 
+                            setUsername(u.username); 
+                            setPassword(u.password); 
+                            setErrorMsg('');
+                          }}
+                          className={`shrink-0 px-2.5 py-1 ${badge.btnBg} font-bold rounded-lg text-[10px] shadow transition-all active:scale-95`}
+                        >
+                          Inserisci
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
 
                 <p className="text-[9px] text-slate-400 leading-tight">
