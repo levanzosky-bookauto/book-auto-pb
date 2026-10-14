@@ -307,22 +307,36 @@ export default function AdminModal({
     setTimeout(() => setUserMsg(''), 3000);
   };
 
-  // Delete User
+  // Delete User (Completely flexible with any username - no hardcoded names!)
   const handleDeleteUser = (userId) => {
     if (users.length <= 1) {
-      alert('Non puoi eliminare l\'unico utente rimasto!');
+      alert('Non puoi eliminare l\'unico utente rimasto nel sistema!');
       return;
     }
     const target = users.find(u => u.id === userId);
-    if (target && target.username.toLowerCase() === 'shirantha') {
-      alert('Impossibile eliminare l\'utente principale Shirantha (Super Admin)!');
+    const activeUser = getCurrentUser();
+
+    // Check: avoid self-deletion during active session
+    if (activeUser && (activeUser.id === userId || (target && activeUser.username.toLowerCase() === target.username.toLowerCase()))) {
+      alert('Non puoi eliminare l\'utente con cui sei attualmente connesso! Accedi con un altro account prima di eliminare questo.');
       return;
     }
 
-    if (window.confirm('Sei sicuro di voler eliminare questo utente?')) {
+    // Check: ensure at least one Super Admin remains
+    if (target && target.role === 'super_admin') {
+      const otherSuperAdmins = users.filter(u => u.id !== userId && u.role === 'super_admin');
+      if (otherSuperAdmins.length === 0) {
+        alert('Deve rimanere almeno un utente con ruolo Super Admin nel sistema. Crea o assegna il ruolo Super Admin a un altro account prima di eliminare questo.');
+        return;
+      }
+    }
+
+    if (window.confirm(`Sei sicuro di voler eliminare definitivamente l'utente "${target?.name || target?.username}"?`)) {
       const updated = users.filter(u => u.id !== userId);
       setUsersList(updated);
       saveUsers(updated);
+      setUserMsg(`Utente "${target?.name || target?.username}" eliminato definitivamente dal sistema e dal Cloud.`);
+      setTimeout(() => setUserMsg(''), 3000);
     }
   };
 
