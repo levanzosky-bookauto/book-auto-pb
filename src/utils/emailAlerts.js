@@ -157,15 +157,17 @@ export function validateFormspreeUrl(url) {
   return { valid: true, url: clean };
 }
 
+export const DEFAULT_FORMSPREE_URL = 'https://formspree.io/f/xaeqeqzl';
+
 // EmailJS / Webhook Auto Dispatcher Configuration
 export function getEmailJSConfig() {
-  const rawUrl = localStorage.getItem('book_auto_pb_webhook_url') || '';
+  const rawUrl = localStorage.getItem('book_auto_pb_webhook_url') || DEFAULT_FORMSPREE_URL;
   return {
     provider: localStorage.getItem('book_auto_pb_email_provider') || 'formspree',
     serviceId: localStorage.getItem('book_auto_pb_emailjs_service_id') || '',
     templateId: localStorage.getItem('book_auto_pb_emailjs_template_id') || '',
     publicKey: localStorage.getItem('book_auto_pb_emailjs_public_key') || '',
-    webhookUrl: normalizeFormspreeUrl(rawUrl)
+    webhookUrl: normalizeFormspreeUrl(rawUrl) || DEFAULT_FORMSPREE_URL
   };
 }
 
