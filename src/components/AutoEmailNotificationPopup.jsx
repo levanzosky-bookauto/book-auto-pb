@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
 import { Mail, Send, X, CheckCircle2, Copy, AlertTriangle, Sparkles, ShieldCheck } from 'lucide-react';
 import { sendTestEmailMailto, copyEmailReportToClipboard, getAdminEmail, sendBackgroundEmailJS } from '../utils/emailAlerts';
+import { getCurrentUser } from '../utils/auth';
+import { isStaffUser } from '../utils/permissions';
 
 export default function AutoEmailNotificationPopup({ 
   alerts = [], 
   onClose,
-  onOpenAdminModal 
+  onOpenAdminModal,
+  currentUser
 }) {
+  const activeUser = currentUser || getCurrentUser();
+  // Clienti e visitatori NON devono MAI vedere questo popup
+  if (!isStaffUser(activeUser)) {
+    return null;
+  }
   const [copiedMsg, setCopiedMsg] = useState('');
   const [statusMsg, setStatusMsg] = useState('');
   const [isSending, setIsSending] = useState(false);

@@ -871,6 +871,7 @@ export default function App() {
           alerts={autoEmailPopupAlerts}
           onClose={() => setAutoEmailPopupAlerts(null)}
           onOpenAdminModal={() => setIsAdminModalOpen(true)}
+          currentUser={currentUser}
         />
       )}
 
