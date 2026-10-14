@@ -200,24 +200,37 @@ export default function AdminModal({
   });
   const [showAdvancedEmailJS, setShowAdvancedEmailJS] = useState(false);
 
-  const handleRunTestEmail = async () => {
+  const handleRunTestEmail = async (providerOverride = null) => {
+    const targetProvider = providerOverride || emailProvider;
     setIsSendingTest(true);
     setTestEmailMsg('Invio email di prova in corso...');
 
-    if (emailProvider === 'mailto') {
+    if (targetProvider === 'mailto') {
       setIsSendingTest(false);
-      sendTestEmailMailto(adminEmail, cars);
-      setTestEmailMsg('✉️ Apertura App Mail di sistema in corso...');
+      const ok = sendTestEmailMailto(adminEmail, cars);
+      if (ok) {
+        setTestEmailMsg('✉️ Apertura App Mail di sistema in corso con il report scadenze...');
+      } else {
+        setTestEmailMsg('⚠️ Inserisci prima un indirizzo email destinatario.');
+      }
       setTimeout(() => setTestEmailMsg(''), 6000);
       return;
     }
 
-    const res = await sendBackgroundEmailJS(adminEmail, cars);
+    const configOverrides = {
+      provider: targetProvider,
+      webhookUrl: webhookUrl,
+      serviceId: emailjsServiceId,
+      templateId: emailjsTemplateId,
+      publicKey: emailjsPublicKey
+    };
+
+    const res = await sendBackgroundEmailJS(adminEmail, cars, targetProvider, configOverrides);
     setIsSendingTest(false);
 
     if (res && res.success) {
-      const providerLabel = res.method === 'formspree' ? 'Formspree.io' : 'EmailJS';
-      setTestEmailMsg(`🟢 Email di prova inviata con successo via ${providerLabel}! Controlla la tua casella di posta.`);
+      const providerLabel = targetProvider === 'formspree' ? 'Formspree.io' : 'EmailJS';
+      setTestEmailMsg(`🟢 Prova riuscita! Email inviata con successo via ${providerLabel} a: ${adminEmail || 'tua casella'}. Controlla la posta!`);
     } else {
       setTestEmailMsg(`⚠️ ${res?.reason || 'Impossibile inviare email. Verifica i dati inseriti.'}`);
     }
@@ -349,10 +362,11 @@ export default function AdminModal({
   };
 
   // Save Email Settings across Local & Supabase Cloud
-  const handleSaveEmailSettings = async (e) => {
-    e.preventDefault();
+  const handleSaveEmailSettings = async (e, forcedProvider = null) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const targetProvider = forcedProvider || emailProvider;
     await saveAllEmailSettingsToCloud({
-      provider: emailProvider,
+      provider: targetProvider,
       adminEmail: adminEmail,
       emailAlertsEnabled: emailAlertsEnabled,
       webhookUrl: webhookUrl,
@@ -519,255 +533,514 @@ export default function AdminModal({
                 </div>
               </div>
 
-              {/* Email Notifications Setup Form */}
-              <form onSubmit={handleSaveEmailSettings} className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <div className="flex items-center space-x-2 border-b border-slate-800 pb-2">
-                  <Mail className="w-4 h-4 text-amber-400" />
-                  <h4 className="font-bold text-slate-100">Configurazione Notifiche via Email</h4>
-                </div>
-                
-                <p className="text-slate-400 text-[11px]">
-                  Scegli il metodo che preferisci per inviare i promemoria automatici delle scadenze (Bollo, Assicurazione, Revisione, Tagliando).
-                </p>
-
-                {/* Email Provider Radio Selector */}
-                <div className="space-y-1.5">
-                  <label className="block text-slate-300 font-bold text-xs">
-                    Metodo di Invio Desiderato:
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <label className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start space-x-2.5 ${
-                      emailProvider === 'formspree' ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="emailProvider"
-                        value="formspree"
-                        checked={emailProvider === 'formspree'}
-                        onChange={() => setEmailProvider('formspree')}
-                        className="mt-0.5 text-amber-500 focus:ring-amber-500"
-                      />
-                      <div>
-                        <span className="block font-bold text-xs text-slate-100">Formspree.io</span>
-                        <span className="text-[10px] text-slate-400">1 Solo Link — Consigliato</span>
-                      </div>
-                    </label>
-
-                    <label className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start space-x-2.5 ${
-                      emailProvider === 'emailjs' ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="emailProvider"
-                        value="emailjs"
-                        checked={emailProvider === 'emailjs'}
-                        onChange={() => setEmailProvider('emailjs')}
-                        className="mt-0.5 text-amber-500 focus:ring-amber-500"
-                      />
-                      <div>
-                        <span className="block font-bold text-xs text-slate-100">EmailJS</span>
-                        <span className="text-[10px] text-slate-400">3 Chiavi API avanzate</span>
-                      </div>
-                    </label>
-
-                    <label className={`p-3 rounded-xl border cursor-pointer transition-all flex items-start space-x-2.5 ${
-                      emailProvider === 'mailto' ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-md' : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700'
-                    }`}>
-                      <input
-                        type="radio"
-                        name="emailProvider"
-                        value="mailto"
-                        checked={emailProvider === 'mailto'}
-                        onChange={() => setEmailProvider('mailto')}
-                        className="mt-0.5 text-amber-500 focus:ring-amber-500"
-                      />
-                      <div>
-                        <span className="block font-bold text-xs text-slate-100">App Mail</span>
-                        <span className="text-[10px] text-slate-400">Apre la tua app Mail/Outlook</span>
-                      </div>
-                    </label>
+              {/* Email Notifications Setup & Discrete Test Section */}
+              <div className="bg-slate-950/95 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-4 shadow-xl">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="p-2 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20">
+                      <Mail className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-100 text-sm">Configurazione Notifiche & Invio Email</h4>
+                      <p className="text-slate-400 text-[11px]">
+                        Scegli una delle 3 soluzioni: in basso si aprirà solo la configurazione e il pulsante di prova dedicato.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Email Destinatario Notifiche (Singola o Multiple)</label>
-                  <input
-                    type="text"
-                    value={adminEmail}
-                    onChange={(e) => setAdminEmailState(e.target.value)}
-                    placeholder="Es. email1@gmail.com, email2@azienda.it"
-                    className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    💡 <strong>Puoi inserire più indirizzi email</strong> separandoli semplicemente con una virgola (es. <code className="text-amber-300">email1@gmail.com, email2@azienda.it</code>).
-                  </p>
-                </div>
-
-                <div className="flex items-center space-x-2 pt-1">
-                  <input
-                    type="checkbox"
-                    id="emailAlertsEnabled"
-                    checked={emailAlertsEnabled}
-                    onChange={(e) => setEmailAlertsEnabled(e.target.checked)}
-                    className="rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-900"
-                  />
-                  <label htmlFor="emailAlertsEnabled" className="text-slate-300 cursor-pointer">
-                    Abilita invio promemoria email automatici per scadenze
+                {/* 3 Metodi di Invio Selector Cards (Cerchiati dall'utente) */}
+                <div className="space-y-1.5">
+                  <label className="block text-slate-300 font-bold text-xs uppercase tracking-wider">
+                    Metodo di Invio Desiderato (Clicca per aprire la categoria):
                   </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    {/* Card 1: Formspree.io */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailProvider('formspree');
+                        setTestEmailMsg('');
+                      }}
+                      className={`p-3.5 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                        emailProvider === 'formspree'
+                          ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/10 border-amber-400 text-amber-300 shadow-lg shadow-amber-500/10 ring-2 ring-amber-400/50'
+                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-850'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            emailProvider === 'formspree' ? 'border-amber-400 bg-amber-400' : 'border-slate-600'
+                          }`}>
+                            {emailProvider === 'formspree' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                          </div>
+                          <span className="font-bold text-xs text-slate-100">Formspree.io</span>
+                        </div>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                          Consigliato
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 pl-6">
+                        1 Solo Link endpoint • Invio automatico silenzioso
+                      </p>
+                    </button>
+
+                    {/* Card 2: EmailJS */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailProvider('emailjs');
+                        setTestEmailMsg('');
+                      }}
+                      className={`p-3.5 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                        emailProvider === 'emailjs'
+                          ? 'bg-gradient-to-br from-indigo-500/20 to-indigo-600/10 border-indigo-400 text-indigo-300 shadow-lg shadow-indigo-500/10 ring-2 ring-indigo-400/50'
+                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-850'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            emailProvider === 'emailjs' ? 'border-indigo-400 bg-indigo-400' : 'border-slate-600'
+                          }`}>
+                            {emailProvider === 'emailjs' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                          </div>
+                          <span className="font-bold text-xs text-slate-100">EmailJS</span>
+                        </div>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                          API Key
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 pl-6">
+                        3 Chiavi API avanzate • Invio REST diretto
+                      </p>
+                    </button>
+
+                    {/* Card 3: App Mail */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEmailProvider('mailto');
+                        setTestEmailMsg('');
+                      }}
+                      className={`p-3.5 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between ${
+                        emailProvider === 'mailto'
+                          ? 'bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-400 text-cyan-300 shadow-lg shadow-cyan-500/10 ring-2 ring-cyan-400/50'
+                          : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-850'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+                            emailProvider === 'mailto' ? 'border-cyan-400 bg-cyan-400' : 'border-slate-600'
+                          }`}>
+                            {emailProvider === 'mailto' && <div className="w-1.5 h-1.5 rounded-full bg-slate-950" />}
+                          </div>
+                          <span className="font-bold text-xs text-slate-100">App Mail</span>
+                        </div>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                          Locale
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-1 pl-6">
+                        Apre la tua app Mail / Outlook del Mac o telefono
+                      </p>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Formspree Section */}
+                {/* CATEGORIA 1: FORMSPREE.IO DEDICATA */}
                 {emailProvider === 'formspree' && (
-                  <div className="pt-2 border-t border-slate-800 space-y-2 animate-fade-in">
-                    <div className="flex items-center justify-between">
-                      <label className="block text-slate-300 font-semibold text-xs">
-                        Link Formspree.io (Invio Automatico a 1 Solo Link)
-                      </label>
-                      {webhookUrl && (
-                        validateFormspreeUrl(webhookUrl).valid ? (
-                          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                            ✓ Formato Valido
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
-                            ⚠️ Verifica Link
-                          </span>
-                        )
-                      )}
+                  <div className="p-4 rounded-2xl bg-gradient-to-b from-amber-500/10 to-slate-900/90 border border-amber-500/30 space-y-3.5 animate-fade-in shadow-xl">
+                    <div className="flex items-center justify-between border-b border-amber-500/20 pb-2.5">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-1.5 bg-amber-500/20 text-amber-400 rounded-lg">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-xs text-amber-200">
+                            Categoria Selezionata: Formspree.io (Invio Automatico Silenzioso)
+                          </h5>
+                          <p className="text-[10px] text-slate-400">
+                            Invia in background senza aprire nessuna finestra né richiedere login dell'utente
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">
+                        Attivo
+                      </span>
                     </div>
-                    <input
-                      type="text"
-                      value={webhookUrl}
-                      onChange={(e) => setWebhookUrl(e.target.value)}
-                      placeholder="Es. https://formspree.io/f/xaeqeqzl"
-                      className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs font-mono text-amber-300 focus:border-amber-400"
-                    />
 
-                    {webhookUrl && !validateFormspreeUrl(webhookUrl).valid && (
-                      <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] leading-relaxed">
-                        {validateFormspreeUrl(webhookUrl).reason}
+                    {/* Recipient Email */}
+                    <div>
+                      <label className="block text-slate-200 font-semibold text-xs mb-1">
+                        Email Destinatario Notifiche Scadenze (Singola o Multiple)
+                      </label>
+                      <input
+                        type="text"
+                        value={adminEmail}
+                        onChange={(e) => setAdminEmailState(e.target.value)}
+                        placeholder="Es. cantinaportaromana93@gmail.com, info@azienda.it"
+                        className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 text-xs focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        💡 Puoi inserire più indirizzi email separandoli con una virgola.
+                      </p>
+                    </div>
+
+                    {/* Formspree Link */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-slate-200 font-semibold text-xs">
+                          Link Endpoint Formspree.io (Form ID)
+                        </label>
+                        {webhookUrl && (
+                          validateFormspreeUrl(webhookUrl).valid ? (
+                            <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                              ✓ Formato Valido
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-amber-400 font-bold bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                              ⚠️ Verifica Link
+                            </span>
+                          )
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={webhookUrl}
+                        onChange={(e) => setWebhookUrl(e.target.value)}
+                        placeholder="Es. https://formspree.io/f/xaeqeqzl"
+                        className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-amber-300 font-mono text-xs focus:border-amber-400 focus:ring-1 focus:ring-amber-400 outline-none"
+                      />
+                      {webhookUrl && !validateFormspreeUrl(webhookUrl).valid && (
+                        <div className="p-2.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[11px] leading-relaxed">
+                          {validateFormspreeUrl(webhookUrl).reason}
+                        </div>
+                      )}
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-[10px] text-slate-400 leading-relaxed">
+                        💡 <strong>Guida Formspree:</strong> Registrati gratis su <a href="https://formspree.io" target="_blank" rel="noreferrer" className="text-amber-400 underline font-bold">Formspree.io</a>, crea un modulo con <strong>"+ New Form"</strong> e incolla qui il link generato (es. <code className="text-amber-300 font-bold">https://formspree.io/f/xaeqeqzl</code>).
+                      </div>
+                    </div>
+
+                    {/* Toggle Automatic Alerts */}
+                    <label className="flex items-center space-x-2.5 p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition-all">
+                      <input
+                        type="checkbox"
+                        id="emailAlertsEnabledFormspree"
+                        checked={emailAlertsEnabled}
+                        onChange={(e) => setEmailAlertsEnabled(e.target.checked)}
+                        className="rounded border-slate-700 text-amber-500 focus:ring-amber-500 bg-slate-900 w-4 h-4"
+                      />
+                      <div>
+                        <span className="block font-bold text-xs text-slate-200">
+                          Abilita invio automatico promemoria scadenze con Formspree
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Invia 3 avvisi scadenze mirati (60 giorni, 30 giorni e 7 giorni prima)
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* Feedback Messages */}
+                    {savedSuccess && (
+                      <div className="p-2.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold flex items-center space-x-2 animate-fade-in">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Impostazioni Formspree salvate con successo e sincronizzate nel Cloud!</span>
                       </div>
                     )}
 
-                    <p className="text-[10px] text-slate-400 leading-relaxed">
-                      💡 <strong>Come attivare Formspree</strong>: registrati gratis su <a href="https://formspree.io" target="_blank" rel="noreferrer" className="text-amber-400 underline font-bold">Formspree.io</a>, crea un modulo con il pulsante <strong>"+ New Form"</strong> e incolla qui il link generato (deve contenere il codice ID finale, es. <code className="text-amber-300">https://formspree.io/f/xaeqeqzl</code>).
-                    </p>
-                  </div>
-                )}
+                    {testEmailMsg && (
+                      <div className="p-2.5 bg-slate-950 border border-amber-500/40 text-amber-300 rounded-xl text-xs font-semibold flex items-center space-x-2 animate-fade-in">
+                        <Bell className="w-4 h-4 text-amber-400 shrink-0" />
+                        <span>{testEmailMsg}</span>
+                      </div>
+                    )}
 
-                {/* EmailJS Section */}
-                {emailProvider === 'emailjs' && (
-                  <div className="pt-2 border-t border-slate-800 space-y-2 animate-fade-in">
-                    <p className="text-slate-300 font-semibold text-xs">Configurazione Avanzata EmailJS (3 Chiavi API):</p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
-                      <div>
-                        <label className="block text-slate-300 mb-0.5 font-semibold">Service ID</label>
-                        <input
-                          type="text"
-                          value={emailjsServiceId}
-                          onChange={(e) => setEmailjsServiceId(e.target.value)}
-                          placeholder="service_xxx"
-                          className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-mono text-[10px]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-300 mb-0.5 font-semibold">Template ID</label>
-                        <input
-                          type="text"
-                          value={emailjsTemplateId}
-                          onChange={(e) => setEmailjsTemplateId(e.target.value)}
-                          placeholder="template_xxx"
-                          className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-mono text-[10px]"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-slate-300 mb-0.5 font-semibold">Public Key (User ID)</label>
-                        <input
-                          type="text"
-                          value={emailjsPublicKey}
-                          onChange={(e) => setEmailjsPublicKey(e.target.value)}
-                          placeholder="user_xxx"
-                          className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-mono text-[10px]"
-                        />
-                      </div>
+                    {/* Actions: Save & Test Formspree */}
+                    <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t border-amber-500/20">
+                      <button
+                        type="button"
+                        onClick={(e) => handleSaveEmailSettings(e, 'formspree')}
+                        className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs shadow-sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Salva Configurazione Formspree</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isSendingTest}
+                        onClick={() => handleRunTestEmail('formspree')}
+                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
+                      >
+                        <Send className={`w-4 h-4 ${isSendingTest ? 'animate-spin' : ''}`} />
+                        <span>{isSendingTest ? 'Invio in corso...' : '✉️ Prova Invio con Formspree Ora'}</span>
+                      </button>
                     </div>
                   </div>
                 )}
-                <div className="pt-2 flex items-center justify-between">
-                  {savedSuccess && (
-                    <span className="text-emerald-400 font-bold text-[11px] flex items-center space-x-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Impostazioni Email Salvate!</span>
-                    </span>
-                  )}
-                  <button
-                    type="submit"
-                    className="ml-auto px-4 py-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 font-bold rounded-xl transition-all"
-                  >
-                    Salva Impostazioni Email
-                  </button>
-                </div>
-              </form>
 
-              {/* Test Invio & Ricezione Notifiche Email */}
-              <div className="bg-slate-950/90 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <div className="flex items-center space-x-2 border-b border-slate-800 pb-2">
-                  <Mail className="w-4 h-4 text-amber-400" />
-                  <h4 className="font-bold text-slate-100">Test Invio & Ricezione Notifiche Email</h4>
-                </div>
+                {/* CATEGORIA 2: EMAILJS DEDICATA */}
+                {emailProvider === 'emailjs' && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-b from-indigo-500/10 to-slate-900/90 border border-indigo-500/30 space-y-3.5 animate-fade-in shadow-xl">
+                    <div className="flex items-center justify-between border-b border-indigo-500/20 pb-2.5">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-1.5 bg-indigo-500/20 text-indigo-400 rounded-lg">
+                          <KeyRound className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-xs text-indigo-200">
+                            Categoria Selezionata: EmailJS (Integrazione API Diretta)
+                          </h5>
+                          <p className="text-[10px] text-slate-400">
+                            Invio tramite 3 chiavi API configurate sulla tua dashboard emailjs.com
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold bg-indigo-400 text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">
+                        Attivo
+                      </span>
+                    </div>
 
-                <p className="text-slate-400 text-[11px]">
-                  Puoi provare subito l'invio del report delle scadenze vetture per verificare la ricezione al tuo indirizzo email (<strong className="text-slate-200">{adminEmail || 'non impostato'}</strong>).
-                </p>
+                    {/* Recipient Email */}
+                    <div>
+                      <label className="block text-slate-200 font-semibold text-xs mb-1">
+                        Email Destinatario Notifiche Scadenze (Singola o Multiple)
+                      </label>
+                      <input
+                        type="text"
+                        value={adminEmail}
+                        onChange={(e) => setAdminEmailState(e.target.value)}
+                        placeholder="Es. cantinaportaromana93@gmail.com, info@azienda.it"
+                        className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 text-xs focus:border-indigo-400 focus:ring-1 focus:ring-indigo-400 outline-none"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        💡 Puoi inserire più indirizzi email separandoli con una virgola.
+                      </p>
+                    </div>
 
-                {testEmailMsg && (
-                  <div className="p-2.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold flex items-center space-x-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>{testEmailMsg}</span>
+                    {/* 3 EmailJS API Keys */}
+                    <div className="space-y-2">
+                      <label className="block text-slate-200 font-semibold text-xs">
+                        Le 3 Chiavi API EmailJS:
+                      </label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                        <div>
+                          <label className="block text-slate-300 mb-1 font-semibold text-[10px]">Service ID</label>
+                          <input
+                            type="text"
+                            value={emailjsServiceId}
+                            onChange={(e) => setEmailjsServiceId(e.target.value)}
+                            placeholder="service_xxx"
+                            className="w-full px-2.5 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-mono text-[11px] focus:border-indigo-400 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-300 mb-1 font-semibold text-[10px]">Template ID</label>
+                          <input
+                            type="text"
+                            value={emailjsTemplateId}
+                            onChange={(e) => setEmailjsTemplateId(e.target.value)}
+                            placeholder="template_xxx"
+                            className="w-full px-2.5 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-mono text-[11px] focus:border-indigo-400 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-slate-300 mb-1 font-semibold text-[10px]">Public Key (User ID)</label>
+                          <input
+                            type="text"
+                            value={emailjsPublicKey}
+                            onChange={(e) => setEmailjsPublicKey(e.target.value)}
+                            placeholder="user_xxx"
+                            className="w-full px-2.5 py-2 bg-slate-950 border border-slate-700 rounded-lg text-slate-100 font-mono text-[11px] focus:border-indigo-400 outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-[10px] text-slate-400 leading-relaxed">
+                        💡 <strong>Guida EmailJS:</strong> Su <a href="https://emailjs.com" target="_blank" rel="noreferrer" className="text-indigo-400 underline font-bold">EmailJS</a> imposta un template con i campi <code className="text-indigo-300 font-bold">&#123;&#123;to_email&#125;&#125;</code> e <code className="text-indigo-300 font-bold">&#123;&#123;message_body&#125;&#125;</code>.
+                      </div>
+                    </div>
+
+                    {/* Toggle Automatic Alerts */}
+                    <label className="flex items-center space-x-2.5 p-2.5 bg-slate-950/80 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer transition-all">
+                      <input
+                        type="checkbox"
+                        id="emailAlertsEnabledEmailjs"
+                        checked={emailAlertsEnabled}
+                        onChange={(e) => setEmailAlertsEnabled(e.target.checked)}
+                        className="rounded border-slate-700 text-indigo-500 focus:ring-indigo-500 bg-slate-900 w-4 h-4"
+                      />
+                      <div>
+                        <span className="block font-bold text-xs text-slate-200">
+                          Abilita invio automatico promemoria scadenze con EmailJS
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Invio automatico delle scadenze vetture direttamente dal browser
+                        </span>
+                      </div>
+                    </label>
+
+                    {/* Feedback Messages */}
+                    {savedSuccess && (
+                      <div className="p-2.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold flex items-center space-x-2 animate-fade-in">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Impostazioni EmailJS salvate con successo e sincronizzate nel Cloud!</span>
+                      </div>
+                    )}
+
+                    {testEmailMsg && (
+                      <div className="p-2.5 bg-slate-950 border border-indigo-500/40 text-indigo-300 rounded-xl text-xs font-semibold flex items-center space-x-2 animate-fade-in">
+                        <Bell className="w-4 h-4 text-indigo-400 shrink-0" />
+                        <span>{testEmailMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Actions: Save & Test EmailJS */}
+                    <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t border-indigo-500/20">
+                      <button
+                        type="button"
+                        onClick={(e) => handleSaveEmailSettings(e, 'emailjs')}
+                        className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs shadow-sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Salva Configurazione EmailJS</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isSendingTest}
+                        onClick={() => handleRunTestEmail('emailjs')}
+                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-indigo-500 to-indigo-400 hover:from-indigo-400 hover:to-indigo-300 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
+                      >
+                        <Send className={`w-4 h-4 ${isSendingTest ? 'animate-spin' : ''}`} />
+                        <span>{isSendingTest ? 'Invio in corso...' : '✉️ Prova Invio con EmailJS Ora'}</span>
+                      </button>
+                    </div>
                   </div>
                 )}
 
-                <div className="flex flex-col sm:flex-row gap-2 pt-1">
-                  <button
-                    type="button"
-                    disabled={isSendingTest}
-                    onClick={handleRunTestEmail}
-                    className="flex-1 py-2.5 px-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
-                  >
-                    <Send className={`w-4 h-4 ${isSendingTest ? 'animate-spin' : ''}`} />
-                    <span>{isSendingTest ? 'Invio in corso...' : '✉️ Prova Invio Email Ora'}</span>
-                  </button>
+                {/* CATEGORIA 3: APP MAIL DEDICATA */}
+                {emailProvider === 'mailto' && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-b from-cyan-500/10 to-slate-900/90 border border-cyan-500/30 space-y-3.5 animate-fade-in shadow-xl">
+                    <div className="flex items-center justify-between border-b border-cyan-500/20 pb-2.5">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-1.5 bg-cyan-500/20 text-cyan-400 rounded-lg">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h5 className="font-bold text-xs text-cyan-200">
+                            Categoria Selezionata: App Mail di Sistema (Nessun Servizio Terzo)
+                          </h5>
+                          <p className="text-[10px] text-slate-400">
+                            Apre la tua applicazione di posta nativa (Apple Mail, Outlook, Thunderbird) con il report già compilato
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-bold bg-cyan-400 text-slate-950 px-2.5 py-0.5 rounded-full shadow-sm">
+                        Attivo
+                      </span>
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const success = copyEmailReportToClipboard(adminEmail);
-                      if (success) {
-                        setTestEmailMsg('Testo report scadenze copiato negli appunti! Ora puoi incollarlo su Gmail / Libero / PEC.');
-                        setTimeout(() => setTestEmailMsg(''), 4000);
-                      }
-                    }}
-                    className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs"
-                  >
-                    <Copy className="w-4 h-4" />
-                    <span>📋 Copia Testo Report Email</span>
-                  </button>
-                </div>
+                    {/* Recipient Email */}
+                    <div>
+                      <label className="block text-slate-200 font-semibold text-xs mb-1">
+                        Email Destinatario Predefinita
+                      </label>
+                      <input
+                        type="text"
+                        value={adminEmail}
+                        onChange={(e) => setAdminEmailState(e.target.value)}
+                        placeholder="Es. cantinaportaromana93@gmail.com"
+                        className="w-full px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-100 text-xs focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 outline-none"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-1">
+                        All'apertura dell'app di posta, il destinatario verrà impostato automaticamente a questo indirizzo.
+                      </p>
+                    </div>
 
-                {/* Anteprima Testo Email */}
-                <div className="pt-2 border-t border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => setShowPreviewReport(!showPreviewReport)}
-                    className="text-xs text-slate-400 hover:text-amber-400 font-semibold flex items-center space-x-1 transition-all"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>{showPreviewReport ? 'Nascondi Anteprima Testo Email' : '👁️ Mostra Anteprima del Testo Che Verrà Inviato'}</span>
-                  </button>
+                    {/* Info Card */}
+                    <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-300 space-y-1.5 leading-relaxed">
+                      <div className="font-bold text-cyan-300 flex items-center space-x-1.5">
+                        <span>✨ Vantaggi dell'App Mail:</span>
+                      </div>
+                      <p className="text-slate-400 text-[10px]">
+                        • Nessuna registrazione a servizi terzi o chiavi API richieste.<br/>
+                        • Compatibile al 100% con qualsiasi Mac, iPhone, iPad, Windows o dispositivo mobile.<br/>
+                        • Puoi controllare il testo dell'email prima di fare clic su "Invia" dal tuo programma di posta.
+                      </p>
+                    </div>
+
+                    {/* Feedback Messages */}
+                    {savedSuccess && (
+                      <div className="p-2.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-semibold flex items-center space-x-2 animate-fade-in">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span>Preferenza App Mail salvata con successo e sincronizzata nel Cloud!</span>
+                      </div>
+                    )}
+
+                    {testEmailMsg && (
+                      <div className="p-2.5 bg-slate-950 border border-cyan-500/40 text-cyan-300 rounded-xl text-xs font-semibold flex items-center space-x-2 animate-fade-in">
+                        <Bell className="w-4 h-4 text-cyan-400 shrink-0" />
+                        <span>{testEmailMsg}</span>
+                      </div>
+                    )}
+
+                    {/* Actions: Save & Open App Mail */}
+                    <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t border-cyan-500/20">
+                      <button
+                        type="button"
+                        onClick={(e) => handleSaveEmailSettings(e, 'mailto')}
+                        className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs shadow-sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Salva Preferenza App Mail</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRunTestEmail('mailto')}
+                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs"
+                      >
+                        <Send className="w-4 h-4" />
+                        <span>🚀 Apri App Mail con Report Scadenze</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Strumenti Utili & Anteprima Report Scadenze */}
+                <div className="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const success = copyEmailReportToClipboard(adminEmail, cars);
+                        if (success) {
+                          setTestEmailMsg('📋 Testo del report scadenze copiato negli appunti! Puoi incollarlo ovunque.');
+                          setTimeout(() => setTestEmailMsg(''), 4000);
+                        }
+                      }}
+                      className="w-full sm:w-auto px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs font-semibold shadow-sm"
+                    >
+                      <Copy className="w-3.5 h-3.5 text-amber-400" />
+                      <span>📋 Copia Testo Report Negli Appunti</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPreviewReport(!showPreviewReport)}
+                      className="w-full sm:w-auto px-3.5 py-2 bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-amber-400 border border-slate-700 rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs font-semibold shadow-sm"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{showPreviewReport ? 'Nascondi Anteprima' : '👁️ Visualizza Testo del Report'}</span>
+                    </button>
+                  </div>
 
                   {showPreviewReport && (
-                    <div className="mt-2.5 p-3 bg-slate-900 border border-slate-800 rounded-xl text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap max-h-48 leading-relaxed">
-                      {generateEmailReportText()}
+                    <div className="mt-2 p-3 bg-slate-950 border border-slate-800 rounded-xl text-[11px] font-mono text-slate-300 overflow-x-auto whitespace-pre-wrap max-h-48 leading-relaxed">
+                      {generateEmailReportText(cars)}
                     </div>
                   )}
                 </div>

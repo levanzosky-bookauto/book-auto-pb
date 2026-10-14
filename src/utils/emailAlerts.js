@@ -231,15 +231,28 @@ export async function saveAllEmailSettingsToCloud({ provider, adminEmail, emailA
 }
 
 // Send background REST email via Formspree, EmailJS, or Webhook
-export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
-  const config = getEmailJSConfig();
+export async function sendBackgroundEmailJS(recipientEmail, cars = [], forcedProvider = null, configOverrides = {}) {
+  const savedConfig = getEmailJSConfig();
+  const config = {
+    ...savedConfig,
+    ...configOverrides,
+    provider: forcedProvider || configOverrides?.provider || savedConfig.provider
+  };
   const reportText = generateEmailReportText(cars);
   const targetEmail = (recipientEmail || getAdminEmail()).trim();
   const recipientList = targetEmail ? targetEmail.split(',').map(e => e.trim()).filter(Boolean) : [];
 
-  // 1. FORMSPREE / WEBHOOK (Selected or configured)
-  if (config.provider === 'formspree' || (config.webhookUrl && config.provider !== 'emailjs')) {
-    const validation = validateFormspreeUrl(config.webhookUrl);
+  // 0. MAILTO (System Native Mail Client)
+  if (config.provider === 'mailto') {
+    if (!targetEmail) return { success: false, reason: 'Nessun indirizzo email configurato per la prova.' };
+    const ok = sendTestEmailMailto(targetEmail, cars);
+    return { success: ok, method: 'mailto' };
+  }
+
+  // 1. FORMSPREE / WEBHOOK
+  if (config.provider === 'formspree') {
+    const urlToUse = config.webhookUrl || DEFAULT_FORMSPREE_URL;
+    const validation = validateFormspreeUrl(urlToUse);
     if (!validation.valid) {
       return { success: false, reason: validation.reason };
     }
@@ -275,8 +288,8 @@ export async function sendBackgroundEmailJS(recipientEmail, cars = []) {
     }
   }
 
-  // 2. EMAILJS (Selected)
-  if (config.provider === 'emailjs' || (config.serviceId && config.templateId && config.publicKey)) {
+  // 2. EMAILJS
+  if (config.provider === 'emailjs') {
     if (!targetEmail) return { success: false, reason: 'Nessun indirizzo email configurato nelle impostazioni.' };
     if (!config.serviceId || !config.templateId || !config.publicKey) {
       return { success: false, reason: 'Compila Service ID, Template ID e Public Key per usare EmailJS.' };
