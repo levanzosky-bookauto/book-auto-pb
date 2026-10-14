@@ -76,16 +76,18 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [autoEmailPopupAlerts, setAutoEmailPopupAlerts] = useState(null);
 
-  // Automatic Email Expiration Check on Load / Cars Update
+  // Automatic Email Expiration Check on Load / Cars Update (Staff Only: Super Admin & Editor)
   useEffect(() => {
-    if (!loading && cars && cars.length > 0) {
+    if (!loading && cars && cars.length > 0 && isStaffUser(currentUser)) {
       const result = checkAndTriggerAutomaticEmailAlerts(cars);
       if (result && (result.autoTriggered || (result.alerts && result.alerts.length > 0))) {
         // Show auto-email notification toast/popup
         setAutoEmailPopupAlerts(result.alerts);
       }
+    } else {
+      setAutoEmailPopupAlerts(null);
     }
-  }, [cars, loading]);
+  }, [cars, loading, currentUser]);
 
   // Helper to normalize image paths for multi-environment hosting
   const formatCarImages = (carList) => {
@@ -813,6 +815,8 @@ export default function App() {
         <PdfPrintReportModal
           selectedCars={selectedCarsList}
           onClose={() => setIsPdfReportModalOpen(false)}
+          currentUser={currentUser}
+          clientPermissions={clientPermissions}
         />
       )}
 
@@ -824,7 +828,7 @@ export default function App() {
         />
       )}
 
-      {isExpirationsModalOpen && (
+      {isExpirationsModalOpen && isStaffUser(currentUser) && (
         <ExpirationsModal
           alerts={expirationsAlerts}
           onClose={() => setIsExpirationsModalOpen(false)}
@@ -835,7 +839,7 @@ export default function App() {
         />
       )}
 
-      {isAdminModalOpen && (
+      {isAdminModalOpen && isStaffUser(currentUser) && (
         <AdminModal
           cars={cars}
           onClose={() => setIsAdminModalOpen(false)}
@@ -862,7 +866,7 @@ export default function App() {
         />
       )}
 
-      {autoEmailPopupAlerts && (
+      {autoEmailPopupAlerts && isStaffUser(currentUser) && (
         <AutoEmailNotificationPopup
           alerts={autoEmailPopupAlerts}
           onClose={() => setAutoEmailPopupAlerts(null)}

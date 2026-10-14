@@ -5,14 +5,18 @@ import html2canvas from 'html2canvas';
 import { getLogoForBrand } from '../utils/brandLogos';
 import { PDF_FONT_OPTIONS, getDefaultPdfFont } from '../utils/pdfFonts';
 import { openDocument, downloadDocument } from '../utils/documentViewer';
+import { isStaffUser } from '../utils/permissions';
 
 export default function PdfPrintReportModal({ 
   selectedCars, 
-  onClose 
+  onClose,
+  currentUser,
+  clientPermissions 
 }) {
+  const isStaff = isStaffUser(currentUser);
   const [includePhotos, setIncludePhotos] = useState(true);
   const [includeExtendedReport, setIncludeExtendedReport] = useState(false);
-  const [includeDocuments, setIncludeDocuments] = useState(true);
+  const [includeDocuments, setIncludeDocuments] = useState(() => isStaff);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
   const [selectedFontId, setSelectedFontId] = useState(() => getDefaultPdfFont().id);
   const [scaleFactor, setScaleFactor] = useState(1);
@@ -311,35 +315,38 @@ export default function PdfPrintReportModal({
               </button>
             </div>
 
-            {/* Include Extended Maintenance Report Toggle */}
-            <button
-              type="button"
-              onClick={() => setIncludeExtendedReport(!includeExtendedReport)}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
-                includeExtendedReport 
-                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-bold shadow-md' 
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-              title="Includi scheda tecnica A4 con Registro Manutenzione, Scadenze e Costi"
-            >
-              <Wrench className="w-3.5 h-3.5" />
-              <span>+ Scheda Manutenzione</span>
-            </button>
+            {/* Include Extended Maintenance Report & Documents Toggles (Strictly Staff Only) */}
+            {isStaff && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIncludeExtendedReport(!includeExtendedReport)}
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                    includeExtendedReport 
+                      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-bold shadow-md' 
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                  title="Includi scheda tecnica A4 con Registro Manutenzione, Scadenze e Costi"
+                >
+                  <Wrench className="w-3.5 h-3.5" />
+                  <span>+ Scheda Manutenzione</span>
+                </button>
 
-            {/* Include Scanned Documents Toggle */}
-            <button
-              type="button"
-              onClick={() => setIncludeDocuments(!includeDocuments)}
-              className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
-                includeDocuments 
-                  ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-bold shadow-md' 
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-              }`}
-              title="Includi scansioni del Libretto, Assicurazione e Bollo nel report di stampa"
-            >
-              <Paperclip className="w-3.5 h-3.5" />
-              <span>+ Documenti Scansionati</span>
-            </button>
+                <button
+                  type="button"
+                  onClick={() => setIncludeDocuments(!includeDocuments)}
+                  className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                    includeDocuments 
+                      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 font-bold shadow-md' 
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
+                  }`}
+                  title="Includi scansioni del Libretto, Assicurazione e Bollo nel report di stampa"
+                >
+                  <Paperclip className="w-3.5 h-3.5" />
+                  <span>+ Documenti Scansionati</span>
+                </button>
+              </>
+            )}
 
             {/* Direct PDF Download Action Button */}
             <button
@@ -659,8 +666,8 @@ export default function PdfPrintReportModal({
                   );
                 })}
 
-                {/* OPTIONAL EXTENDED MAINTENANCE & DOCUMENTATION PAGE (PAGE 2) */}
-                {includeExtendedReport && renderScaledPage(
+                {/* OPTIONAL EXTENDED MAINTENANCE & DOCUMENTATION PAGE (PAGE 2) - STAFF ONLY */}
+                {isStaff && includeExtendedReport && renderScaledPage(
                   `${car.id}_extended_page`,
                   <div 
                     key={`${car.id}_extended_page`} 
@@ -827,8 +834,8 @@ export default function PdfPrintReportModal({
                   </div>
                 )}
 
-                {/* DEDICATED CLEAN A4 PRINTABLE PAGE FOR EACH ATTACHED DOCUMENT */}
-                {includeDocuments && car.documents && car.documents.map((doc, docIdx) => {
+                {/* DEDICATED CLEAN A4 PRINTABLE PAGE FOR EACH ATTACHED DOCUMENT - STAFF ONLY */}
+                {isStaff && includeDocuments && car.documents && car.documents.map((doc, docIdx) => {
                   const isImage = doc.fileData && (doc.fileData.startsWith('data:image/') || doc.fileType?.includes('image'));
 
                   return renderScaledPage(

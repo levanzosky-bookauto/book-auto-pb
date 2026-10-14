@@ -53,11 +53,13 @@ export function isStaffUser(currentUser) {
 }
 
 /**
- * Checks if expirations are visible to the given user
+ * Checks if expirations and alerts are visible to the given user.
+ * STRICT RULE: Clienti and visitatori must NEVER see scadenze and avvisi!
+ * Only internal staff members (Super Admin & Gestore / Editor) have access.
  */
 export function canViewExpirations(currentUser, permissions = DEFAULT_CLIENT_PERMISSIONS) {
-  if (isStaffUser(currentUser)) return true;
-  return Boolean(permissions?.showExpirations);
+  if (!currentUser) return false;
+  return isStaffUser(currentUser);
 }
 
 /**
