@@ -27,6 +27,7 @@ import {
 import { 
   getUsers, 
   saveUsers, 
+  syncUsersWithCloud,
   USER_ROLES, 
   getBackgroundImages, 
   saveBackgroundImages,
@@ -241,6 +242,11 @@ export default function AdminModal({
     setUsersList(getUsers());
     setBackgroundsList(getBackgroundImages());
     setLocationsList(getLocations());
+    syncUsersWithCloud().then(cloudUsers => {
+      if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+        setUsersList(cloudUsers);
+      }
+    });
   }, []);
 
   // Add Location

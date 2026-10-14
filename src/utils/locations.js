@@ -1,4 +1,5 @@
-// Utility for managing Physical Locations (Collocazione Fisica Vetture)
+// Utility for managing Physical Locations (Collocazione Fisica Vetture) with Supabase Cloud Sync
+import { fetchLocationsFromSupabase, syncLocationsToSupabase } from './supabase';
 
 const LOCATIONS_STORAGE_KEY = 'book_auto_pb_locations_v1';
 
@@ -25,7 +26,28 @@ export function getLocations() {
 }
 
 export function saveLocations(locations) {
+  if (!Array.isArray(locations)) return;
   localStorage.setItem(LOCATIONS_STORAGE_KEY, JSON.stringify(locations));
+  syncLocationsToSupabase(locations).catch(err => {
+    console.warn('Background syncLocationsToSupabase error:', err);
+  });
+}
+
+export async function syncLocationsWithCloud() {
+  try {
+    const remote = await fetchLocationsFromSupabase();
+    if (Array.isArray(remote) && remote.length > 0) {
+      localStorage.setItem(LOCATIONS_STORAGE_KEY, JSON.stringify(remote));
+      return remote;
+    } else {
+      const current = getLocations();
+      await syncLocationsToSupabase(current);
+      return current;
+    }
+  } catch (e) {
+    console.warn('Failed syncing locations with cloud:', e);
+  }
+  return getLocations();
 }
 
 export function addLocation(newLocation) {

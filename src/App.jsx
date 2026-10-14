@@ -15,7 +15,8 @@ import AutoEmailNotificationPopup from './components/AutoEmailNotificationPopup'
 import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkles, CheckSquare, Printer, Square, Trash2, Bell } from 'lucide-react';
 import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
-import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser } from './utils/auth';
+import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser, syncUsersWithCloud, syncBackgroundsWithCloud } from './utils/auth';
+import { syncLocationsWithCloud } from './utils/locations';
 import { checkAndTriggerAutomaticEmailAlerts, syncEmailConfigWithCloud } from './utils/emailAlerts';
 import { fetchCarsFromSupabase, syncCarsToSupabase, fetchPermissionsFromSupabase, syncPermissionsToSupabase } from './utils/supabase';
 import { getClientPermissions, saveClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
@@ -108,9 +109,14 @@ export default function App() {
   // Load Initial Data with Real-Time Cloud Sync (Supabase + LocalStorage + baseline cars.json)
   useEffect(() => {
     async function loadInitialCars() {
-      // 0. Sync deleted car tombstones and email configuration with Supabase Cloud
-      await syncDeletedCarsWithCloud();
-      await syncEmailConfigWithCloud();
+      // 0. Sync deleted cars, email config, users, locations and backgrounds with Supabase Cloud
+      await Promise.allSettled([
+        syncDeletedCarsWithCloud(),
+        syncEmailConfigWithCloud(),
+        syncUsersWithCloud(),
+        syncLocationsWithCloud(),
+        syncBackgroundsWithCloud()
+      ]);
 
       // 1. Check if this device has local edits / expirations
       const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);

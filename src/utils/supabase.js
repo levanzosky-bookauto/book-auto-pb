@@ -350,3 +350,155 @@ export async function syncEmailConfigToSupabase(config) {
     return false;
   }
 }
+
+// Fetch App Users from Supabase Cloud
+export async function fetchUsersFromSupabase(timeoutMs = 6000) {
+  if (!supabase) return null;
+  try {
+    const fetchPromise = supabase
+      .from('cars')
+      .select('notes')
+      .eq('id', '__app_users__')
+      .maybeSingle();
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase users timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    if (error || !data || !data.notes) return null;
+
+    try {
+      const parsed = JSON.parse(data.notes);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+    } catch (parseErr) {
+      return null;
+    }
+  } catch (e) {
+    console.warn('Error fetching users from Supabase:', e);
+    return null;
+  }
+}
+
+// Sync App Users to Supabase Cloud
+export async function syncUsersToSupabase(users) {
+  if (!supabase || !Array.isArray(users) || users.length === 0) return false;
+  try {
+    const payload = {
+      id: '__app_users__',
+      brand: 'SYSTEM',
+      model: 'APP_USERS',
+      notes: JSON.stringify(users)
+    };
+    const { error } = await supabase.from('cars').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.error('Supabase sync users error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase sync users exception:', e);
+    return false;
+  }
+}
+
+// Fetch Locations from Supabase Cloud
+export async function fetchLocationsFromSupabase(timeoutMs = 6000) {
+  if (!supabase) return null;
+  try {
+    const fetchPromise = supabase
+      .from('cars')
+      .select('notes')
+      .eq('id', '__app_locations__')
+      .maybeSingle();
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase locations timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    if (error || !data || !data.notes) return null;
+
+    try {
+      const parsed = JSON.parse(data.notes);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+    } catch (parseErr) {
+      return null;
+    }
+  } catch (e) {
+    return null;
+  }
+}
+
+// Sync Locations to Supabase Cloud
+export async function syncLocationsToSupabase(locations) {
+  if (!supabase || !Array.isArray(locations) || locations.length === 0) return false;
+  try {
+    const payload = {
+      id: '__app_locations__',
+      brand: 'SYSTEM',
+      model: 'APP_LOCATIONS',
+      notes: JSON.stringify(locations)
+    };
+    const { error } = await supabase.from('cars').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.error('Supabase sync locations error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase sync locations exception:', e);
+    return false;
+  }
+}
+
+// Fetch Backgrounds from Supabase Cloud
+export async function fetchBackgroundsFromSupabase(timeoutMs = 6000) {
+  if (!supabase) return null;
+  try {
+    const fetchPromise = supabase
+      .from('cars')
+      .select('notes')
+      .eq('id', '__app_backgrounds__')
+      .maybeSingle();
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Supabase backgrounds timed out')), timeoutMs)
+    );
+
+    const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+    if (error || !data || !data.notes) return null;
+
+    try {
+      const parsed = JSON.parse(data.notes);
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+    } catch (parseErr) {
+      return null;
+    }
+  } catch (e) {
+    return null;
+  }
+}
+
+// Sync Backgrounds to Supabase Cloud
+export async function syncBackgroundsToSupabase(backgrounds) {
+  if (!supabase || !Array.isArray(backgrounds) || backgrounds.length === 0) return false;
+  try {
+    const payload = {
+      id: '__app_backgrounds__',
+      brand: 'SYSTEM',
+      model: 'APP_BACKGROUNDS',
+      notes: JSON.stringify(backgrounds)
+    };
+    const { error } = await supabase.from('cars').upsert(payload, { onConflict: 'id' });
+    if (error) {
+      console.error('Supabase sync backgrounds error:', error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('Supabase sync backgrounds exception:', e);
+    return false;
+  }
+}
+

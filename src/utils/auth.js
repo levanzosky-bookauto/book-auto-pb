@@ -1,4 +1,10 @@
-// Authentication & Multi-User Management system with 3 Role Categories
+// Authentication & Multi-User Management system with 3 Role Categories & Realtime Cloud Sync
+import { 
+  fetchUsersFromSupabase, 
+  syncUsersToSupabase, 
+  fetchBackgroundsFromSupabase, 
+  syncBackgroundsToSupabase 
+} from './supabase';
 
 const USERS_STORAGE_KEY = 'book_auto_pb_users_v2';
 const BACKGROUNDS_STORAGE_KEY = 'book_auto_pb_bg_images_v1';
@@ -66,17 +72,85 @@ export function getUsers() {
 }
 
 export function saveUsers(users) {
+  if (!Array.isArray(users)) return;
+  // 1. Save locally
   localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  // 2. Synchronize to Supabase Cloud in background
+  syncUsersToSupabase(users).catch(err => {
+    console.warn('Background syncUsersToSupabase error:', err);
+  });
+}
+
+// Sync users between Supabase Cloud and local storage
+export async function syncUsersWithCloud() {
+  try {
+    const remoteUsers = await fetchUsersFromSupabase();
+    if (Array.isArray(remoteUsers) && remoteUsers.length > 0) {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(remoteUsers));
+      return remoteUsers;
+    } else {
+      // Cloud was empty: seed cloud with current users
+      const current = getUsers();
+      await syncUsersToSupabase(current);
+      return current;
+    }
+  } catch (e) {
+    console.warn('Failed syncing users with cloud:', e);
+  }
+  return getUsers();
+}
+
+/**
+ * Mobile-friendly authentication matching:
+ * - Trims hidden spaces from mobile keyboards
+ * - Case-insensitive username check
+ * - Exact password match + tolerant case-insensitive fallback (e.g. mobile auto-capitalized password)
+ */
+export function authenticateUserWithList(username, password, usersList) {
+  if (!Array.isArray(usersList)) return null;
+  const cleanUser = (username || '').trim().toLowerCase();
+  const cleanPass = (password || '').trim();
+
+  if (!cleanUser || !cleanPass) return null;
+
+  // 1. Exact match (exact password, case-insensitive username)
+  const exact = usersList.find(
+    u => u.username.toLowerCase() === cleanUser && u.password === cleanPass
+  );
+  if (exact) return exact;
+
+  // 2. Mobile-friendly fallback: mobile keyboard auto-capitalized first character
+  const caseInsensitive = usersList.find(
+    u => u.username.toLowerCase() === cleanUser && u.password.toLowerCase() === cleanPass.toLowerCase()
+  );
+  if (caseInsensitive) return caseInsensitive;
+
+  return null;
 }
 
 export function authenticateUser(username, password) {
   const users = getUsers();
-  const cleanUser = (username || '').trim().toLowerCase();
-  const cleanPass = (password || '').trim();
+  return authenticateUserWithList(username, password, users);
+}
 
-  return users.find(
-    u => u.username.toLowerCase() === cleanUser && u.password === cleanPass
-  ) || null;
+// Asynchronous authentication: checks local storage first, then checks Cloud if not found
+export async function authenticateUserAsync(username, password) {
+  // 1. Fast local check
+  const localMatch = authenticateUser(username, password);
+  if (localMatch) return localMatch;
+
+  // 2. Fallback: refresh latest users from Supabase Cloud
+  try {
+    const cloudUsers = await syncUsersWithCloud();
+    if (Array.isArray(cloudUsers)) {
+      const cloudMatch = authenticateUserWithList(username, password, cloudUsers);
+      if (cloudMatch) return cloudMatch;
+    }
+  } catch (e) {
+    console.warn('authenticateUserAsync cloud fetch error:', e);
+  }
+
+  return null;
 }
 
 export function getBackgroundImages() {
@@ -94,7 +168,28 @@ export function getBackgroundImages() {
 }
 
 export function saveBackgroundImages(bgList) {
+  if (!Array.isArray(bgList)) return;
   localStorage.setItem(BACKGROUNDS_STORAGE_KEY, JSON.stringify(bgList));
+  syncBackgroundsToSupabase(bgList).catch(err => {
+    console.warn('Background syncBackgroundsToSupabase error:', err);
+  });
+}
+
+export async function syncBackgroundsWithCloud() {
+  try {
+    const remote = await fetchBackgroundsFromSupabase();
+    if (Array.isArray(remote) && remote.length > 0) {
+      localStorage.setItem(BACKGROUNDS_STORAGE_KEY, JSON.stringify(remote));
+      return remote;
+    } else {
+      const current = getBackgroundImages();
+      await syncBackgroundsToSupabase(current);
+      return current;
+    }
+  } catch (e) {
+    console.warn('Failed syncing backgrounds with cloud:', e);
+  }
+  return getBackgroundImages();
 }
 
 const CURRENT_USER_KEY = 'book_auto_pb_current_user_v1';
@@ -127,4 +222,3 @@ export function logoutUser() {
   localStorage.removeItem(CURRENT_USER_KEY);
   sessionStorage.removeItem(CURRENT_USER_KEY);
 }
-

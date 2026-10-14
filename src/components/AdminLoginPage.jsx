@@ -13,7 +13,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { authenticateUser, getBackgroundImages, USER_ROLES } from '../utils/auth';
+import { authenticateUser, authenticateUserAsync, syncUsersWithCloud, getBackgroundImages, USER_ROLES } from '../utils/auth';
 import { getClientPermissions } from '../utils/permissions';
 import BouncingCarsCanvas from './BouncingCarsCanvas';
 
@@ -26,6 +26,8 @@ export default function AdminLoginPage({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
+  const [showHelpCredentials, setShowHelpCredentials] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [backgrounds, setBackgrounds] = useState([]);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -33,6 +35,8 @@ export default function AdminLoginPage({
   useEffect(() => {
     const bgList = getBackgroundImages();
     setBackgrounds(bgList);
+    // Sync freshest users from Supabase Cloud on login page mount
+    syncUsersWithCloud().catch(() => {});
   }, []);
 
   // Cycle background image automatically every 6 seconds
@@ -44,21 +48,31 @@ export default function AdminLoginPage({
     return () => clearInterval(timer);
   }, [backgrounds]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMsg('');
 
-    if (!username.trim() || !password.trim()) {
+    const cleanU = (username || '').trim();
+    const cleanP = (password || '').trim();
+
+    if (!cleanU || !cleanP) {
       setErrorMsg('Inserisci sia il Nome Utente che la Password.');
       return;
     }
 
-    const user = authenticateUser(username, password);
+    setIsChecking(true);
+    try {
+      const user = await authenticateUserAsync(cleanU, cleanP);
 
-    if (user) {
-      onLoginSuccess(user);
-    } else {
-      setErrorMsg('Credenziali errate! Verifica nome utente o password.');
+      if (user) {
+        onLoginSuccess(user);
+      } else {
+        setErrorMsg('Credenziali non riconosciute! Verifica nome utente o password.');
+      }
+    } catch (err) {
+      setErrorMsg('Errore di connessione. Riprova tra poco.');
+    } finally {
+      setIsChecking(false);
     }
   };
 
@@ -137,7 +151,11 @@ export default function AdminLoginPage({
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder=""
+                placeholder="es. shirantha oppure luciano"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                autoComplete="username"
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 required
               />
@@ -156,6 +174,10 @@ export default function AdminLoginPage({
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder=""
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
+                autoComplete="current-password"
                 className="w-full pl-10 pr-10 py-2.5 bg-slate-950/90 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                 required
               />
@@ -172,16 +194,73 @@ export default function AdminLoginPage({
           {/* Submit Login Button */}
           <button
             type="submit"
-            className="w-full py-3 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm rounded-xl shadow-lg shadow-amber-500/25 transition-all active:scale-95 flex items-center justify-center space-x-2"
+            disabled={isChecking}
+            className="w-full py-3 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-sm rounded-xl shadow-lg shadow-amber-500/25 transition-all active:scale-95 flex items-center justify-center space-x-2 disabled:opacity-60"
           >
-            <span>Accedi all'Area Riservata</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>{isChecking ? 'Verifica credenziali in corso...' : 'Accedi all\'Area Riservata'}</span>
+            <ArrowRight className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
           </button>
+
+          {/* Quick Credential Helper Dropdown for Mobile / Desk */}
+          <div className="pt-1 text-center">
+            <button
+              type="button"
+              onClick={() => setShowHelpCredentials(!showHelpCredentials)}
+              className="text-[11px] text-slate-400 hover:text-amber-400 transition-colors underline"
+            >
+              {showHelpCredentials ? 'Chiudi aiuto credenziali' : '💡 Aiuto credenziali o accesso rapido'}
+            </button>
+
+            {showHelpCredentials && (
+              <div className="mt-2.5 p-3 bg-slate-950/95 border border-amber-500/30 rounded-2xl text-[11px] text-slate-300 text-left space-y-2 animate-fade-in shadow-xl">
+                <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
+                  <span className="font-bold text-amber-300 flex items-center space-x-1">
+                    <span>🔑 Credenziali Predefinite Book Auto:</span>
+                  </span>
+                  <span className="text-[9px] text-slate-400">Sincronizzate nel Cloud</span>
+                </div>
+
+                <div className="space-y-1.5 text-[10px]">
+                  <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800">
+                    <div>
+                      <span className="font-bold text-amber-300 block">Super Admin:</span>
+                      <span className="text-slate-300">Utente: <code className="text-amber-300 font-bold">shirantha</code> • Pass: <code className="text-amber-300 font-bold">Maduka0822</code></span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setUsername('shirantha'); setPassword('Maduka0822'); }}
+                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[10px] shadow transition-all active:scale-95"
+                    >
+                      Inserisci
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800">
+                    <div>
+                      <span className="font-bold text-emerald-300 block">Gestore / Editor:</span>
+                      <span className="text-slate-300">Utente: <code className="text-emerald-300 font-bold">luciano</code> • Pass: <code className="text-emerald-300 font-bold">1234</code></span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setUsername('luciano'); setPassword('1234'); }}
+                      className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-[10px] shadow transition-all active:scale-95"
+                    >
+                      Inserisci
+                    </button>
+                  </div>
+                </div>
+
+                <p className="text-[9px] text-slate-400 leading-tight">
+                  ✨ Premi <strong>"Inserisci"</strong> per compilare automaticamente i campi senza errori di digitazione su smartphone.
+                </p>
+              </div>
+            )}
+          </div>
 
           {/* Quick Client / Guest Exploration Mode Button */}
           {(clientPermissions || getClientPermissions())?.allowGuestBrowsing && (
-            <div className="pt-2 text-center">
-              <div className="flex items-center my-2.5">
+            <div className="pt-1 text-center">
+              <div className="flex items-center my-2">
                 <div className="flex-1 border-t border-slate-700/60"></div>
                 <span className="px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">oppure</span>
                 <div className="flex-1 border-t border-slate-700/60"></div>
