@@ -27,7 +27,6 @@ export default function AdminLoginPage({
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
-  const [showHelpCredentials, setShowHelpCredentials] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [backgrounds, setBackgrounds] = useState([]);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -201,61 +200,7 @@ export default function AdminLoginPage({
             <ArrowRight className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
           </button>
 
-          {/* Quick Credential Helper Dropdown for Mobile / Desk */}
-          <div className="pt-1 text-center">
-            <button
-              type="button"
-              onClick={() => setShowHelpCredentials(!showHelpCredentials)}
-              className="text-[11px] text-slate-400 hover:text-amber-400 transition-colors underline"
-            >
-              {showHelpCredentials ? 'Chiudi aiuto credenziali' : '💡 Aiuto credenziali o accesso rapido'}
-            </button>
 
-            {showHelpCredentials && (
-              <div className="mt-2.5 p-3 bg-slate-950/95 border border-amber-500/30 rounded-2xl text-[11px] text-slate-300 text-left space-y-2 animate-fade-in shadow-xl">
-                <div className="flex items-center justify-between pb-1.5 border-b border-slate-800">
-                  <span className="font-bold text-amber-300 flex items-center space-x-1">
-                    <span>🔑 Credenziali Predefinite Book Auto:</span>
-                  </span>
-                  <span className="text-[9px] text-slate-400">Sincronizzate nel Cloud</span>
-                </div>
-
-                <div className="space-y-1.5 text-[10px]">
-                  <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800">
-                    <div>
-                      <span className="font-bold text-amber-300 block">Super Admin:</span>
-                      <span className="text-slate-300">Utente: <code className="text-amber-300 font-bold">shirantha</code> • Pass: <code className="text-amber-300 font-bold">Maduka0822</code></span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setUsername('shirantha'); setPassword('Maduka0822'); }}
-                      className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-lg text-[10px] shadow transition-all active:scale-95"
-                    >
-                      Inserisci
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between bg-slate-900/90 p-2 rounded-xl border border-slate-800">
-                    <div>
-                      <span className="font-bold text-emerald-300 block">Gestore / Editor:</span>
-                      <span className="text-slate-300">Utente: <code className="text-emerald-300 font-bold">luciano</code> • Pass: <code className="text-emerald-300 font-bold">1234</code></span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setUsername('luciano'); setPassword('1234'); }}
-                      className="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-lg text-[10px] shadow transition-all active:scale-95"
-                    >
-                      Inserisci
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-[9px] text-slate-400 leading-tight">
-                  ✨ Premi <strong>"Inserisci"</strong> per compilare automaticamente i campi senza errori di digitazione su smartphone.
-                </p>
-              </div>
-            )}
-          </div>
 
           {/* Quick Client / Guest Exploration Mode Button */}
           {(clientPermissions || getClientPermissions())?.allowGuestBrowsing && (

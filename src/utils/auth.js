@@ -1,9 +1,9 @@
 // Authentication & Multi-User Management system with 3 Role Categories & Realtime Cloud Sync
-import { 
-  fetchUsersFromSupabase, 
-  syncUsersToSupabase, 
-  fetchBackgroundsFromSupabase, 
-  syncBackgroundsToSupabase 
+import {
+  fetchUsersFromSupabase,
+  syncUsersToSupabase,
+  fetchBackgroundsFromSupabase,
+  syncBackgroundsToSupabase
 } from './supabase';
 
 const USERS_STORAGE_KEY = 'book_auto_pb_users_v2';
@@ -54,62 +54,15 @@ export const INITIAL_USERS = [
     "name": "Luciano",
     "role": "editor",
     "createdAt": "2026-10-06T18:08:36.076Z"
-  },
-  {
-    "id": "user_visitatore",
-    "username": "visitatore",
-    "password": "1234",
-    "name": "Visitatore",
-    "role": "viewer",
-    "createdAt": "2026-10-06T18:08:36.076Z"
   }
 ];
-
-// Bidirectional merge: guarantees no user created locally on any device is ever lost
-export function mergeUsers(localUsers = [], remoteUsers = []) {
-  const map = new Map();
-
-  // 1. Initial defaults
-  INITIAL_USERS.forEach(u => {
-    if (u && u.username) map.set(u.username.trim().toLowerCase(), u);
-  });
-
-  // 2. Remote users from Supabase Cloud
-  if (Array.isArray(remoteUsers)) {
-    remoteUsers.forEach(u => {
-      if (u && u.username) {
-        map.set(u.username.trim().toLowerCase(), u);
-      }
-    });
-  }
-
-  // 3. Local users from this browser (preserves any user created in Admin panel!)
-  if (Array.isArray(localUsers)) {
-    localUsers.forEach(u => {
-      if (u && u.username) {
-        const key = u.username.trim().toLowerCase();
-        const existing = map.get(key);
-        if (!existing) {
-          map.set(key, u);
-        } else {
-          map.set(key, { ...existing, ...u });
-        }
-      }
-    });
-  }
-
-  return Array.from(map.values());
-}
 
 export function getUsers() {
   const saved = localStorage.getItem(USERS_STORAGE_KEY);
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Merge to guarantee all baseline accounts exist alongside custom users
-        return mergeUsers(parsed, []);
-      }
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     } catch (e) {
       console.error('Error parsing users storage:', e);
     }
@@ -128,22 +81,19 @@ export function saveUsers(users) {
   });
 }
 
-// Sync users between Supabase Cloud and local storage without deleting any user
+// Sync users between Supabase Cloud and local storage
 export async function syncUsersWithCloud() {
   try {
-    const localUsers = getUsers();
     const remoteUsers = await fetchUsersFromSupabase();
-
-    // Bidirectional merge so that any user created locally or in cloud is preserved
-    const merged = mergeUsers(localUsers, remoteUsers || []);
-
-    // Save to local storage
-    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(merged));
-
-    // Upload merged list to Supabase Cloud so all devices (phones, etc.) get it immediately
-    await syncUsersToSupabase(merged);
-
-    return merged;
+    if (Array.isArray(remoteUsers) && remoteUsers.length > 0) {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(remoteUsers));
+      return remoteUsers;
+    } else {
+      // Cloud was empty: seed cloud with current users
+      const current = getUsers();
+      await syncUsersToSupabase(current);
+      return current;
+    }
   } catch (e) {
     console.warn('Failed syncing users with cloud:', e);
   }
@@ -155,7 +105,6 @@ export async function syncUsersWithCloud() {
  * - Trims hidden spaces from mobile keyboards
  * - Case-insensitive username check
  * - Exact password match + tolerant case-insensitive fallback (e.g. mobile auto-capitalized password)
- * - Flexible visitor/cliente support
  */
 export function authenticateUserWithList(username, password, usersList) {
   if (!Array.isArray(usersList)) return null;
@@ -175,16 +124,6 @@ export function authenticateUserWithList(username, password, usersList) {
     u => u.username.toLowerCase() === cleanUser && u.password.toLowerCase() === cleanPass.toLowerCase()
   );
   if (caseInsensitive) return caseInsensitive;
-
-  // 3. Flexible fallback for visitor/cliente accounts
-  if (cleanUser === 'visitatore' || cleanUser === 'cliente' || cleanUser === 'guest') {
-    const visitorUser = usersList.find(u => u.username.toLowerCase() === cleanUser || u.role === 'viewer');
-    if (visitorUser) {
-      if (cleanPass === '1234' || cleanPass === 'visitatore' || cleanPass === 'cliente' || cleanPass === visitorUser.password.toLowerCase()) {
-        return visitorUser;
-      }
-    }
-  }
 
   return null;
 }
