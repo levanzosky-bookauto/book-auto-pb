@@ -26,7 +26,8 @@ import {
   Eye,
   ShieldCheck,
   FileCheck,
-  Bell
+  Bell,
+  FolderOpen
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -51,6 +52,7 @@ export default function CarDetailModal({
   onDeleteCar,
   onUpdateCarPhotos,
   onOpenPrintPdf,
+  onOpenCartellaDocumenti,
   currentUser,
   clientPermissions
 }) {
@@ -664,16 +666,29 @@ export default function CarDetailModal({
             {/* Scansioni Documenti & Allegati (Libretto, Assicurazione, Bollo) - Only if allowed */}
             {showDocuments && (
               <div className="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-2">
                   <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center">
                     <Paperclip className="w-4 h-4 mr-2" />
                     <span>Documenti Scansionati (Libretto, Assicurazione, Bollo, PDF)</span>
                   </h4>
-                  {car.documents && car.documents.length > 0 && (
-                    <span className="text-[11px] text-slate-400 font-medium">
-                      {car.documents.length} documento/i allegati
-                    </span>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    {car.documents && car.documents.length > 0 && (
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        {car.documents.length} documento/i allegati
+                      </span>
+                    )}
+                    {isStaffUser(currentUser) && onOpenCartellaDocumenti && (
+                      <button
+                        type="button"
+                        onClick={onOpenCartellaDocumenti}
+                        className="px-2.5 py-1 bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold transition-all flex items-center space-x-1"
+                        title="Apri Cartella & Archivio Documenti"
+                      >
+                        <FolderOpen className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Gestisci Cartella</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {car.documents && car.documents.length > 0 ? (

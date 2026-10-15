@@ -132,19 +132,54 @@ export async function fetchCarsFromSupabase(timeoutMs = 8000) {
   }
 }
 
-// Upsert all cars to Supabase (excluding system configs)
+// Upsert a single car to Supabase immediately and safely
+export async function upsertSingleCarToSupabase(car) {
+  if (!supabase || !car || !car.id || String(car.id).startsWith('__')) return false;
+  try {
+    const row = mapCarToRow(car);
+    const { error } = await supabase.from('cars').upsert(row, { onConflict: 'id' });
+    if (error) {
+      console.error(`Supabase single car upsert error (${car.id}):`, error);
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error(`Supabase single car upsert exception (${car.id}):`, e);
+    return false;
+  }
+}
+
+// Upsert all cars to Supabase (excluding system configs) with automatic batch chunking & single car fallback
 export async function syncCarsToSupabase(cars) {
   if (!supabase || !Array.isArray(cars) || cars.length === 0) return false;
   try {
     const rows = cars
       .filter(c => c && c.id && !String(c.id).startsWith('__'))
       .map(mapCarToRow);
+
+    // Try batch upsert
     const { error } = await supabase.from('cars').upsert(rows, { onConflict: 'id' });
-    if (error) {
-      console.error('Supabase sync error:', error);
-      return false;
+    if (!error) return true;
+
+    console.warn('Supabase batch sync failed, retrying in smaller chunks...', error);
+
+    // If batch failed (e.g. payload too large due to documents/photos), upsert sequentially in small chunks of 5
+    let allOk = true;
+    for (let i = 0; i < rows.length; i += 5) {
+      const chunk = rows.slice(i, i + 5);
+      const { error: chunkErr } = await supabase.from('cars').upsert(chunk, { onConflict: 'id' });
+      if (chunkErr) {
+        console.warn(`Chunk ${i / 5} failed, retrying individually:`, chunkErr);
+        for (const row of chunk) {
+          const { error: singleErr } = await supabase.from('cars').upsert(row, { onConflict: 'id' });
+          if (singleErr) {
+            console.error(`Row ${row.id} failed:`, singleErr);
+            allOk = false;
+          }
+        }
+      }
     }
-    return true;
+    return allOk;
   } catch (e) {
     console.error('Supabase sync exception:', e);
     return false;

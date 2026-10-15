@@ -12,13 +12,15 @@ import ExpirationsModal from './components/ExpirationsModal';
 import AdminModal from './components/AdminModal';
 import AdminLoginPage from './components/AdminLoginPage';
 import AutoEmailNotificationPopup from './components/AutoEmailNotificationPopup';
+import CartellaDocumentiModal from './components/CartellaDocumentiModal';
 import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkles, CheckSquare, Printer, Square, Trash2, Bell } from 'lucide-react';
 import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser, syncUsersWithCloud, syncBackgroundsWithCloud } from './utils/auth';
 import { syncLocationsWithCloud } from './utils/locations';
 import { checkAndTriggerAutomaticEmailAlerts, syncEmailConfigWithCloud } from './utils/emailAlerts';
-import { fetchCarsFromSupabase, syncCarsToSupabase, fetchPermissionsFromSupabase, syncPermissionsToSupabase } from './utils/supabase';
+import { fetchCarsFromSupabase, syncCarsToSupabase, upsertSingleCarToSupabase, fetchPermissionsFromSupabase, syncPermissionsToSupabase } from './utils/supabase';
+import { saveCarsToLocal, getCarsFromLocal } from './utils/storage';
 import { getClientPermissions, saveClientPermissions, isStaffUser, canViewExpirations } from './utils/permissions';
 import { markCarAsPermanentlyDeleted, markCarsAsPermanentlyDeleted, filterOutDeletedCars, syncDeletedCarsWithCloud } from './utils/deletedCars';
 
@@ -74,6 +76,7 @@ export default function App() {
   const [isBrandLogosModalOpen, setIsBrandLogosModalOpen] = useState(false);
   const [isExpirationsModalOpen, setIsExpirationsModalOpen] = useState(false);
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
+  const [isCartellaDocumentiOpen, setIsCartellaDocumentiOpen] = useState(false);
   const [autoEmailPopupAlerts, setAutoEmailPopupAlerts] = useState(null);
 
   // Automatic Email Expiration Check on Load / Cars Update (Staff Only: Super Admin & Editor)
@@ -120,18 +123,11 @@ export default function App() {
         syncBackgroundsWithCloud()
       ]);
 
-      // 1. Check if this device has local edits / expirations
-      const savedLocal = localStorage.getItem(LOCAL_STORAGE_KEY);
+      // 1. Check if this device has local edits / expirations (IndexedDB + safe localStorage)
+      const savedLocalCars = await getCarsFromLocal();
       let localCars = null;
-      if (savedLocal) {
-        try {
-          const parsed = JSON.parse(savedLocal);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            localCars = formatCarImages(filterOutDeletedCars(parsed));
-          }
-        } catch (e) {
-          console.error('Error parsing local storage:', e);
-        }
+      if (Array.isArray(savedLocalCars) && savedLocalCars.length > 0) {
+        localCars = formatCarImages(filterOutDeletedCars(savedLocalCars));
       }
 
       // Fetch baseline cars.json (always guaranteed to have catalog & baseline expirations)
@@ -185,16 +181,16 @@ export default function App() {
           if (localHasExpirations && !supabaseHasExpirations) {
             console.log('🚀 Pushing local expirations to Supabase Cloud so all users see them...');
             setCars(localCars);
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(localCars));
+            saveCarsToLocal(localCars);
             syncCarsToSupabase(localCars);
             setLoading(false);
             return;
           }
         }
 
-        // Supabase has the shared truth! Update state and localStorage
+        // Supabase has the shared truth! Update state and local storage
         setCars(formattedSupabase);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formattedSupabase));
+        saveCarsToLocal(formattedSupabase);
         setLoading(false);
         return;
       }
@@ -203,7 +199,7 @@ export default function App() {
       if (localCars && localCars.length > 0) {
         const mergedLocal = mergeWithBaseline(localCars);
         setCars(mergedLocal);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mergedLocal));
+        saveCarsToLocal(mergedLocal);
         setLoading(false);
         return;
       }
@@ -211,7 +207,7 @@ export default function App() {
       // 3. Fallback to default baselineCars
       if (baselineCars && baselineCars.length > 0) {
         setCars(baselineCars);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(baselineCars));
+        saveCarsToLocal(baselineCars);
         syncCarsToSupabase(baselineCars);
         setLoading(false);
         return;
@@ -266,7 +262,7 @@ export default function App() {
         const activeSupabase = filterOutDeletedCars(freshSupabase);
         const formatted = formatCarImages(activeSupabase);
         setCars(formatted);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+        saveCarsToLocal(formatted);
       } else {
         const res = await fetch(`${import.meta.env.BASE_URL}data/cars.json?t=${Date.now()}`);
         if (res.ok) {
@@ -275,7 +271,7 @@ export default function App() {
             const activeCars = filterOutDeletedCars(json);
             const formatted = formatCarImages(activeCars);
             setCars(formatted);
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
+            saveCarsToLocal(formatted);
           }
         }
       }
@@ -293,10 +289,10 @@ export default function App() {
     }
   };
 
-  // Save to state, localStorage, and sync to Supabase Cloud
+  // Save to state, local storage (IndexedDB + safe localStorage), and sync to Supabase Cloud
   const saveCarsState = (newCars) => {
     setCars(newCars);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newCars));
+    saveCarsToLocal(newCars);
     syncCarsToSupabase(newCars);
   };
 
@@ -354,6 +350,7 @@ export default function App() {
     }
     
     saveCarsState(updated);
+    upsertSingleCarToSupabase(carData);
     
     // Clear filters so user immediately sees the newly added car
     setSelectedBrand('Tutti');
@@ -369,10 +366,10 @@ export default function App() {
     // 1. Mark permanently deleted (local storage tombstone + delete from Supabase row + sync tombstone)
     await markCarAsPermanentlyDeleted(carId);
 
-    // 2. Filter state & localStorage
+    // 2. Filter state & local storage
     const updated = cars.filter(c => String(c.id) !== String(carId));
     setCars(updated);
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+    saveCarsToLocal(updated);
     setSelectedCarIds(prev => prev.filter(id => String(id) !== String(carId)));
     if (selectedCar && String(selectedCar.id) === String(carId)) {
       setSelectedCar(null);
@@ -436,10 +433,10 @@ export default function App() {
       // 1. Mark permanently deleted across local storage & Supabase Cloud
       await markCarsAsPermanentlyDeleted(idsToDelete);
 
-      // 2. Filter state & localStorage
+      // 2. Filter state & local storage
       const updated = cars.filter(c => !idsToDelete.map(String).includes(String(c.id)));
       setCars(updated);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      saveCarsToLocal(updated);
       if (selectedCar && idsToDelete.map(String).includes(String(selectedCar.id))) {
         setSelectedCar(null);
       }
@@ -453,7 +450,7 @@ export default function App() {
       .then(data => {
         const active = filterOutDeletedCars(data);
         setCars(active);
-        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(active));
+        saveCarsToLocal(active);
         setSelectedBrand('Tutti');
         setSearchQuery('');
         setOnlyFavorites(false);
@@ -540,6 +537,12 @@ export default function App() {
     [expirationsAlerts]
   );
 
+  // Total Saved Documents Count
+  const totalDocumentsCount = useMemo(() => 
+    cars.reduce((acc, c) => acc + (Array.isArray(c.documents) ? c.documents.length : 0), 0),
+    [cars]
+  );
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#080d1a] flex flex-col items-center justify-center space-y-4">
@@ -601,6 +604,8 @@ export default function App() {
         onLogout={handleLogout}
         onRefreshCloudData={handleRefreshCloudData}
         isSyncing={isSyncing}
+        onOpenCartellaDocumenti={() => setIsCartellaDocumentiOpen(true)}
+        totalDocumentsCount={totalDocumentsCount}
       />
 
       {/* Top Expiration Notification Banner (Shown ONLY if allowed for clients, or always for staff) */}
@@ -788,6 +793,10 @@ export default function App() {
           onDeleteCar={handleDeleteCar}
           onUpdateCarPhotos={handleUpdateCarImages}
           onOpenPrintPdf={handleOpenPrintPdfForCar}
+          onOpenCartellaDocumenti={() => {
+            setSelectedCar(null);
+            setIsCartellaDocumentiOpen(true);
+          }}
           currentUser={currentUser}
           clientPermissions={clientPermissions}
         />
@@ -863,6 +872,17 @@ export default function App() {
             saveClientPermissions(updated);
             syncPermissionsToSupabase(updated);
           }}
+        />
+      )}
+
+      {/* Cartella & Archivio Documenti Vetture Modal */}
+      {isCartellaDocumentiOpen && (
+        <CartellaDocumentiModal
+          isOpen={isCartellaDocumentiOpen}
+          onClose={() => setIsCartellaDocumentiOpen(false)}
+          cars={cars}
+          onUpdateCars={saveCarsState}
+          currentUser={currentUser}
         />
       )}
 

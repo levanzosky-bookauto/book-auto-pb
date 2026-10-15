@@ -19,7 +19,8 @@ import {
   ShieldCheck,
   Settings,
   LogOut,
-  User
+  User,
+  FolderOpen
 } from 'lucide-react';
 import { isStaffUser, canViewExpirations } from '../utils/permissions';
 
@@ -49,7 +50,9 @@ export default function Navbar({
   clientPermissions,
   onLogout,
   onRefreshCloudData,
-  isSyncing = false
+  isSyncing = false,
+  onOpenCartellaDocumenti,
+  totalDocumentsCount = 0
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const showExpirations = canViewExpirations(currentUser, clientPermissions);
@@ -174,6 +177,21 @@ export default function Navbar({
               </button>
             )}
 
+            {/* Cartella & Archivio Documenti Button */}
+            {(isStaff || (clientPermissions && clientPermissions.showDocuments)) && (
+              <button
+                onClick={onOpenCartellaDocumenti}
+                className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-900/60 text-slate-300 border border-slate-700/60 hover:bg-slate-800 hover:border-amber-500/40 hover:text-amber-300 transition-all"
+                title="Archivio & Cartella Documenti Scansionati (Libretti, Assicurazioni, Bolli)"
+              >
+                <FolderOpen className="w-4 h-4 text-amber-400" />
+                <span className="hidden xl:inline">Cartella Documenti</span>
+                <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-amber-400 font-bold border border-slate-700">
+                  {totalDocumentsCount}
+                </span>
+              </button>
+            )}
+
             {/* PDF Print Selected Cars Button (if selected) */}
             {selectedCount > 0 && (
               <button
@@ -282,6 +300,22 @@ export default function Navbar({
               </button>
             )}
             
+            {(isStaff || (clientPermissions && clientPermissions.showDocuments)) && (
+              <button
+                type="button"
+                onClick={onOpenCartellaDocumenti}
+                className="relative p-2 rounded-xl border bg-slate-900/60 text-slate-300 border-slate-700 hover:text-amber-400"
+                title="Cartella Documenti"
+              >
+                <FolderOpen className="w-5 h-5 text-amber-400" />
+                {totalDocumentsCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-extrabold bg-amber-500 text-slate-950 shadow-md">
+                    {totalDocumentsCount}
+                  </span>
+                )}
+              </button>
+            )}
+
             {isStaff && (
               <button
                 onClick={onOpenAddModal}
@@ -394,6 +428,22 @@ export default function Navbar({
                       {expirationsCount}
                     </span>
                   )}
+                </button>
+              )}
+
+              {(isStaff || (clientPermissions && clientPermissions.showDocuments)) && (
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); onOpenCartellaDocumenti && onOpenCartellaDocumenti(); }}
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold border border-slate-700 bg-slate-900 text-slate-200 hover:border-amber-500/40"
+                >
+                  <div className="flex items-center space-x-2">
+                    <FolderOpen className="w-4 h-4 text-amber-400" />
+                    <span>Cartella & Archivio Documenti</span>
+                  </div>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500 text-slate-950">
+                    {totalDocumentsCount} File
+                  </span>
                 </button>
               )}
 

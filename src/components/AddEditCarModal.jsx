@@ -30,6 +30,7 @@ import {
 import { getLogoForBrand, saveCustomBrandLogo, resetCustomBrandLogo } from '../utils/brandLogos';
 import { getLocations, addLocation, removeLocation, renameLocation } from '../utils/locations';
 import { openDocument, downloadDocument } from '../utils/documentViewer';
+import { processScannedDocumentFile } from '../utils/storage';
 import ImageCropperModal from './ImageCropperModal';
 import BrandLogosModal from './BrandLogosModal';
 
@@ -73,6 +74,8 @@ export default function AddEditCarModal({
   const [newLocInput, setNewLocInput] = useState('');
   const [editingLocName, setEditingLocName] = useState(null);
   const [editingValue, setEditingValue] = useState('');
+  const [docNotice, setDocNotice] = useState('');
+  const [isProcessingDoc, setIsProcessingDoc] = useState(false);
 
   const [formData, setFormData] = useState({
     brand: '',
@@ -170,39 +173,60 @@ export default function AddEditCarModal({
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle document file upload (PDF or scanned image)
-  const handleDocumentFileUpload = (e, targetCategory = 'altro') => {
+  // Handle document file upload (PDF or scanned image) with smart compression, car naming, and automatic replacement
+  const handleDocumentFileUpload = async (e, targetCategory = 'altro') => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      const fileData = uploadEvent.target.result;
-      const fileType = file.type || (file.name.toLowerCase().endsWith('.pdf') ? 'application/pdf' : 'image/jpeg');
-
-      let defaultTitle = 'Documento Vettura';
-      if (targetCategory === 'libretto') defaultTitle = 'Libretto di Circolazione';
-      else if (targetCategory === 'assicurazione') defaultTitle = 'Polizza Assicurativa';
-      else if (targetCategory === 'bollo') defaultTitle = 'Ricevuta Bollo Pagato';
-      else defaultTitle = file.name.replace(/\.[^/.]+$/, '');
-
-      const newDoc = {
-        id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-        category: targetCategory,
-        title: defaultTitle,
-        fileName: file.name,
-        fileType: fileType,
-        fileData: fileData,
-        uploadedAt: new Date().toISOString().slice(0, 10)
+    setIsProcessingDoc(true);
+    try {
+      const carInfo = {
+        brand: formData.brand || formData.customBrand,
+        model: formData.model,
+        targa: formData.targa,
+        immatricolazione: formData.immatricolazione
       };
 
-      setFormData(prev => ({
-        ...prev,
-        documents: [...(prev.documents || []), newDoc]
-      }));
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+      const newDoc = await processScannedDocumentFile(file, carInfo, targetCategory);
+      if (!newDoc) {
+        alert('Impossibile elaborare il file selezionato. Riprova con un PDF o una foto.');
+        return;
+      }
+
+      setFormData(prev => {
+        const currentDocs = prev.documents || [];
+        let wasReplaced = false;
+        let filtered = currentDocs;
+
+        if (targetCategory !== 'altro') {
+          const exists = currentDocs.some(d => d.category === targetCategory);
+          if (exists) {
+            wasReplaced = true;
+            // AUTOMATICALLY REMOVE PREVIOUS VERSION OF THIS CATEGORY!
+            filtered = currentDocs.filter(d => d.category !== targetCategory);
+          }
+        }
+
+        if (wasReplaced) {
+          setDocNotice(`Documento precedente di tipo "${newDoc.categoryLabel}" sostituito automaticamente con la nuova scansione.`);
+          setTimeout(() => setDocNotice(''), 5500);
+        } else {
+          setDocNotice(`Scansione "${newDoc.categoryLabel}" aggiunta con successo.`);
+          setTimeout(() => setDocNotice(''), 4500);
+        }
+
+        return {
+          ...prev,
+          documents: [newDoc, ...filtered]
+        };
+      });
+    } catch (err) {
+      console.error('Document scan error:', err);
+      alert('Errore caricamento documento: ' + err.message);
+    } finally {
+      setIsProcessingDoc(false);
+      e.target.value = '';
+    }
   };
 
   const handleRemoveDocument = (docId) => {
@@ -990,57 +1014,99 @@ export default function AddEditCarModal({
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Carica i file PDF o le foto scansionate dei documenti della vettura (Libretto di circolazione, Polizza Assicurativa, Ricevuta Bollo pagato o altri allegati). Potrai consultarli, scaricarli e stamparli in qualsiasi momento.
-                </p>
+                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-xs text-slate-300 space-y-1">
+                  <p className="font-semibold text-amber-300 flex items-center space-x-1.5">
+                    <span>💡 Nome automatico vettura & Sostituzione istantanea:</span>
+                  </p>
+                  <p className="text-slate-400 leading-relaxed text-[11px]">
+                    I documenti vengono nominati automaticamente con Marca, Modello e Targa della vettura. Se carichi una nuova versione di Libretto, Assicurazione o Bollo, la versione precedente viene <strong className="text-slate-200">cancellata e sostituita automaticamente</strong>.
+                  </p>
+                </div>
+
+                {/* Upload notification banner */}
+                {docNotice && (
+                  <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 rounded-xl text-xs font-bold text-emerald-300 flex items-center space-x-2 animate-fade-in">
+                    <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{docNotice}</span>
+                  </div>
+                )}
+
+                {isProcessingDoc && (
+                  <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl text-xs font-bold text-cyan-300 flex items-center space-x-2 animate-pulse">
+                    <span className="animate-spin text-base">⏳</span>
+                    <span>Ottimizzazione della scansione e preparazione file in corso...</span>
+                  </div>
+                )}
 
                 {/* Upload Buttons Row */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                   <label className="flex flex-col items-center justify-center p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-xl cursor-pointer transition-all group text-center">
                     <FileCheck className="w-5 h-5 text-amber-400 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-bold text-slate-200">Libretto</span>
-                    <span className="text-[10px] text-slate-400">PDF / Immagine</span>
+                    <span className={`text-[10px] font-semibold mt-0.5 ${
+                      formData.documents?.some(d => d.category === 'libretto')
+                        ? 'text-amber-400'
+                        : 'text-slate-400'
+                    }`}>
+                      {formData.documents?.some(d => d.category === 'libretto') ? '🔄 Sostituisci' : '+ Carica File'}
+                    </span>
                     <input 
                       type="file" 
                       accept=".pdf,image/*" 
                       onChange={(e) => handleDocumentFileUpload(e, 'libretto')} 
                       className="hidden" 
+                      disabled={isProcessingDoc}
                     />
                   </label>
 
                   <label className="flex flex-col items-center justify-center p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-xl cursor-pointer transition-all group text-center">
                     <ShieldCheck className="w-5 h-5 text-blue-400 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-bold text-slate-200">Assicurazione</span>
-                    <span className="text-[10px] text-slate-400">PDF / Immagine</span>
+                    <span className={`text-[10px] font-semibold mt-0.5 ${
+                      formData.documents?.some(d => d.category === 'assicurazione')
+                        ? 'text-blue-400'
+                        : 'text-slate-400'
+                    }`}>
+                      {formData.documents?.some(d => d.category === 'assicurazione') ? '🔄 Sostituisci' : '+ Carica File'}
+                    </span>
                     <input 
                       type="file" 
                       accept=".pdf,image/*" 
                       onChange={(e) => handleDocumentFileUpload(e, 'assicurazione')} 
                       className="hidden" 
+                      disabled={isProcessingDoc}
                     />
                   </label>
 
                   <label className="flex flex-col items-center justify-center p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-xl cursor-pointer transition-all group text-center">
                     <Euro className="w-5 h-5 text-emerald-400 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-bold text-slate-200">Bollo Pagato</span>
-                    <span className="text-[10px] text-slate-400">PDF / Immagine</span>
+                    <span className={`text-[10px] font-semibold mt-0.5 ${
+                      formData.documents?.some(d => d.category === 'bollo')
+                        ? 'text-emerald-400'
+                        : 'text-slate-400'
+                    }`}>
+                      {formData.documents?.some(d => d.category === 'bollo') ? '🔄 Sostituisci' : '+ Carica File'}
+                    </span>
                     <input 
                       type="file" 
                       accept=".pdf,image/*" 
                       onChange={(e) => handleDocumentFileUpload(e, 'bollo')} 
                       className="hidden" 
+                      disabled={isProcessingDoc}
                     />
                   </label>
 
                   <label className="flex flex-col items-center justify-center p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 rounded-xl cursor-pointer transition-all group text-center">
                     <Plus className="w-5 h-5 text-purple-400 mb-1 group-hover:scale-110 transition-transform" />
                     <span className="text-xs font-bold text-slate-200">Altro Allegato</span>
-                    <span className="text-[10px] text-slate-400">Qualsiasi PDF</span>
+                    <span className="text-[10px] text-slate-400 mt-0.5">+ Aggiungi PDF</span>
                     <input 
                       type="file" 
                       accept=".pdf,image/*" 
                       onChange={(e) => handleDocumentFileUpload(e, 'altro')} 
                       className="hidden" 
+                      disabled={isProcessingDoc}
                     />
                   </label>
                 </div>
