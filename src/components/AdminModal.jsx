@@ -22,7 +22,17 @@ import {
   Sparkles,
   Bell,
   Eye,
-  EyeOff
+  EyeOff,
+  FolderOpen,
+  Folder,
+  Paperclip,
+  Printer,
+  RefreshCw,
+  FileCheck,
+  Euro,
+  Search,
+  Filter,
+  AlertCircle
 } from 'lucide-react';
 import { 
   getUsers, 
@@ -49,7 +59,9 @@ import {
   saveAllEmailSettingsToCloud
 } from '../utils/emailAlerts';
 import { getClientPermissions, saveClientPermissions, DEFAULT_CLIENT_PERMISSIONS } from '../utils/permissions';
-import { syncPermissionsToSupabase } from '../utils/supabase';
+import { syncPermissionsToSupabase, upsertSingleCarToSupabase } from '../utils/supabase';
+import { openDocument, downloadDocument } from '../utils/documentViewer';
+import { processScannedDocumentFile } from '../utils/storage';
 import { Send, Copy, FileText } from 'lucide-react';
 
 export default function AdminModal({ 
@@ -59,6 +71,7 @@ export default function AdminModal({
   onOpenBrandLogosModal, 
   onOpenBackupModal, 
   onResetData,
+  onUpdateCars,
   showSideGlow,
   setShowSideGlow,
   showExpirationBar,
@@ -66,7 +79,139 @@ export default function AdminModal({
   clientPermissions,
   onPermissionsUpdated
 }) {
-  const [activeTab, setActiveTab] = useState('tools'); // 'tools' | 'permissions' | 'users' | 'backgrounds' | 'locations'
+  const [activeTab, setActiveTab] = useState('tools'); // 'tools' | 'permissions' | 'users' | 'backgrounds' | 'locations' | 'documents'
+
+  // Documents & Scans Management State
+  const [docsSearchQuery, setDocsSearchQuery] = useState('');
+  const [docsCategoryFilter, setDocsCategoryFilter] = useState('all'); // 'all' | 'libretto' | 'assicurazione' | 'bollo' | 'with_docs' | 'missing_docs'
+  const [docsNotice, setDocsNotice] = useState(null); // { type: 'success' | 'error' | 'info', message: '' }
+  const [isProcessingDoc, setIsProcessingDoc] = useState(false);
+
+  // Document Statistics
+  const docStats = React.useMemo(() => {
+    let totalDocs = 0;
+    let libretti = 0;
+    let assicurazioni = 0;
+    let bolli = 0;
+    let carsWithDocs = 0;
+    
+    (cars || []).forEach(car => {
+      const docs = Array.isArray(car.documents) ? car.documents : [];
+      if (docs.length > 0) carsWithDocs++;
+      totalDocs += docs.length;
+      docs.forEach(d => {
+        if (d.category === 'libretto') libretti++;
+        else if (d.category === 'assicurazione') assicurazioni++;
+        else if (d.category === 'bollo') bolli++;
+      });
+    });
+
+    return { totalDocs, libretti, assicurazioni, bolli, carsWithDocs };
+  }, [cars]);
+
+  // Cars with their documents filtered for search and categories
+  const filteredDocCars = React.useMemo(() => {
+    const q = docsSearchQuery.toLowerCase().trim();
+    return (cars || []).filter(car => {
+      const brand = (car.brand || '').toLowerCase();
+      const model = (car.model || '').toLowerCase();
+      const targa = (car.targa || car.immatricolazione || '').toLowerCase();
+      const location = (car.location || car.ubicazione || '').toLowerCase();
+      const carName = `${brand} ${model} ${targa} ${location}`;
+      const docs = Array.isArray(car.documents) ? car.documents : [];
+
+      const matchesSearch = !q || carName.includes(q) || docs.some(d => 
+        (d.title || '').toLowerCase().includes(q) || (d.fileName || '').toLowerCase().includes(q)
+      );
+      if (!matchesSearch) return false;
+
+      if (docsCategoryFilter === 'with_docs') return docs.length > 0;
+      if (docsCategoryFilter === 'missing_docs') return docs.length === 0;
+      if (docsCategoryFilter === 'libretto') return docs.some(d => d.category === 'libretto');
+      if (docsCategoryFilter === 'assicurazione') return docs.some(d => d.category === 'assicurazione');
+      if (docsCategoryFilter === 'bollo') return docs.some(d => d.category === 'bollo');
+      return true;
+    });
+  }, [cars, docsSearchQuery, docsCategoryFilter]);
+
+  // Direct upload or replace handler inside AdminModal
+  const handleUploadOrReplaceDoc = async (carId, category, file) => {
+    if (!file) return;
+    setIsProcessingDoc(true);
+    setDocsNotice({ type: 'info', message: `Elaborazione scansione ${file.name} in corso...` });
+
+    try {
+      const car = (cars || []).find(c => c.id === carId);
+      if (!car) throw new Error('Vettura non trovata.');
+
+      const processed = await processScannedDocumentFile(file, car, category);
+      const newDoc = {
+        id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        category: category,
+        title: processed.title,
+        fileName: processed.fileName,
+        fileType: processed.fileType,
+        dataUrl: processed.dataUrl,
+        date: new Date().toISOString().split('T')[0],
+        notes: `Caricato da Amministrazione il ${new Date().toLocaleDateString('it-IT')}`
+      };
+
+      // Auto-replace existing document of the same category to save space & prevent duplicates
+      const existingDocs = Array.isArray(car.documents) ? car.documents : [];
+      const updatedDocs = [newDoc, ...existingDocs.filter(d => d.category !== category)];
+
+      const updatedCar = { ...car, documents: updatedDocs };
+      const updatedCars = (cars || []).map(c => c.id === carId ? updatedCar : c);
+
+      if (onUpdateCars) {
+        onUpdateCars(updatedCars);
+      }
+      try {
+        await upsertSingleCarToSupabase(updatedCar);
+      } catch (err) {
+        console.warn('Sync cloud doc:', err);
+      }
+
+      setDocsNotice({ 
+        type: 'success', 
+        message: `✅ Scansione salvata con successo per ${car.brand} ${car.model} (${processed.fileName})! La versione precedente è stata sostituita.` 
+      });
+      setTimeout(() => setDocsNotice(null), 5000);
+    } catch (err) {
+      console.error('Errore caricamento documento admin:', err);
+      setDocsNotice({ type: 'error', message: `❌ Errore durante il caricamento: ${err.message}` });
+      setTimeout(() => setDocsNotice(null), 6000);
+    } finally {
+      setIsProcessingDoc(false);
+    }
+  };
+
+  // Direct delete document handler
+  const handleDeleteCarDoc = async (carId, docId, docTitle) => {
+    if (!window.confirm(`Sei sicuro di voler eliminare definitivamente "${docTitle || 'questo documento'}"?`)) {
+      return;
+    }
+
+    const car = (cars || []).find(c => c.id === carId);
+    if (!car) return;
+
+    const existingDocs = Array.isArray(car.documents) ? car.documents : [];
+    const updatedDocs = existingDocs.filter(d => d.id !== docId);
+    const updatedCar = { ...car, documents: updatedDocs };
+    const updatedCars = (cars || []).map(c => c.id === carId ? updatedCar : c);
+
+    if (onUpdateCars) {
+      onUpdateCars(updatedCars);
+    }
+    try {
+      await upsertSingleCarToSupabase(updatedCar);
+    } catch (e) {
+      console.warn('Cloud sync delete doc:', e);
+    }
+
+    setDocsNotice({ type: 'success', message: 'Documento eliminato con successo.' });
+    setTimeout(() => setDocsNotice(null), 3000);
+  };
 
   // Client Permissions State
   const [permissions, setPermissions] = useState(() => clientPermissions || getClientPermissions());
@@ -401,7 +546,7 @@ export default function AdminModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-2xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[90vh] bg-slate-900 text-slate-100"
+        className="glass-panel w-full max-w-4xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[90vh] bg-slate-900 text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -495,6 +640,19 @@ export default function AdminModal({
             <MapPin className="w-4 h-4 shrink-0" />
             <span>Ubicazioni ({locationsList.length})</span>
           </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('documents')}
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+              activeTab === 'documents'
+                ? 'border-amber-400 text-amber-400 bg-amber-500/10'
+                : 'border-transparent text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <FolderOpen className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>Scansioni & Allegati ({docStats.totalDocs})</span>
+          </button>
         </div>
 
         {/* Modal Body */}
@@ -511,7 +669,7 @@ export default function AdminModal({
                   <span>Strumenti Amministrativi Veloci</span>
                 </h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
                   <button
                     onClick={() => { onClose(); onOpenAddModal(); }}
                     className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 rounded-xl text-left flex items-center space-x-3 transition-all"
@@ -548,6 +706,19 @@ export default function AdminModal({
                     <div>
                       <span className="block font-bold text-slate-100">Backup & Esporta</span>
                       <span className="text-[10px] text-slate-400">Salva o ripristina file JSON</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('documents')}
+                    className="p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 rounded-xl text-left flex items-center space-x-3 transition-all"
+                  >
+                    <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg">
+                      <FolderOpen className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="block font-bold text-slate-100">Scansioni & Allegati</span>
+                      <span className="text-[10px] text-slate-400">{docStats.totalDocs} file salvati</span>
                     </div>
                   </button>
                 </div>
@@ -1486,6 +1657,346 @@ export default function AdminModal({
                 </div>
               </div>
 
+              {/* SEZIONE SCANSIONI E ALLEGATI IN QUESTE UBICAZIONI ("QUI IN BASSO") */}
+              <div className="pt-5 border-t border-slate-800 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-amber-500/10 via-slate-900 to-blue-500/10 p-4 rounded-2xl border border-amber-500/30">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30">
+                      <FolderOpen className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-100 text-sm flex items-center gap-2">
+                        <span>📁 Scansioni & Documenti Allegati nelle Ubicazioni</span>
+                        <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-bold">
+                          {docStats.totalDocs} file salvati
+                        </span>
+                      </h4>
+                      <p className="text-[11px] text-slate-400">
+                        Visualizza, scarica, stampa o sostituisci libretti, assicurazioni e bolli delle vetture presenti in ciascun garage
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveTab('documents')}
+                    className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-500/10 shrink-0"
+                  >
+                    <FolderOpen className="w-4 h-4" />
+                    <span>Gestione Completa Scansioni ({docStats.totalDocs})</span>
+                  </button>
+                </div>
+
+                {/* Real-time Notice Feedback */}
+                {docsNotice && (
+                  <div className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
+                    docsNotice.type === 'error' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' :
+                    docsNotice.type === 'info' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                    'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                  }`}>
+                    {docsNotice.type === 'error' ? <AlertCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+                    <span>{docsNotice.message}</span>
+                  </div>
+                )}
+
+                {/* Per-location list of vehicles and their attached documents */}
+                <div className="space-y-4">
+                  {locationsList.map((locName, lIdx) => {
+                    const carsInLoc = (cars || []).filter(c => (c.location || c.ubicazione) === locName);
+                    const totalDocsInLoc = carsInLoc.reduce((acc, c) => acc + (Array.isArray(c.documents) ? c.documents.length : 0), 0);
+
+                    return (
+                      <div key={lIdx} className="bg-slate-950/80 rounded-2xl border border-slate-800 p-3.5 space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="w-4 h-4 text-amber-400" />
+                            <span className="font-bold text-slate-200 text-xs sm:text-sm">{locName}</span>
+                            <span className="text-[10px] text-slate-400">({carsInLoc.length} vetture collocate)</span>
+                          </div>
+                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            totalDocsInLoc > 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+                          }`}>
+                            {totalDocsInLoc} documenti allegati
+                          </span>
+                        </div>
+
+                        {carsInLoc.length === 0 ? (
+                          <p className="text-[11px] text-slate-500 italic py-1">Nessuna vettura attualmente assegnata a questa ubicazione.</p>
+                        ) : (
+                          <div className="space-y-2.5">
+                            {carsInLoc.map(car => {
+                              const docs = Array.isArray(car.documents) ? car.documents : [];
+                              return (
+                                <div key={car.id} className="bg-slate-900/90 rounded-xl p-3 border border-slate-800/80 space-y-2.5">
+                                  <div className="flex items-center justify-between flex-wrap gap-2">
+                                    <div className="flex items-center space-x-2">
+                                      <Car className="w-4 h-4 text-amber-400 shrink-0" />
+                                      <span className="font-bold text-white text-xs">{car.brand} {car.model}</span>
+                                      {(car.targa || car.immatricolazione) && (
+                                        <span className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 text-amber-300 font-mono text-[10px] font-bold rounded">
+                                          {car.targa || car.immatricolazione}
+                                        </span>
+                                      )}
+                                      <span className="text-[10px] text-slate-400">
+                                        • {docs.length} allegat{docs.length === 1 ? 'o' : 'i'}
+                                      </span>
+                                    </div>
+
+                                    {/* Fast Upload Buttons */}
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
+                                        <Upload className="w-3 h-3 text-amber-400" />
+                                        <span>{docs.some(d => d.category === 'libretto') ? '🔄 Sostituisci Libretto' : '+ Libretto'}</span>
+                                        <input 
+                                          type="file" 
+                                          accept="image/*,application/pdf" 
+                                          className="hidden" 
+                                          onChange={(e) => {
+                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'libretto', e.target.files[0]);
+                                            e.target.value = '';
+                                          }} 
+                                        />
+                                      </label>
+                                      <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
+                                        <Upload className="w-3 h-3 text-emerald-400" />
+                                        <span>{docs.some(d => d.category === 'assicurazione') ? '🔄 Sostituisci Polizza' : '+ Polizza'}</span>
+                                        <input 
+                                          type="file" 
+                                          accept="image/*,application/pdf" 
+                                          className="hidden" 
+                                          onChange={(e) => {
+                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'assicurazione', e.target.files[0]);
+                                            e.target.value = '';
+                                          }} 
+                                        />
+                                      </label>
+                                      <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
+                                        <Upload className="w-3 h-3 text-blue-400" />
+                                        <span>{docs.some(d => d.category === 'bollo') ? '🔄 Sostituisci Bollo' : '+ Bollo'}</span>
+                                        <input 
+                                          type="file" 
+                                          accept="image/*,application/pdf" 
+                                          className="hidden" 
+                                          onChange={(e) => {
+                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'bollo', e.target.files[0]);
+                                            e.target.value = '';
+                                          }} 
+                                        />
+                                      </label>
+                                    </div>
+                                  </div>
+
+                                  {/* Attached docs pills */}
+                                  {docs.length === 0 ? (
+                                    <p className="text-[10px] text-amber-400/80 italic flex items-center gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                                      <AlertCircle className="w-3 h-3 shrink-0" />
+                                      Nessuna scansione allegata per questa vettura. Usa i pulsanti sopra per caricare subito libretto, assicurazione o bollo.
+                                    </p>
+                                  ) : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
+                                      {docs.map((doc) => (
+                                        <div 
+                                          key={doc.id} 
+                                          className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition-all"
+                                        >
+                                          <div className="min-w-0 flex items-center space-x-2">
+                                            <Paperclip className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                            <div className="truncate">
+                                              <p className="font-semibold text-slate-200 text-[11px] truncate" title={doc.title || doc.fileName}>
+                                                {doc.title || doc.fileName}
+                                              </p>
+                                              <p className="text-[9px] text-slate-400 uppercase tracking-wider">
+                                                {doc.category || 'documento'} {doc.date ? `• ${doc.date}` : ''}
+                                              </p>
+                                            </div>
+                                          </div>
+
+                                          <div className="flex items-center space-x-1 shrink-0">
+                                            <button
+                                              type="button"
+                                              onClick={() => openDocument(doc)}
+                                              className="p-1.5 text-slate-300 hover:text-amber-400 hover:bg-slate-800 rounded transition-all"
+                                              title="Visualizza / Stampa"
+                                            >
+                                              <Eye className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => downloadDocument(doc)}
+                                              className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded transition-all"
+                                              title="Scarica File"
+                                            >
+                                              <Download className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button
+                                              type="button"
+                                              onClick={() => handleDeleteCarDoc(car.id, doc.id, doc.title || doc.fileName)}
+                                              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all"
+                                              title="Elimina Documento"
+                                            >
+                                              <Trash2 className="w-3.5 h-3.5" />
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+
+                  {/* Section for cars without location if any */}
+                  {(() => {
+                    const unassignedCars = (cars || []).filter(c => !c.location && !c.ubicazione);
+                    if (unassignedCars.length === 0) return null;
+                    const totalDocsUnassigned = unassignedCars.reduce((acc, c) => acc + (Array.isArray(c.documents) ? c.documents.length : 0), 0);
+
+                    return (
+                      <div className="bg-slate-950/80 rounded-2xl border border-slate-800 p-3.5 space-y-3">
+                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+                          <div className="flex items-center space-x-2">
+                            <MapPin className="w-4 h-4 text-slate-400" />
+                            <span className="font-bold text-slate-200 text-xs sm:text-sm">Altre Vetture / Senza Ubicazione Assegnata</span>
+                            <span className="text-[10px] text-slate-400">({unassignedCars.length} vetture)</span>
+                          </div>
+                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            totalDocsUnassigned > 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+                          }`}>
+                            {totalDocsUnassigned} documenti allegati
+                          </span>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          {unassignedCars.map(car => {
+                            const docs = Array.isArray(car.documents) ? car.documents : [];
+                            return (
+                              <div key={car.id} className="bg-slate-900/90 rounded-xl p-3 border border-slate-800/80 space-y-2.5">
+                                <div className="flex items-center justify-between flex-wrap gap-2">
+                                  <div className="flex items-center space-x-2">
+                                    <Car className="w-4 h-4 text-amber-400 shrink-0" />
+                                    <span className="font-bold text-white text-xs">{car.brand} {car.model}</span>
+                                    {(car.targa || car.immatricolazione) && (
+                                      <span className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 text-amber-300 font-mono text-[10px] font-bold rounded">
+                                        {car.targa || car.immatricolazione}
+                                      </span>
+                                    )}
+                                    <span className="text-[10px] text-slate-400">
+                                      • {docs.length} allegat{docs.length === 1 ? 'o' : 'i'}
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
+                                      <Upload className="w-3 h-3 text-amber-400" />
+                                      <span>{docs.some(d => d.category === 'libretto') ? '🔄 Sostituisci Libretto' : '+ Libretto'}</span>
+                                      <input 
+                                        type="file" 
+                                        accept="image/*,application/pdf" 
+                                        className="hidden" 
+                                        onChange={(e) => {
+                                          if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'libretto', e.target.files[0]);
+                                          e.target.value = '';
+                                        }} 
+                                      />
+                                    </label>
+                                    <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
+                                      <Upload className="w-3 h-3 text-emerald-400" />
+                                      <span>{docs.some(d => d.category === 'assicurazione') ? '🔄 Sostituisci Polizza' : '+ Polizza'}</span>
+                                      <input 
+                                        type="file" 
+                                        accept="image/*,application/pdf" 
+                                        className="hidden" 
+                                        onChange={(e) => {
+                                          if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'assicurazione', e.target.files[0]);
+                                          e.target.value = '';
+                                        }} 
+                                      />
+                                    </label>
+                                    <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
+                                      <Upload className="w-3 h-3 text-blue-400" />
+                                      <span>{docs.some(d => d.category === 'bollo') ? '🔄 Sostituisci Bollo' : '+ Bollo'}</span>
+                                      <input 
+                                        type="file" 
+                                        accept="image/*,application/pdf" 
+                                        className="hidden" 
+                                        onChange={(e) => {
+                                          if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'bollo', e.target.files[0]);
+                                          e.target.value = '';
+                                        }} 
+                                      />
+                                    </label>
+                                  </div>
+                                </div>
+
+                                {docs.length === 0 ? (
+                                  <p className="text-[10px] text-amber-400/80 italic flex items-center gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
+                                    <AlertCircle className="w-3 h-3 shrink-0" />
+                                    Nessuna scansione allegata per questa vettura.
+                                  </p>
+                                ) : (
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
+                                    {docs.map((doc) => (
+                                      <div 
+                                        key={doc.id} 
+                                        className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition-all"
+                                      >
+                                        <div className="min-w-0 flex items-center space-x-2">
+                                          <Paperclip className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                          <div className="truncate">
+                                            <p className="font-semibold text-slate-200 text-[11px] truncate" title={doc.title || doc.fileName}>
+                                              {doc.title || doc.fileName}
+                                            </p>
+                                            <p className="text-[9px] text-slate-400 uppercase tracking-wider">
+                                              {doc.category || 'documento'} {doc.date ? `• ${doc.date}` : ''}
+                                            </p>
+                                          </div>
+                                        </div>
+
+                                        <div className="flex items-center space-x-1 shrink-0">
+                                          <button
+                                            type="button"
+                                            onClick={() => openDocument(doc)}
+                                            className="p-1.5 text-slate-300 hover:text-amber-400 hover:bg-slate-800 rounded transition-all"
+                                            title="Visualizza / Stampa"
+                                          >
+                                            <Eye className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => downloadDocument(doc)}
+                                            className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded transition-all"
+                                            title="Scarica File"
+                                          >
+                                            <Download className="w-3.5 h-3.5" />
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => handleDeleteCarDoc(car.id, doc.id, doc.title || doc.fileName)}
+                                            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all"
+                                            title="Elimina Documento"
+                                          >
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -1882,6 +2393,396 @@ export default function AdminModal({
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Salva Configurazione Visibilità</span>
                 </button>
+              </div>
+
+            </div>
+          )}
+
+          {/* TAB 6: GESTIONE COMPLETA SCANSIONI & ALLEGATI */}
+          {activeTab === 'documents' && (
+            <div className="space-y-6 animate-fade-in">
+              
+              {/* Header Box with Statistics */}
+              <div className="bg-gradient-to-r from-amber-950/40 via-slate-900 to-blue-950/40 p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30">
+                      <FolderOpen className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                        <span>Cartella Scansioni & Allegati</span>
+                        <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-xs font-bold">
+                          {docStats.totalDocs} file totali
+                        </span>
+                      </h3>
+                      <p className="text-xs text-slate-300">
+                        Archivio centrale: libretti, polizze, bolli e documenti con anteprima, stampa e sostituzione automatica
+                      </p>
+                    </div>
+                  </div>
+
+                  {isProcessingDoc && (
+                    <div className="flex items-center space-x-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold animate-pulse">
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Elaborazione file in corso...</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* KPI Counters */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                  <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>Totale File</span>
+                      <Paperclip className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <p className="text-lg font-bold text-white mt-1">{docStats.totalDocs}</p>
+                    <p className="text-[10px] text-slate-500">{docStats.carsWithDocs} vetture con documenti</p>
+                  </div>
+
+                  <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>Libretti</span>
+                      <FileCheck className="w-3.5 h-3.5 text-blue-400" />
+                    </div>
+                    <p className="text-lg font-bold text-blue-400 mt-1">{docStats.libretti}</p>
+                    <p className="text-[10px] text-slate-500">Circolazione stradale</p>
+                  </div>
+
+                  <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>Polizze RCA</span>
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    </div>
+                    <p className="text-lg font-bold text-emerald-400 mt-1">{docStats.assicurazioni}</p>
+                    <p className="text-[10px] text-slate-500">Coperture attive</p>
+                  </div>
+
+                  <div className="bg-slate-950/70 p-3 rounded-xl border border-slate-800">
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>Bolli / Altro</span>
+                      <Euro className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                    <p className="text-lg font-bold text-amber-400 mt-1">{docStats.bolli}</p>
+                    <p className="text-[10px] text-slate-500">Tasse e ricevute</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Notice Banner */}
+              {docsNotice && (
+                <div className={`p-3.5 rounded-xl border text-xs font-semibold flex items-center justify-between gap-3 ${
+                  docsNotice.type === 'error' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' :
+                  docsNotice.type === 'info' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
+                  'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                }`}>
+                  <div className="flex items-center space-x-2">
+                    {docsNotice.type === 'error' ? <AlertCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
+                    <span>{docsNotice.message}</span>
+                  </div>
+                  <button 
+                    type="button" 
+                    onClick={() => setDocsNotice(null)} 
+                    className="p-1 text-slate-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Search & Filters */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="text"
+                    value={docsSearchQuery}
+                    onChange={(e) => setDocsSearchQuery(e.target.value)}
+                    placeholder="Cerca vettura, targa, ubicazione o nome file documento..."
+                    className="w-full pl-10 pr-9 py-2.5 bg-slate-950 border border-slate-800 focus:border-amber-500 rounded-xl text-slate-100 text-xs transition-all"
+                  />
+                  {docsSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setDocsSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap pb-1">
+                  <button
+                    type="button"
+                    onClick={() => setDocsCategoryFilter('all')}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all ${
+                      docsCategoryFilter === 'all'
+                        ? 'bg-amber-500 text-slate-950 font-bold shadow'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    Tutti ({cars.length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDocsCategoryFilter('with_docs')}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all ${
+                      docsCategoryFilter === 'with_docs'
+                        ? 'bg-amber-500 text-slate-950 font-bold shadow'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    Con Scansioni ({docStats.carsWithDocs})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDocsCategoryFilter('missing_docs')}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all ${
+                      docsCategoryFilter === 'missing_docs'
+                        ? 'bg-amber-500 text-slate-950 font-bold shadow'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    Senza Scansioni ({cars.length - docStats.carsWithDocs})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDocsCategoryFilter('libretto')}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all ${
+                      docsCategoryFilter === 'libretto'
+                        ? 'bg-blue-500 text-slate-950 font-bold shadow'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    Libretti ({docStats.libretti})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDocsCategoryFilter('assicurazione')}
+                    className={`px-3 py-2 rounded-xl text-[11px] font-semibold whitespace-nowrap transition-all ${
+                      docsCategoryFilter === 'assicurazione'
+                        ? 'bg-emerald-500 text-slate-950 font-bold shadow'
+                        : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    Polizze ({docStats.assicurazioni})
+                  </button>
+                </div>
+              </div>
+
+              {/* Cars & Documents List */}
+              <div className="space-y-4">
+                {filteredDocCars.length === 0 ? (
+                  <div className="text-center py-10 bg-slate-950/60 rounded-2xl border border-slate-800 space-y-2">
+                    <Folder className="w-8 h-8 text-slate-600 mx-auto" />
+                    <p className="text-slate-300 font-semibold text-xs">Nessuna vettura trovata con i filtri selezionati</p>
+                    <p className="text-slate-500 text-[11px]">Prova a modificare il testo di ricerca o seleziona un altro filtro.</p>
+                  </div>
+                ) : (
+                  filteredDocCars.map(car => {
+                    const docs = Array.isArray(car.documents) ? car.documents : [];
+                    return (
+                      <div 
+                        key={car.id} 
+                        className="bg-slate-950/90 rounded-2xl border border-slate-800 p-4 space-y-3.5 hover:border-slate-700/80 transition-all"
+                      >
+                        {/* Car Header & Badges */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-12 h-10 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shrink-0 flex items-center justify-center">
+                              {car.mainPhoto ? (
+                                <img src={car.mainPhoto} alt={car.model} className="w-full h-full object-cover" />
+                              ) : (
+                                <Car className="w-5 h-5 text-amber-400" />
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <h4 className="font-bold text-white text-sm">{car.brand} {car.model}</h4>
+                                {car.year && <span className="text-[11px] text-slate-400 font-medium">({car.year})</span>}
+                              </div>
+                              <div className="flex items-center space-x-2 text-[11px] text-slate-400 mt-0.5">
+                                {(car.targa || car.immatricolazione) && (
+                                  <span className="font-mono font-bold px-1.5 py-0.2 bg-slate-800 border border-slate-700 text-amber-300 rounded text-[10px]">
+                                    {car.targa || car.immatricolazione}
+                                  </span>
+                                )}
+                                {(car.location || car.ubicazione) && (
+                                  <span className="flex items-center gap-1 text-slate-400">
+                                    <MapPin className="w-3 h-3 text-amber-400" />
+                                    <span>{car.location || car.ubicazione}</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Quick Document Upload Buttons for this car */}
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <label className="cursor-pointer px-2.5 py-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-300 rounded-xl text-xs font-semibold border border-blue-500/30 transition-all flex items-center gap-1.5">
+                              <Upload className="w-3.5 h-3.5 text-blue-400" />
+                              <span>{docs.some(d => d.category === 'libretto') ? '🔄 Sostituisci Libretto' : '+ Libretto'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/*,application/pdf" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'libretto', e.target.files[0]);
+                                  e.target.value = '';
+                                }} 
+                              />
+                            </label>
+
+                            <label className="cursor-pointer px-2.5 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 rounded-xl text-xs font-semibold border border-emerald-500/30 transition-all flex items-center gap-1.5">
+                              <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                              <span>{docs.some(d => d.category === 'assicurazione') ? '🔄 Sostituisci Polizza' : '+ Polizza'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/*,application/pdf" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'assicurazione', e.target.files[0]);
+                                  e.target.value = '';
+                                }} 
+                              />
+                            </label>
+
+                            <label className="cursor-pointer px-2.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 rounded-xl text-xs font-semibold border border-amber-500/30 transition-all flex items-center gap-1.5">
+                              <Upload className="w-3.5 h-3.5 text-amber-400" />
+                              <span>{docs.some(d => d.category === 'bollo') ? '🔄 Sostituisci Bollo' : '+ Bollo'}</span>
+                              <input 
+                                type="file" 
+                                accept="image/*,application/pdf" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'bollo', e.target.files[0]);
+                                  e.target.value = '';
+                                }} 
+                              />
+                            </label>
+
+                            <label className="cursor-pointer px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 transition-all flex items-center gap-1.5">
+                              <Plus className="w-3.5 h-3.5 text-slate-400" />
+                              <span>+ Altro</span>
+                              <input 
+                                type="file" 
+                                accept="image/*,application/pdf" 
+                                className="hidden" 
+                                onChange={(e) => {
+                                  if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'altro', e.target.files[0]);
+                                  e.target.value = '';
+                                }} 
+                              />
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Documents Content */}
+                        {docs.length === 0 ? (
+                          <div className="bg-slate-900/60 p-3 rounded-xl border border-dashed border-slate-800 flex items-center justify-between text-slate-400 text-xs">
+                            <span className="flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 text-amber-400" />
+                              Nessuna scansione allegata per questa vettura.
+                            </span>
+                            <span className="text-[10px] text-slate-500">Usa i pulsanti sopra per allegare un documento</span>
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                            {docs.map(doc => {
+                              const isLibretto = doc.category === 'libretto';
+                              const isAssicurazione = doc.category === 'assicurazione';
+                              const isBollo = doc.category === 'bollo';
+
+                              return (
+                                <div 
+                                  key={doc.id}
+                                  className="bg-slate-900 p-3 rounded-xl border border-slate-800 hover:border-slate-700 flex flex-col justify-between gap-2.5 transition-all"
+                                >
+                                  <div>
+                                    <div className="flex items-center justify-between gap-1 mb-1.5">
+                                      <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
+                                        isLibretto ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                                        isAssicurazione ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' :
+                                        isBollo ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                                        'bg-slate-800 text-slate-300 border border-slate-700'
+                                      }`}>
+                                        {doc.category || 'Documento'}
+                                      </span>
+                                      {doc.date && <span className="text-[10px] text-slate-400">{doc.date}</span>}
+                                    </div>
+
+                                    <p className="font-bold text-slate-100 text-xs truncate" title={doc.title || doc.fileName}>
+                                      {doc.title || doc.fileName}
+                                    </p>
+                                    <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                                      {doc.fileName}
+                                    </p>
+                                  </div>
+
+                                  {/* Action Buttons */}
+                                  <div className="flex items-center justify-between border-t border-slate-800/80 pt-2 text-[11px]">
+                                    <div className="flex items-center space-x-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => openDocument(doc)}
+                                        className="p-1.5 text-slate-300 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-all flex items-center gap-1 font-semibold"
+                                        title="Visualizza o Stampa Anteprima"
+                                      >
+                                        <Eye className="w-3.5 h-3.5" />
+                                        <span>Apri</span>
+                                      </button>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => downloadDocument(doc)}
+                                        className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition-all flex items-center gap-1 font-semibold"
+                                        title="Scarica File"
+                                      >
+                                        <Download className="w-3.5 h-3.5" />
+                                        <span>Scarica</span>
+                                      </button>
+                                    </div>
+
+                                    <div className="flex items-center space-x-1">
+                                      <label className="cursor-pointer p-1.5 text-slate-400 hover:text-amber-300 hover:bg-slate-800 rounded-lg transition-all" title="Sostituisci questo documento">
+                                        <RefreshCw className="w-3.5 h-3.5" />
+                                        <input 
+                                          type="file" 
+                                          accept="image/*,application/pdf" 
+                                          className="hidden" 
+                                          onChange={(e) => {
+                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, doc.category || 'altro', e.target.files[0]);
+                                            e.target.value = '';
+                                          }} 
+                                        />
+                                      </label>
+
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteCarDoc(car.id, doc.id, doc.title || doc.fileName)}
+                                        className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
+                                        title="Elimina Documento"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
 
             </div>

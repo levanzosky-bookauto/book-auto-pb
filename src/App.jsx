@@ -173,6 +173,25 @@ export default function App() {
         let formattedSupabase = formatCarImages(activeSupabase);
         formattedSupabase = mergeWithBaseline(formattedSupabase);
 
+        // Merge any local documents that haven't synced to Supabase yet
+        if (localCars && localCars.length > 0) {
+          formattedSupabase = formattedSupabase.map(sc => {
+            const lc = localCars.find(l => String(l.id) === String(sc.id));
+            if (!lc) return sc;
+            const scDocs = Array.isArray(sc.documents) ? sc.documents : [];
+            const lcDocs = Array.isArray(lc.documents) ? lc.documents : [];
+            if (lcDocs.length > 0 && scDocs.length === 0) {
+              return { ...sc, documents: lcDocs };
+            } else if (lcDocs.length > 0 && scDocs.length > 0) {
+              const map = new Map();
+              scDocs.forEach(d => { if (d && d.id) map.set(d.id, d); });
+              lcDocs.forEach(d => { if (d && d.id) map.set(d.id, d); });
+              return { ...sc, documents: Array.from(map.values()) };
+            }
+            return sc;
+          });
+        }
+
         // Check if this device has expiration dates that haven't reached Supabase yet (e.g. Admin device)
         if (localCars && localCars.length > 0) {
           const localHasExpirations = localCars.some(c => c.scadenzaBollo || c.scadenzaAssicurazione || c.scadenzaRevisione || c.prossimoTagliandoData);
@@ -227,10 +246,27 @@ export default function App() {
         const activeSupabase = filterOutDeletedCars(freshSupabase);
         const formatted = formatCarImages(activeSupabase);
         setCars(prev => {
+          // Merge prev documents into freshSupabase so remote poll never clears newly attached docs
+          const mergedWithDocs = formatted.map(sc => {
+            const prevCar = (prev || []).find(p => String(p.id) === String(sc.id));
+            if (!prevCar) return sc;
+            const prevDocs = Array.isArray(prevCar.documents) ? prevCar.documents : [];
+            const scDocs = Array.isArray(sc.documents) ? sc.documents : [];
+            if (prevDocs.length > 0 && scDocs.length === 0) {
+              return { ...sc, documents: prevDocs };
+            } else if (prevDocs.length > 0 && scDocs.length > 0) {
+              const map = new Map();
+              scDocs.forEach(d => { if (d && d.id) map.set(d.id, d); });
+              prevDocs.forEach(d => { if (d && d.id) map.set(d.id, d); });
+              return { ...sc, documents: Array.from(map.values()) };
+            }
+            return sc;
+          });
+
           // Compare JSON string to prevent unnecessary re-renders
-          if (JSON.stringify(prev) !== JSON.stringify(formatted)) {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formatted));
-            return formatted;
+          if (JSON.stringify(prev) !== JSON.stringify(mergedWithDocs)) {
+            saveCarsToLocal(mergedWithDocs);
+            return mergedWithDocs;
           }
           return prev;
         });
@@ -856,6 +892,7 @@ export default function App() {
           onOpenBrandLogosModal={() => setIsBrandLogosModalOpen(true)}
           onOpenBackupModal={() => setIsBackupModalOpen(true)}
           onResetData={handleResetData}
+          onUpdateCars={saveCarsState}
           showSideGlow={showSideGlow}
           setShowSideGlow={(val) => {
             setShowSideGlow(val);
