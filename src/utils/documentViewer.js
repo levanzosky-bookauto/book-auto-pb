@@ -1,9 +1,10 @@
 // Utility for viewing, downloading, and printing uploaded car PDF documents and scanned files
 
 export function downloadDocument(doc) {
-  if (!doc || !doc.fileData) return;
+  const fileSource = doc?.fileData || doc?.dataUrl || doc?.url;
+  if (!doc || !fileSource) return;
   const link = document.createElement('a');
-  link.href = doc.fileData;
+  link.href = fileSource;
   link.download = doc.fileName || `${(doc.title || 'documento').replace(/\s+/g, '_')}.pdf`;
   document.body.appendChild(link);
   link.click();
@@ -11,7 +12,8 @@ export function downloadDocument(doc) {
 }
 
 export function openDocument(doc, autoPrint = false) {
-  if (!doc || !doc.fileData) return;
+  const fileSource = doc?.fileData || doc?.dataUrl || doc?.url;
+  if (!doc || !fileSource) return;
 
   const win = window.open('', '_blank');
   if (!win) {
@@ -19,7 +21,7 @@ export function openDocument(doc, autoPrint = false) {
     return;
   }
 
-  const isPdf = doc.fileType === 'application/pdf' || (doc.fileData && doc.fileData.startsWith('data:application/pdf'));
+  const isPdf = doc.fileType === 'application/pdf' || (fileSource && fileSource.startsWith('data:application/pdf'));
   const title = doc.title || doc.fileName || 'Documento Vettura';
   const fileName = doc.fileName || 'documento.pdf';
 

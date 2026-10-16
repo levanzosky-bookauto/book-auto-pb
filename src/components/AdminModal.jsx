@@ -62,6 +62,7 @@ import { getClientPermissions, saveClientPermissions, DEFAULT_CLIENT_PERMISSIONS
 import { syncPermissionsToSupabase, upsertSingleCarToSupabase } from '../utils/supabase';
 import { openDocument, downloadDocument } from '../utils/documentViewer';
 import { processScannedDocumentFile } from '../utils/storage';
+import { importFolderFiles } from '../utils/folderImporter';
 import { Send, Copy, FileText } from 'lucide-react';
 
 export default function AdminModal({ 
@@ -86,6 +87,7 @@ export default function AdminModal({
   const [docsCategoryFilter, setDocsCategoryFilter] = useState('all'); // 'all' | 'libretto' | 'assicurazione' | 'bollo' | 'with_docs' | 'missing_docs'
   const [docsNotice, setDocsNotice] = useState(null); // { type: 'success' | 'error' | 'info', message: '' }
   const [isProcessingDoc, setIsProcessingDoc] = useState(false);
+  const [folderImportProgress, setFolderImportProgress] = useState(null);
 
   // Document Statistics
   const docStats = React.useMemo(() => {
@@ -211,6 +213,40 @@ export default function AdminModal({
 
     setDocsNotice({ type: 'success', message: 'Documento eliminato con successo.' });
     setTimeout(() => setDocsNotice(null), 3000);
+  };
+
+  // Handle batch folder upload with automatic car matching / configuration by folder name
+  const handleFolderUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsProcessingDoc(true);
+    setDocsNotice({ type: 'info', message: `Lettura di ${files.length} file dalla cartella selezionata in corso...` });
+
+    try {
+      const result = await importFolderFiles(files, cars, (progress) => {
+        setFolderImportProgress(progress);
+      });
+
+      if (onUpdateCars) {
+        onUpdateCars(result.updatedCars);
+      }
+
+      setDocsNotice({
+        type: 'success',
+        message: `🎉 Cartella importata con successo! ${result.stats.totalProcessed} file assegnati a ${result.stats.carsUpdated} vetture.` +
+          (result.stats.newCarsCreated > 0 ? ` (${result.stats.newCarsCreated} nuove vetture configurate dal nome cartella).` : '')
+      });
+      setTimeout(() => setDocsNotice(null), 8000);
+    } catch (err) {
+      console.error('Errore importazione cartella:', err);
+      setDocsNotice({ type: 'error', message: `❌ Errore durante l'importazione: ${err.message}` });
+      setTimeout(() => setDocsNotice(null), 8000);
+    } finally {
+      setIsProcessingDoc(false);
+      setFolderImportProgress(null);
+      e.target.value = '';
+    }
   };
 
   // Client Permissions State
@@ -1677,15 +1713,52 @@ export default function AdminModal({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('documents')}
-                    className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-500/10 shrink-0"
-                  >
-                    <FolderOpen className="w-4 h-4" />
-                    <span>Gestione Completa Scansioni ({docStats.totalDocs})</span>
-                  </button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <label className="cursor-pointer px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-500/20 shrink-0">
+                      <FolderOpen className="w-4 h-4 text-slate-950" />
+                      <span>📂 Carica Cartella "DOCUMENTI SCANSIONATI"</span>
+                      <input 
+                        type="file" 
+                        webkitdirectory="true" 
+                        directory="true" 
+                        multiple 
+                        className="hidden" 
+                        onChange={handleFolderUpload} 
+                      />
+                    </label>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('documents')}
+                      className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 border border-slate-700 shrink-0"
+                    >
+                      <FolderOpen className="w-4 h-4 text-amber-400" />
+                      <span>Tutte le Scansioni ({docStats.totalDocs})</span>
+                    </button>
+                  </div>
                 </div>
+
+                {/* Live Folder Import Progress Bar */}
+                {folderImportProgress && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl space-y-1.5 animate-pulse">
+                    <div className="flex items-center justify-between text-xs text-amber-300 font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                        <span>Caricamento: {folderImportProgress.fileName}</span>
+                      </span>
+                      <span className="font-mono">{folderImportProgress.current} / {folderImportProgress.total}</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-amber-400 h-2 rounded-full transition-all duration-200" 
+                        style={{ width: `${Math.round((folderImportProgress.current / folderImportProgress.total) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-300">
+                      Vettura configurata: <strong className="text-amber-400">{folderImportProgress.carName}</strong>
+                    </p>
+                  </div>
+                )}
 
                 {/* Real-time Notice Feedback */}
                 {docsNotice && (
@@ -2422,13 +2495,50 @@ export default function AdminModal({
                     </div>
                   </div>
 
-                  {isProcessingDoc && (
-                    <div className="flex items-center space-x-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold animate-pulse">
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Elaborazione file in corso...</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <label className="cursor-pointer px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-500/20 shrink-0">
+                      <FolderOpen className="w-4 h-4 text-slate-950" />
+                      <span>📂 Carica Cartella "DOCUMENTI SCANSIONATI"</span>
+                      <input 
+                        type="file" 
+                        webkitdirectory="true" 
+                        directory="true" 
+                        multiple 
+                        className="hidden" 
+                        onChange={handleFolderUpload} 
+                      />
+                    </label>
+
+                    {isProcessingDoc && (
+                      <div className="flex items-center space-x-2 bg-amber-500/10 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold animate-pulse">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Elaborazione file in corso...</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
+                {/* Live Folder Import Progress Bar */}
+                {folderImportProgress && (
+                  <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl space-y-1.5 animate-pulse">
+                    <div className="flex items-center justify-between text-xs text-amber-300 font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                        <span>Caricamento file: {folderImportProgress.fileName}</span>
+                      </span>
+                      <span className="font-mono">{folderImportProgress.current} / {folderImportProgress.total}</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                      <div 
+                        className="bg-amber-400 h-2 rounded-full transition-all duration-200" 
+                        style={{ width: `${Math.round((folderImportProgress.current / folderImportProgress.total) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-slate-300">
+                      Vettura configurata: <strong className="text-amber-400">{folderImportProgress.carName}</strong>
+                    </p>
+                  </div>
+                )}
 
                 {/* KPI Counters */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">

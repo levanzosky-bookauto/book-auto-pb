@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "import-docs": "node scripts/import_scanned_docs.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",

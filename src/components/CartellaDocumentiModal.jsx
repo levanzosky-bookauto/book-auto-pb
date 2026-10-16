@@ -29,6 +29,7 @@ import {
 import { openDocument, downloadDocument } from '../utils/documentViewer';
 import { processScannedDocumentFile } from '../utils/storage';
 import { upsertSingleCarToSupabase } from '../utils/supabase';
+import { importFolderFiles } from '../utils/folderImporter';
 
 export default function CartellaDocumentiModal({ 
   isOpen, 
@@ -42,6 +43,7 @@ export default function CartellaDocumentiModal({
   const [activeCarId, setActiveCarId] = useState(null); // When viewing a single car folder
   const [uploadNotice, setUploadNotice] = useState(null); // { type: 'success' | 'info' | 'error', message: string }
   const [isProcessing, setIsProcessing] = useState(false);
+  const [folderImportProgress, setFolderImportProgress] = useState(null);
   
   // Hidden file inputs for category upload
   const fileInputRef = useRef({});
@@ -193,6 +195,38 @@ export default function CartellaDocumentiModal({
     triggerNotice('Documento eliminato con successo.', 'info');
   };
 
+  // Handle batch folder upload with automatic car matching / configuration by folder name
+  const handleFolderUpload = async (e) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsProcessing(true);
+    triggerNotice(`Lettura di ${files.length} file dalla cartella selezionata in corso...`, 'info');
+
+    try {
+      const result = await importFolderFiles(files, cars, (progress) => {
+        setFolderImportProgress(progress);
+      });
+
+      if (onUpdateCars) {
+        onUpdateCars(result.updatedCars);
+      }
+
+      triggerNotice(
+        `🎉 Importazione cartella completata! ${result.stats.totalProcessed} file assegnati a ${result.stats.carsUpdated} vetture.` +
+        (result.stats.newCarsCreated > 0 ? ` (${result.stats.newCarsCreated} nuove vetture configurate dal nome cartella).` : ''),
+        'success'
+      );
+    } catch (err) {
+      console.error('Errore importazione cartella:', err);
+      triggerNotice(`Errore importazione cartella: ${err.message}`, 'error');
+    } finally {
+      setIsProcessing(false);
+      setFolderImportProgress(null);
+      e.target.value = '';
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-md animate-fade-in">
       <div className="relative w-full max-w-6xl h-[92vh] max-h-[880px] bg-slate-900 border border-slate-800 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
@@ -284,10 +318,23 @@ export default function CartellaDocumentiModal({
             )}
           </div>
 
-          {/* Quick Stats Chips */}
+          {/* Quick Stats Chips & Folder Import Action */}
           <div className="flex items-center space-x-2 text-[11px] overflow-x-auto pb-1 sm:pb-0">
+            <label className="cursor-pointer px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 shadow-md shadow-amber-500/20 shrink-0">
+              <FolderOpen className="w-3.5 h-3.5 text-slate-950" />
+              <span>📂 Carica Cartella "DOCUMENTI SCANSIONATI"</span>
+              <input 
+                type="file" 
+                webkitdirectory="true" 
+                directory="true" 
+                multiple 
+                className="hidden" 
+                onChange={handleFolderUpload} 
+              />
+            </label>
+
             <span className="px-2.5 py-1 bg-slate-900 rounded-lg border border-slate-800 text-slate-300 font-medium whitespace-nowrap">
-              📁 {stats.carsWithDocs} su {cars.length} vetture con documenti
+              📁 {stats.carsWithDocs} su {cars.length} con documenti
             </span>
             <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 rounded-lg border border-amber-500/20 font-bold whitespace-nowrap">
               📄 {stats.librettiCount} Libretti
@@ -300,6 +347,28 @@ export default function CartellaDocumentiModal({
             </span>
           </div>
         </div>
+
+        {/* Live Folder Import Progress Bar */}
+        {folderImportProgress && (
+          <div className="px-4 py-2.5 bg-amber-500/10 border-b border-amber-500/30 space-y-1.5 animate-pulse shrink-0">
+            <div className="flex items-center justify-between text-xs text-amber-300 font-semibold">
+              <span className="flex items-center gap-1.5">
+                <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
+                <span>Caricamento file: {folderImportProgress.fileName}</span>
+              </span>
+              <span className="font-mono">{folderImportProgress.current} / {folderImportProgress.total}</span>
+            </div>
+            <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div 
+                className="bg-amber-400 h-2 rounded-full transition-all duration-200" 
+                style={{ width: `${Math.round((folderImportProgress.current / folderImportProgress.total) * 100)}%` }}
+              />
+            </div>
+            <p className="text-[10px] text-slate-300">
+              Vettura configurata: <strong className="text-amber-400">{folderImportProgress.carName}</strong>
+            </p>
+          </div>
+        )}
 
         {/* Main Content Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
