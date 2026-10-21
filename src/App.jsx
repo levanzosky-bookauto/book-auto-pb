@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Navbar from './components/Navbar';
 import StatsBar from './components/StatsBar';
 import CarCard from './components/CarCard';
@@ -14,7 +14,7 @@ import AdminLoginPage from './components/AdminLoginPage';
 import AutoEmailNotificationPopup from './components/AutoEmailNotificationPopup';
 import CartellaDocumentiModal from './components/CartellaDocumentiModal';
 import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkles, CheckSquare, Printer, Square, Trash2, Bell } from 'lucide-react';
-import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS } from './utils/brandLogos';
+import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS, isValidBrandLogo } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser, syncUsersWithCloud, syncBackgroundsWithCloud } from './utils/auth';
 import { syncLocationsWithCloud } from './utils/locations';
@@ -35,12 +35,20 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [clientPermissions, setClientPermissions] = useState(() => getClientPermissions());
 
-  const handleLoginSuccess = (user) => {
-    setCurrentUserInStorage(user);
+  const handleLoginSuccess = (user, rememberMe = false) => {
+    hasShownEmailAlertRef.current = false;
+    try {
+      sessionStorage.removeItem('book_auto_pb_email_popup_dismissed');
+    } catch (e) {}
+    setCurrentUserInStorage(user, rememberMe);
     setCurrentUser(user);
   };
 
   const handleLogout = () => {
+    try {
+      sessionStorage.removeItem('book_auto_pb_email_popup_dismissed');
+    } catch (e) {}
+    hasShownEmailAlertRef.current = false;
     logoutUser();
     setCurrentUser(null);
   };
@@ -78,19 +86,41 @@ export default function App() {
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const [isCartellaDocumentiOpen, setIsCartellaDocumentiOpen] = useState(false);
   const [autoEmailPopupAlerts, setAutoEmailPopupAlerts] = useState(null);
+  const hasShownEmailAlertRef = useRef(false);
 
-  // Automatic Email Expiration Check on Load / Cars Update (Staff Only: Super Admin & Editor)
+  // Automatic Email Expiration Check on Load / Login (Staff Only: Super Admin & Editor)
   useEffect(() => {
     if (!loading && cars && cars.length > 0 && isStaffUser(currentUser)) {
+      // 1. ALWAYS execute background email milestone check
       const result = checkAndTriggerAutomaticEmailAlerts(cars);
-      if (result && (result.autoTriggered || (result.alerts && result.alerts.length > 0))) {
-        // Show auto-email notification toast/popup
-        setAutoEmailPopupAlerts(result.alerts);
+
+      // 2. Only show the on-screen visual popup if not previously dismissed in this browser session
+      const isDismissed = sessionStorage.getItem('book_auto_pb_email_popup_dismissed') === 'true';
+      if (!isDismissed && !hasShownEmailAlertRef.current) {
+        if (result && (result.autoTriggered || (result.alerts && result.alerts.length > 0))) {
+          hasShownEmailAlertRef.current = true;
+          setAutoEmailPopupAlerts(result.alerts);
+        }
       }
-    } else {
-      setAutoEmailPopupAlerts(null);
     }
   }, [cars, loading, currentUser]);
+
+  // Periodic background check every 30 minutes while app is running
+  useEffect(() => {
+    if (loading || !cars || cars.length === 0 || !isStaffUser(currentUser)) return;
+    const interval = setInterval(() => {
+      checkAndTriggerAutomaticEmailAlerts(cars);
+    }, 30 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [cars, loading, currentUser]);
+
+  const handleCloseEmailPopup = () => {
+    try {
+      sessionStorage.setItem('book_auto_pb_email_popup_dismissed', 'true');
+    } catch (e) {}
+    hasShownEmailAlertRef.current = true;
+    setAutoEmailPopupAlerts(null);
+  };
 
   // Helper to normalize image paths for multi-environment hosting
   const formatCarImages = (carList) => {
@@ -142,21 +172,73 @@ export default function App() {
         console.warn('Error loading baseline cars.json:', err);
       }
 
-      // Helper to merge baseline expirations if missing in a car list
+      // Helper to merge baseline expirations, images and documents if missing or broken in a car list
       const mergeWithBaseline = (carList) => {
         if (!Array.isArray(carList) || baselineCars.length === 0) return filterOutDeletedCars(carList);
-        return filterOutDeletedCars(carList).map(c => {
+        const filtered = filterOutDeletedCars(carList);
+        const merged = filtered.map(c => {
           const base = baselineCars.find(b => String(b.id) === String(c.id));
           if (!base) return c;
+          const currentDocs = Array.isArray(c.documents) ? c.documents : [];
+          const baseDocs = Array.isArray(base.documents) ? base.documents : [];
+          const mergedDocs = currentDocs.length > 0 ? currentDocs : baseDocs;
+
+          // Always ensure valid images: fallback to base if local images are empty or missing
+          const hasLocalImages = Array.isArray(c.images) && c.images.length > 0 && c.images.some(img => typeof img === 'string' && img.trim().length > 0);
+          const validImages = hasLocalImages ? c.images : (base.images || []);
+          const validMain = c.mainPhoto || base.mainPhoto || (validImages[0] || '');
+          const validLogo = (isValidBrandLogo(c.logoImg) ? c.logoImg : null) ||
+                            (isValidBrandLogo(base.logoImg) ? base.logoImg : null) ||
+                            getLogoForBrand(c.brand) || '';
+
           return {
             ...c,
+            images: validImages,
+            carPhotos: (Array.isArray(c.carPhotos) && c.carPhotos.length > 0) ? c.carPhotos : validImages,
+            mainPhoto: validMain,
+            pageImage: c.pageImage || base.pageImage || validMain,
+            logoImg: validLogo,
             scadenzaBollo: c.scadenzaBollo || base.scadenzaBollo || '',
             scadenzaAssicurazione: c.scadenzaAssicurazione || base.scadenzaAssicurazione || '',
             scadenzaRevisione: c.scadenzaRevisione || base.scadenzaRevisione || '',
-            prossimoTagliandoData: c.prossimoTagliandoData || base.prossimoTagliandoData || ''
+            prossimoTagliandoData: c.prossimoTagliandoData || base.prossimoTagliandoData || '',
+            documents: mergedDocs
           };
         });
+
+        // Also include any new cars from baselineCars (e.g. FIAT 500s) that might be missing in local storage
+        const existingIds = new Set(filtered.map(c => String(c.id)));
+        const missingFromLocal = baselineCars.filter(b => !existingIds.has(String(b.id)));
+        return [...missingFromLocal, ...merged];
       };
+
+      // Check if running in local development / test mode
+      const isLocalhost = typeof window !== 'undefined' && (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname === '0.0.0.0'
+      );
+
+      // In local mode, public/data/cars.json & local storage are the absolute authority.
+      // We NEVER allow remote Supabase to overwrite local test edits or reset data!
+      if (isLocalhost) {
+        let mergedLocal = baselineCars;
+        if (localCars && localCars.length > 0) {
+          mergedLocal = mergeWithBaseline(localCars);
+        }
+        if (mergedLocal && mergedLocal.length > 0) {
+          setCars(mergedLocal);
+          saveCarsToLocal(mergedLocal);
+          // Persist directly to public/data/cars.json on disk
+          fetch('/api/sync-cars-json', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cars: mergedLocal })
+          }).catch(() => {});
+          setLoading(false);
+          return;
+        }
+      }
 
       // Fetch latest client permissions from Supabase Cloud
       fetchPermissionsFromSupabase().then(remotePerms => {
@@ -185,7 +267,23 @@ export default function App() {
             } else if (lcDocs.length > 0 && scDocs.length > 0) {
               const map = new Map();
               scDocs.forEach(d => { if (d && d.id) map.set(d.id, d); });
-              lcDocs.forEach(d => { if (d && d.id) map.set(d.id, d); });
+              lcDocs.forEach(d => {
+                if (d && d.id) {
+                  const existing = map.get(d.id);
+                  if (existing) {
+                    const localHasData = Boolean(d.fileData || d.dataUrl || d.url);
+                    map.set(d.id, {
+                      ...existing,
+                      ...d,
+                      fileData: localHasData ? (d.fileData || d.dataUrl) : (existing.fileData || existing.dataUrl),
+                      dataUrl: localHasData ? (d.dataUrl || d.fileData) : (existing.dataUrl || existing.fileData),
+                      url: localHasData ? (d.url || d.fileData) : (existing.url || existing.fileData)
+                    });
+                  } else {
+                    map.set(d.id, d);
+                  }
+                }
+              });
               return { ...sc, documents: Array.from(map.values()) };
             }
             return sc;
@@ -240,6 +338,15 @@ export default function App() {
 
   // Periodic background check against Supabase (every 30s) so changes made on Mac appear on phone automatically
   useEffect(() => {
+    // In local development / testing, DO NOT poll remote Supabase to prevent overwriting local test work!
+    if (typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '0.0.0.0'
+    )) {
+      return;
+    }
+
     const interval = setInterval(async () => {
       const freshSupabase = await fetchCarsFromSupabase();
       if (freshSupabase && freshSupabase.length > 0) {
@@ -330,6 +437,19 @@ export default function App() {
     setCars(newCars);
     saveCarsToLocal(newCars);
     syncCarsToSupabase(newCars);
+
+    // In local development / test mode, immediately flush changes to public/data/cars.json on disk!
+    if (typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '0.0.0.0'
+    )) {
+      fetch('/api/sync-cars-json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cars: newCars })
+      }).catch(e => console.warn('Sync cars.json in local mode:', e));
+    }
   };
 
   // Selection Toggle Handlers
@@ -370,23 +490,44 @@ export default function App() {
   };
 
   // Save New or Modified Car
-  const handleSaveCar = (carData) => {
+  const handleSaveCar = async (carData) => {
     // Ensure newly created cars sort to the top
     if (!carToEdit) {
       carData.page = 0; // page 0 sorts before page 2
     }
     
-    const existingIndex = cars.findIndex(c => c.id === carData.id);
+    let finalCar = { ...carData };
+
+    // If on localhost, save car & photos into DOCUMENTI SCANSIONATI/<carFolder>/immagini/ and update cars.json on disk
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      try {
+        const res = await fetch('/api/save-car', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ car: carData })
+        });
+        if (res.ok) {
+          const result = await res.json();
+          if (result && result.car) {
+            finalCar = result.car;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not save car to local disk:', err);
+      }
+    }
+    
+    const existingIndex = cars.findIndex(c => String(c.id) === String(finalCar.id));
     let updated = [];
     if (existingIndex >= 0) {
       updated = [...cars];
-      updated[existingIndex] = carData;
+      updated[existingIndex] = finalCar;
     } else {
-      updated = [carData, ...cars];
+      updated = [finalCar, ...cars];
     }
     
     saveCarsState(updated);
-    upsertSingleCarToSupabase(carData);
+    upsertSingleCarToSupabase(finalCar);
     
     // Clear filters so user immediately sees the newly added car
     setSelectedBrand('Tutti');
@@ -399,8 +540,20 @@ export default function App() {
 
   // Delete Single Car Permanently across Local & Supabase Cloud
   const handleDeleteCar = async (carId) => {
+    const targetCar = cars.find(c => String(c.id) === String(carId));
+    const carFolder = targetCar ? `${targetCar.brand} ${targetCar.model}`.trim() : null;
+
     // 1. Mark permanently deleted (local storage tombstone + delete from Supabase row + sync tombstone)
     await markCarAsPermanentlyDeleted(carId);
+
+    // If in localhost, delete from public/data/cars.json on disk too AND delete entire folder (docs + immagini)!
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      fetch('/api/delete-car', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ carId, carFolder })
+      }).catch(err => console.warn('Could not delete car and folder from disk:', err));
+    }
 
     // 2. Filter state & local storage
     const updated = cars.filter(c => String(c.id) !== String(carId));
@@ -412,10 +565,13 @@ export default function App() {
     }
   };
 
-  // Update Car Photos order (reordering & setting cover photo)
-  const handleUpdateCarImages = (carId, newImages) => {
+  // Update Car Photos order & deletion
+  const handleUpdateCarImages = (carId, newImages, deletedImage = null) => {
+    const targetCar = cars.find(c => String(c.id) === String(carId));
+    const carFolder = targetCar ? `${targetCar.brand} ${targetCar.model}`.trim() : '';
+
     const updated = cars.map(c => {
-      if (c.id === carId) {
+      if (String(c.id) === String(carId)) {
         return {
           ...c,
           images: newImages,
@@ -427,7 +583,7 @@ export default function App() {
       return c;
     });
     saveCarsState(updated);
-    if (selectedCar && selectedCar.id === carId) {
+    if (selectedCar && String(selectedCar.id) === String(carId)) {
       setSelectedCar(prev => ({
         ...prev,
         images: newImages,
@@ -435,6 +591,19 @@ export default function App() {
         mainPhoto: newImages.length > 0 ? newImages[0] : prev.mainPhoto,
         pageImage: newImages.length > 0 ? newImages[0] : prev.pageImage
       }));
+    }
+
+    // If an image was deleted and we're on localhost, delete it from disk and cars.json
+    if (deletedImage && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      fetch('/api/delete-car-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carId,
+          carFolder,
+          imagePath: deletedImage
+        })
+      }).catch(err => console.warn('Could not delete car image on disk:', err));
     }
   };
 
@@ -448,13 +617,13 @@ export default function App() {
   const handleLogosUpdated = () => {
     const updated = cars.map(car => ({
       ...car,
-      logoImg: getLogoForBrand(car.brand) || car.logoImg
+      logoImg: getLogoForBrand(car.brand) || (isValidBrandLogo(car.logoImg) ? car.logoImg : '')
     }));
     saveCarsState(updated);
     if (selectedCar) {
       setSelectedCar(prev => prev ? ({
         ...prev,
-        logoImg: getLogoForBrand(prev.brand) || prev.logoImg
+        logoImg: getLogoForBrand(prev.brand) || (isValidBrandLogo(prev.logoImg) ? prev.logoImg : '')
       }) : null);
     }
   };
@@ -475,6 +644,19 @@ export default function App() {
       saveCarsToLocal(updated);
       if (selectedCar && idsToDelete.map(String).includes(String(selectedCar.id))) {
         setSelectedCar(null);
+      }
+
+      // 3. Delete physical folders from disk if on localhost
+      if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        idsToDelete.forEach(id => {
+          const targetCar = cars.find(c => String(c.id) === String(id));
+          const carFolder = targetCar ? `${targetCar.brand} ${targetCar.model}`.trim() : null;
+          fetch('/api/delete-car', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ carId: id, carFolder })
+          }).catch(err => console.warn('Could not delete car and folder from disk:', err));
+        });
       }
     }
   };
@@ -818,7 +1000,7 @@ export default function App() {
       {/* Modals */}
       {selectedCar && (
         <CarDetailModal
-          car={selectedCar}
+          car={cars.find(c => String(c.id) === String(selectedCar.id)) || selectedCar}
           onClose={() => setSelectedCar(null)}
           onToggleFavorite={handleToggleFavorite}
           onEditCar={(c) => {
@@ -833,6 +1015,8 @@ export default function App() {
             setSelectedCar(null);
             setIsCartellaDocumentiOpen(true);
           }}
+          onSaveCar={handleSaveCar}
+          onUpdateCars={saveCarsState}
           currentUser={currentUser}
           clientPermissions={clientPermissions}
         />
@@ -926,7 +1110,7 @@ export default function App() {
       {autoEmailPopupAlerts && isStaffUser(currentUser) && (
         <AutoEmailNotificationPopup
           alerts={autoEmailPopupAlerts}
-          onClose={() => setAutoEmailPopupAlerts(null)}
+          onClose={handleCloseEmailPopup}
           onOpenAdminModal={() => setIsAdminModalOpen(true)}
           currentUser={currentUser}
         />

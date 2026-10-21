@@ -116,6 +116,32 @@
   scrollbar-width: none;
 }
 
+/* Printable A4 Page Structure (Guarantees exact 210mm x 297mm dimensions on screen and print) */
+.print-car-page {
+  width: 210mm !important;
+  min-width: 210mm !important;
+  max-width: 210mm !important;
+  height: 297mm !important;
+  min-height: 297mm !important;
+  max-height: 297mm !important;
+  box-sizing: border-box !important;
+  background-color: #ffffff !important;
+  color: #020617 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.pdf-page-scaler-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
 /* Print Styles: Format exact A4 page per car, hide website UI */
 @media print {
   @page {

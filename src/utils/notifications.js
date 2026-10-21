@@ -59,7 +59,8 @@ export function getVehicleExpirations(cars = []) {
     { key: 'prossimoTagliandoData', label: 'Prossimo Tagliando', iconType: 'tagliando', desc: 'Manutenzione programmata' }
   ];
 
-  cars.forEach(car => {
+  (cars || []).forEach(car => {
+    if (!car || typeof car !== 'object') return;
     fieldsConfig.forEach(field => {
       const rawDateStr = car[field.key];
       if (!rawDateStr) return;

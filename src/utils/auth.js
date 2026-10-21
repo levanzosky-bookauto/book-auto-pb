@@ -31,9 +31,9 @@ export const USER_ROLES = {
 };
 
 export const DEFAULT_BACKGROUNDS = [
-  "./images/cars/car_1_page.jpg",
-  "./images/cars/car_2_page.jpg",
-  "./images/cars/car_3_page.jpg",
+  "./images/bg_1.jpg",
+  "./images/bg_2.jpg",
+  "./images/bg_3.jpg",
   "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1920&q=80",
   "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=80"
 ];
@@ -192,33 +192,155 @@ export async function syncBackgroundsWithCloud() {
   return getBackgroundImages();
 }
 
-const CURRENT_USER_KEY = 'book_auto_pb_current_user_v1';
+const CURRENT_USER_KEY = 'book_auto_pb_current_user_v2';
+const LEGACY_USER_KEY = 'book_auto_pb_current_user_v1';
+
+// Immediately purge any stale auto-saved admin sessions from previous versions
+try {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(LEGACY_USER_KEY);
+    sessionStorage.removeItem(LEGACY_USER_KEY);
+  }
+} catch (e) {}
 
 export function getCurrentUser() {
-  // Clear any legacy persistent login stored in localStorage
-  localStorage.removeItem(CURRENT_USER_KEY);
-
-  const saved = sessionStorage.getItem(CURRENT_USER_KEY);
-  if (saved) {
-    try {
-      return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error parsing current user session:', e);
+  try {
+    const saved = sessionStorage.getItem(CURRENT_USER_KEY) || localStorage.getItem(CURRENT_USER_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.username) return parsed;
     }
+  } catch (e) {
+    console.error('Error parsing current user session:', e);
   }
+
+  // Never auto-login in localhost or anywhere else! Always require valid credentials.
   return null;
 }
 
-export function setCurrentUser(user) {
-  localStorage.removeItem(CURRENT_USER_KEY);
+export function setCurrentUser(user, rememberMe = false) {
   if (!user) {
-    sessionStorage.removeItem(CURRENT_USER_KEY);
+    try {
+      localStorage.removeItem(CURRENT_USER_KEY);
+      sessionStorage.removeItem(CURRENT_USER_KEY);
+      localStorage.removeItem(LEGACY_USER_KEY);
+      sessionStorage.removeItem(LEGACY_USER_KEY);
+    } catch (e) {}
   } else {
-    sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    try {
+      sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+      if (rememberMe) {
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(CURRENT_USER_KEY);
+      }
+    } catch(e) {}
   }
 }
 
 export function logoutUser() {
-  localStorage.removeItem(CURRENT_USER_KEY);
-  sessionStorage.removeItem(CURRENT_USER_KEY);
+  try {
+    localStorage.removeItem(CURRENT_USER_KEY);
+    sessionStorage.removeItem(CURRENT_USER_KEY);
+    localStorage.removeItem(LEGACY_USER_KEY);
+    sessionStorage.removeItem(LEGACY_USER_KEY);
+  } catch (e) {}
+}
+
+// -------------------------------------------------------------
+// CREDENTIAL RECOVERY & MASTER PIN (OPTION 2 + OPTION 3)
+// -------------------------------------------------------------
+
+export const DEFAULT_MASTER_PIN = '8822';
+const MASTER_PIN_STORAGE_KEY = 'book_auto_pb_master_pin_v1';
+
+/**
+ * Returns current master security PIN (Option 3 emergency unlock)
+ */
+export function getMasterRecoveryPin() {
+  try {
+    const saved = localStorage.getItem(MASTER_PIN_STORAGE_KEY);
+    if (saved && saved.trim()) return saved.trim();
+  } catch (e) {}
+  return DEFAULT_MASTER_PIN;
+}
+
+/**
+ * Sets new master security PIN (saved by Super Admin in settings)
+ */
+export function setMasterRecoveryPin(newPin) {
+  const clean = (newPin || '').trim();
+  if (clean) {
+    localStorage.setItem(MASTER_PIN_STORAGE_KEY, clean);
+    return clean;
+  }
+  return DEFAULT_MASTER_PIN;
+}
+
+/**
+ * Validates whether entered PIN matches the master recovery PIN
+ */
+export function verifyMasterPin(inputPin) {
+  const clean = (inputPin || '').trim();
+  return clean === getMasterRecoveryPin();
+}
+
+/**
+ * Finds user for recovery by username, email, or admin email
+ */
+export function findUserForRecovery(identifier) {
+  if (!identifier) return null;
+  const clean = identifier.trim().toLowerCase();
+  const users = getUsers();
+  let adminEmail = '';
+  try {
+    adminEmail = (localStorage.getItem('book_auto_pb_admin_email') || '').trim().toLowerCase();
+  } catch (e) {}
+
+  // 1. Direct username match
+  let match = users.find(u => (u.username || '').toLowerCase() === clean);
+  if (match) return match;
+
+  // 2. Direct user email match
+  match = users.find(u => u.email && u.email.toLowerCase() === clean);
+  if (match) return match;
+
+  // 3. Admin email match -> resolves to super_admin account
+  if (adminEmail && clean === adminEmail) {
+    match = users.find(u => u.role === 'super_admin');
+    if (match) return match;
+  }
+
+  return null;
+}
+
+/**
+ * Updates a user's password directly (used after OTP or Master PIN verification)
+ */
+export function updateUserPassword(userIdentifier, newPassword) {
+  if (!userIdentifier || !newPassword) {
+    return { success: false, reason: 'Dati incompleti per aggiornare la password.' };
+  }
+  const cleanPass = newPassword.trim();
+  const cleanId = userIdentifier.trim().toLowerCase();
+  const users = getUsers();
+
+  const idx = users.findIndex(u =>
+    u.id === userIdentifier ||
+    (u.username || '').toLowerCase() === cleanId ||
+    (u.email && u.email.toLowerCase() === cleanId)
+  );
+
+  if (idx === -1) {
+    return { success: false, reason: 'Utente non trovato nel sistema.' };
+  }
+
+  users[idx] = {
+    ...users[idx],
+    password: cleanPass,
+    updatedAt: new Date().toISOString()
+  };
+
+  saveUsers(users);
+  return { success: true, user: users[idx] };
 }

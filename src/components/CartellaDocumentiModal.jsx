@@ -184,6 +184,8 @@ export default function CartellaDocumentiModal({
       return;
     }
 
+    const docToDelete = (car.documents || []).find(d => d.id === docId);
+
     const updatedCar = {
       ...car,
       documents: (car.documents || []).filter(d => d.id !== docId)
@@ -192,6 +194,22 @@ export default function CartellaDocumentiModal({
     const updatedCars = cars.map(c => c.id === car.id ? updatedCar : c);
     onUpdateCars(updatedCars);
     upsertSingleCarToSupabase(updatedCar);
+
+    // Call /api/delete-document to delete physical file on disk & update cars.json in localhost
+    if (docToDelete && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      const carFolder = [car.brand, car.model].filter(Boolean).join(' ').trim() || 'Vettura';
+      fetch('/api/delete-document', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carFolder,
+          fileName: docToDelete.fileName,
+          carId: car.id,
+          docId
+        })
+      }).catch(err => console.warn('Could not delete physical file on disk:', err));
+    }
+
     triggerNotice('Documento eliminato con successo.', 'info');
   };
 

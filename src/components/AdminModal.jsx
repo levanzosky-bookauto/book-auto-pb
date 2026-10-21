@@ -42,7 +42,9 @@ import {
   getBackgroundImages, 
   saveBackgroundImages,
   getCurrentUser,
-  setCurrentUser
+  setCurrentUser,
+  getMasterRecoveryPin,
+  setMasterRecoveryPin
 } from '../utils/auth';
 import { getLocations, addLocation, removeLocation } from '../utils/locations';
 import { 
@@ -148,12 +150,15 @@ export default function AdminModal({
 
       const processed = await processScannedDocumentFile(file, car, category);
       const newDoc = {
-        id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        id: processed.id || `doc_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
         category: category,
         title: processed.title,
         fileName: processed.fileName,
         fileType: processed.fileType,
-        dataUrl: processed.dataUrl,
+        fileData: processed.fileData,
+        dataUrl: processed.fileData,
+        url: processed.fileData,
+        fileSizeKb: processed.fileSizeKb,
         date: new Date().toISOString().split('T')[0],
         notes: `Caricato da Amministrazione il ${new Date().toLocaleDateString('it-IT')}`
       };
@@ -285,14 +290,18 @@ export default function AdminModal({
   const [newUsername, setNewUsername] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [newName, setNewName] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
   const [newRole, setNewRole] = useState('editor');
   const [userMsg, setUserMsg] = useState('');
+  const [masterPin, setMasterPin] = useState(() => getMasterRecoveryPin());
+  const [masterPinMsg, setMasterPinMsg] = useState('');
 
   // Edit User State
   const [editingUserId, setEditingUserId] = useState(null);
   const [editUsername, setEditUsername] = useState('');
   const [editPassword, setEditPassword] = useState('');
   const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState('editor');
 
   const handleStartEditUser = (user) => {
@@ -301,6 +310,7 @@ export default function AdminModal({
     setEditPassword(user.password);
     setEditName(user.name);
     setEditRole(user.role);
+    setEditEmail(user.email || '');
   };
 
   const handleSaveEditUser = (userId) => {
@@ -324,7 +334,9 @@ export default function AdminModal({
           username: cleanUsername,
           password: editPassword.trim(),
           name: editName.trim(),
-          role: editRole
+          role: editRole,
+          email: editEmail.trim(),
+          updatedAt: new Date().toISOString()
         };
 
         const activeUser = getCurrentUser();
@@ -342,6 +354,17 @@ export default function AdminModal({
     setEditingUserId(null);
     setUserMsg('Credenziali e dati utente aggiornati con successo!');
     setTimeout(() => setUserMsg(''), 3000);
+  };
+
+  const handleSaveMasterPin = () => {
+    if (!masterPin.trim() || masterPin.trim().length < 4) {
+      setMasterPinMsg('Il PIN Master deve avere almeno 4 cifre o caratteri.');
+      setTimeout(() => setMasterPinMsg(''), 3000);
+      return;
+    }
+    setMasterRecoveryPin(masterPin.trim());
+    setMasterPinMsg('🟢 PIN Master salvato con successo!');
+    setTimeout(() => setMasterPinMsg(''), 3500);
   };
 
   // Backgrounds State
@@ -473,6 +496,7 @@ export default function AdminModal({
       password: newPassword.trim(),
       name: newName.trim(),
       role: newRole,
+      email: newUserEmail.trim(),
       createdAt: new Date().toISOString()
     };
 
@@ -483,6 +507,7 @@ export default function AdminModal({
     setNewUsername('');
     setNewPassword('');
     setNewName('');
+    setNewUserEmail('');
     setNewRole('editor');
     setUserMsg('Nuovo utente aggiunto con successo!');
     setTimeout(() => setUserMsg(''), 3000);
@@ -582,7 +607,7 @@ export default function AdminModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-4xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[90vh] bg-slate-900 text-slate-100"
+        className="glass-panel w-full max-w-6xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[92vh] bg-slate-900 text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -610,12 +635,12 @@ export default function AdminModal({
           </button>
         </div>
 
-        {/* 5-Tab Navigation */}
-        <div className="flex border-b border-slate-800 bg-slate-950/80 text-xs font-bold shrink-0 overflow-x-auto no-scrollbar flex-nowrap">
+        {/* 6-Tab Navigation */}
+        <div className="flex border-b border-slate-800 bg-slate-950/80 text-[11px] sm:text-xs font-bold shrink-0 overflow-x-auto no-scrollbar flex-nowrap w-full">
           <button
             type="button"
             onClick={() => setActiveTab('tools')}
-            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-2 sm:px-3 lg:px-4 flex items-center justify-center space-x-1.5 sm:space-x-2 border-b-2 transition-all ${
               activeTab === 'tools'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -628,7 +653,7 @@ export default function AdminModal({
           <button
             type="button"
             onClick={() => setActiveTab('permissions')}
-            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-2 sm:px-3 lg:px-4 flex items-center justify-center space-x-1.5 sm:space-x-2 border-b-2 transition-all ${
               activeTab === 'permissions'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -641,7 +666,7 @@ export default function AdminModal({
           <button
             type="button"
             onClick={() => setActiveTab('users')}
-            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-2 sm:px-3 lg:px-4 flex items-center justify-center space-x-1.5 sm:space-x-2 border-b-2 transition-all ${
               activeTab === 'users'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -654,7 +679,7 @@ export default function AdminModal({
           <button
             type="button"
             onClick={() => setActiveTab('backgrounds')}
-            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-2 sm:px-3 lg:px-4 flex items-center justify-center space-x-1.5 sm:space-x-2 border-b-2 transition-all ${
               activeTab === 'backgrounds'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -667,7 +692,7 @@ export default function AdminModal({
           <button
             type="button"
             onClick={() => setActiveTab('locations')}
-            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-2 sm:px-3 lg:px-4 flex items-center justify-center space-x-1.5 sm:space-x-2 border-b-2 transition-all ${
               activeTab === 'locations'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -680,7 +705,7 @@ export default function AdminModal({
           <button
             type="button"
             onClick={() => setActiveTab('documents')}
-            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-3.5 sm:px-4 flex items-center justify-center space-x-2 border-b-2 transition-all ${
+            className={`shrink-0 whitespace-nowrap sm:flex-1 py-3 px-2 sm:px-3 lg:px-4 flex items-center justify-center space-x-1.5 sm:space-x-2 border-b-2 transition-all ${
               activeTab === 'documents'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10'
                 : 'border-transparent text-slate-400 hover:text-slate-200'
@@ -986,24 +1011,24 @@ export default function AdminModal({
                     )}
 
                     {/* Actions: Save & Test Formspree */}
-                    <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t border-amber-500/20">
+                    <div className="pt-2.5 flex flex-wrap items-center justify-end gap-2.5 border-t border-amber-500/20">
                       <button
                         type="button"
                         onClick={(e) => handleSaveEmailSettings(e, 'formspree')}
-                        className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs shadow-sm"
+                        className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 font-semibold rounded-lg inline-flex items-center space-x-1.5 transition-all active:scale-95 text-xs shadow-sm"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Salva Configurazione Formspree</span>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Salva Configurazione</span>
                       </button>
 
                       <button
                         type="button"
                         disabled={isSendingTest}
                         onClick={() => handleRunTestEmail('formspree')}
-                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-lg inline-flex items-center space-x-1.5 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
                       >
-                        <Send className={`w-4 h-4 ${isSendingTest ? 'animate-spin' : ''}`} />
-                        <span>{isSendingTest ? 'Invio in corso...' : '✉️ Prova Invio con Formspree Ora'}</span>
+                        <Send className={`w-3.5 h-3.5 ${isSendingTest ? 'animate-spin' : ''}`} />
+                        <span>{isSendingTest ? 'Invio...' : '✉️ Prova Invio Ora'}</span>
                       </button>
                     </div>
                   </div>
@@ -1125,24 +1150,24 @@ export default function AdminModal({
                     )}
 
                     {/* Actions: Save & Test EmailJS */}
-                    <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t border-indigo-500/20">
+                    <div className="pt-2.5 flex flex-wrap items-center justify-end gap-2.5 border-t border-indigo-500/20">
                       <button
                         type="button"
                         onClick={(e) => handleSaveEmailSettings(e, 'emailjs')}
-                        className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs shadow-sm"
+                        className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-indigo-500/30 font-semibold rounded-lg inline-flex items-center space-x-1.5 transition-all active:scale-95 text-xs shadow-sm"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Salva Configurazione EmailJS</span>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Salva Configurazione</span>
                       </button>
 
                       <button
                         type="button"
                         disabled={isSendingTest}
                         onClick={() => handleRunTestEmail('emailjs')}
-                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-indigo-500 to-indigo-400 hover:from-indigo-400 hover:to-indigo-300 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-400 hover:from-indigo-400 hover:to-indigo-300 text-slate-950 font-bold rounded-lg inline-flex items-center space-x-1.5 transition-all shadow-md active:scale-95 text-xs disabled:opacity-50"
                       >
-                        <Send className={`w-4 h-4 ${isSendingTest ? 'animate-spin' : ''}`} />
-                        <span>{isSendingTest ? 'Invio in corso...' : '✉️ Prova Invio con EmailJS Ora'}</span>
+                        <Send className={`w-3.5 h-3.5 ${isSendingTest ? 'animate-spin' : ''}`} />
+                        <span>{isSendingTest ? 'Invio...' : '✉️ Prova Invio Ora'}</span>
                       </button>
                     </div>
                   </div>
@@ -1215,23 +1240,23 @@ export default function AdminModal({
                     )}
 
                     {/* Actions: Save & Open App Mail */}
-                    <div className="pt-2 flex flex-col sm:flex-row gap-2 border-t border-cyan-500/20">
+                    <div className="pt-2.5 flex flex-wrap items-center justify-end gap-2.5 border-t border-cyan-500/20">
                       <button
                         type="button"
                         onClick={(e) => handleSaveEmailSettings(e, 'mailto')}
-                        className="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all active:scale-95 text-xs shadow-sm"
+                        className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/30 font-semibold rounded-lg inline-flex items-center space-x-1.5 transition-all active:scale-95 text-xs shadow-sm"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>Salva Preferenza App Mail</span>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Salva Preferenza</span>
                       </button>
 
                       <button
                         type="button"
                         onClick={() => handleRunTestEmail('mailto')}
-                        className="flex-1 py-2.5 px-3 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-xl flex items-center justify-center space-x-2 transition-all shadow-md active:scale-95 text-xs"
+                        className="px-3.5 py-1.5 bg-gradient-to-r from-cyan-500 to-cyan-400 hover:from-cyan-400 hover:to-cyan-300 text-slate-950 font-bold rounded-lg inline-flex items-center space-x-1.5 transition-all shadow-md active:scale-95 text-xs"
                       >
-                        <Send className="w-4 h-4" />
-                        <span>🚀 Apri App Mail con Report Scadenze</span>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>🚀 Apri App Mail</span>
                       </button>
                     </div>
                   </div>
@@ -1347,27 +1372,27 @@ export default function AdminModal({
                   </div>
                 )}
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-slate-300 font-semibold mb-1">Nome Completo</label>
                     <input
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
-                      placeholder=""
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100"
+                      placeholder="Es. Mario Rossi"
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Nome Utente (Username)</label>
+                    <label className="block text-slate-300 font-semibold mb-1">Nome Utente (Login)</label>
                     <input
                       type="text"
                       value={newUsername}
                       onChange={(e) => setNewUsername(e.target.value)}
-                      placeholder=""
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100"
+                      placeholder="Es. mario"
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-mono text-xs sm:text-sm"
                       required
                     />
                   </div>
@@ -1378,9 +1403,20 @@ export default function AdminModal({
                       type="text"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder=""
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100"
+                      placeholder="Password..."
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-semibold mb-1">Email Recupero (Opz.)</label>
+                    <input
+                      type="email"
+                      value={newUserEmail}
+                      onChange={(e) => setNewUserEmail(e.target.value)}
+                      placeholder="email@esempio.com"
+                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
                     />
                   </div>
                 </div>
@@ -1435,14 +1471,14 @@ export default function AdminModal({
                             </button>
                           </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                             <div>
                               <label className="block text-slate-400 font-semibold mb-1">Nome Completo</label>
                               <input
                                 type="text"
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100"
+                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
                               />
                             </div>
                             <div>
@@ -1451,7 +1487,7 @@ export default function AdminModal({
                                 type="text"
                                 value={editUsername}
                                 onChange={(e) => setEditUsername(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-mono"
+                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-mono text-xs"
                               />
                             </div>
                             <div>
@@ -1460,7 +1496,17 @@ export default function AdminModal({
                                 type="text"
                                 value={editPassword}
                                 onChange={(e) => setEditPassword(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100"
+                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-400 font-semibold mb-1">Email Recupero</label>
+                              <input
+                                type="email"
+                                value={editEmail}
+                                onChange={(e) => setEditEmail(e.target.value)}
+                                placeholder="email@esempio.com"
+                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs"
                               />
                             </div>
                           </div>
@@ -1529,7 +1575,7 @@ export default function AdminModal({
                             <span className="text-[11px] font-bold hidden sm:inline">Modifica</span>
                           </button>
 
-                          {u.username.toLowerCase() !== 'shirantha' && (
+                          {u.role !== 'super_admin' && (
                             <button
                               type="button"
                               onClick={() => handleDeleteUser(u.id)}
@@ -1543,6 +1589,47 @@ export default function AdminModal({
                       </div>
                     );
                   })}
+                </div>
+              </div>
+
+              {/* MASTER PIN RECOVERY CARD (OPTION 3) */}
+              <div className="bg-slate-950/90 p-4 rounded-2xl border border-cyan-500/30 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <ShieldCheck className="w-4 h-4 text-cyan-400" />
+                    <h4 className="font-bold text-cyan-300 text-xs uppercase tracking-wider">
+                      PIN Master di Sicurezza & Sblocco d'Emergenza (Opzione 3)
+                    </h4>
+                  </div>
+                  <span className="text-[10px] text-cyan-400/90 font-bold bg-cyan-500/10 px-2.5 py-0.5 rounded-full border border-cyan-500/20">
+                    Sempre Attivo
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Questo codice ti permette di sbloccare o reimpostare qualsiasi password dalla schermata di login, <strong>anche offline e senza dover attendere l'email</strong>.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={masterPin}
+                      onChange={(e) => setMasterPin(e.target.value)}
+                      placeholder="Es. 8822"
+                      className="w-40 px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-mono text-sm tracking-widest text-center"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSaveMasterPin}
+                    className="px-4 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl shadow transition-all active:scale-95"
+                  >
+                    Salva Nuovo PIN Master
+                  </button>
+                  {masterPinMsg && (
+                    <span className="text-xs text-emerald-400 font-semibold ml-2">
+                      {masterPinMsg}
+                    </span>
+                  )}
                 </div>
               </div>
 
@@ -1692,384 +1779,6 @@ export default function AdminModal({
                   ))}
                 </div>
               </div>
-
-              {/* SEZIONE SCANSIONI E ALLEGATI IN QUESTE UBICAZIONI ("QUI IN BASSO") */}
-              <div className="pt-5 border-t border-slate-800 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-gradient-to-r from-amber-500/10 via-slate-900 to-blue-500/10 p-4 rounded-2xl border border-amber-500/30">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30">
-                      <FolderOpen className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-100 text-sm flex items-center gap-2">
-                        <span>📁 Scansioni & Documenti Allegati nelle Ubicazioni</span>
-                        <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-[10px] font-bold">
-                          {docStats.totalDocs} file salvati
-                        </span>
-                      </h4>
-                      <p className="text-[11px] text-slate-400">
-                        Visualizza, scarica, stampa o sostituisci libretti, assicurazioni e bolli delle vetture presenti in ciascun garage
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <label className="cursor-pointer px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-500/20 shrink-0">
-                      <FolderOpen className="w-4 h-4 text-slate-950" />
-                      <span>📂 Carica Cartella "DOCUMENTI SCANSIONATI"</span>
-                      <input 
-                        type="file" 
-                        webkitdirectory="true" 
-                        directory="true" 
-                        multiple 
-                        className="hidden" 
-                        onChange={handleFolderUpload} 
-                      />
-                    </label>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('documents')}
-                      className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 border border-slate-700 shrink-0"
-                    >
-                      <FolderOpen className="w-4 h-4 text-amber-400" />
-                      <span>Tutte le Scansioni ({docStats.totalDocs})</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Live Folder Import Progress Bar */}
-                {folderImportProgress && (
-                  <div className="bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl space-y-1.5 animate-pulse">
-                    <div className="flex items-center justify-between text-xs text-amber-300 font-semibold">
-                      <span className="flex items-center gap-1.5">
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-400" />
-                        <span>Caricamento: {folderImportProgress.fileName}</span>
-                      </span>
-                      <span className="font-mono">{folderImportProgress.current} / {folderImportProgress.total}</span>
-                    </div>
-                    <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-                      <div 
-                        className="bg-amber-400 h-2 rounded-full transition-all duration-200" 
-                        style={{ width: `${Math.round((folderImportProgress.current / folderImportProgress.total) * 100)}%` }}
-                      />
-                    </div>
-                    <p className="text-[10px] text-slate-300">
-                      Vettura configurata: <strong className="text-amber-400">{folderImportProgress.carName}</strong>
-                    </p>
-                  </div>
-                )}
-
-                {/* Real-time Notice Feedback */}
-                {docsNotice && (
-                  <div className={`p-3 rounded-xl border text-xs font-semibold flex items-center gap-2 ${
-                    docsNotice.type === 'error' ? 'bg-rose-500/20 text-rose-300 border-rose-500/30' :
-                    docsNotice.type === 'info' ? 'bg-blue-500/20 text-blue-300 border-blue-500/30' :
-                    'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                  }`}>
-                    {docsNotice.type === 'error' ? <AlertCircle className="w-4 h-4 shrink-0" /> : <CheckCircle2 className="w-4 h-4 shrink-0" />}
-                    <span>{docsNotice.message}</span>
-                  </div>
-                )}
-
-                {/* Per-location list of vehicles and their attached documents */}
-                <div className="space-y-4">
-                  {locationsList.map((locName, lIdx) => {
-                    const carsInLoc = (cars || []).filter(c => (c.location || c.ubicazione) === locName);
-                    const totalDocsInLoc = carsInLoc.reduce((acc, c) => acc + (Array.isArray(c.documents) ? c.documents.length : 0), 0);
-
-                    return (
-                      <div key={lIdx} className="bg-slate-950/80 rounded-2xl border border-slate-800 p-3.5 space-y-3">
-                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-                          <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-amber-400" />
-                            <span className="font-bold text-slate-200 text-xs sm:text-sm">{locName}</span>
-                            <span className="text-[10px] text-slate-400">({carsInLoc.length} vetture collocate)</span>
-                          </div>
-                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                            totalDocsInLoc > 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
-                          }`}>
-                            {totalDocsInLoc} documenti allegati
-                          </span>
-                        </div>
-
-                        {carsInLoc.length === 0 ? (
-                          <p className="text-[11px] text-slate-500 italic py-1">Nessuna vettura attualmente assegnata a questa ubicazione.</p>
-                        ) : (
-                          <div className="space-y-2.5">
-                            {carsInLoc.map(car => {
-                              const docs = Array.isArray(car.documents) ? car.documents : [];
-                              return (
-                                <div key={car.id} className="bg-slate-900/90 rounded-xl p-3 border border-slate-800/80 space-y-2.5">
-                                  <div className="flex items-center justify-between flex-wrap gap-2">
-                                    <div className="flex items-center space-x-2">
-                                      <Car className="w-4 h-4 text-amber-400 shrink-0" />
-                                      <span className="font-bold text-white text-xs">{car.brand} {car.model}</span>
-                                      {(car.targa || car.immatricolazione) && (
-                                        <span className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 text-amber-300 font-mono text-[10px] font-bold rounded">
-                                          {car.targa || car.immatricolazione}
-                                        </span>
-                                      )}
-                                      <span className="text-[10px] text-slate-400">
-                                        • {docs.length} allegat{docs.length === 1 ? 'o' : 'i'}
-                                      </span>
-                                    </div>
-
-                                    {/* Fast Upload Buttons */}
-                                    <div className="flex items-center gap-1.5 flex-wrap">
-                                      <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
-                                        <Upload className="w-3 h-3 text-amber-400" />
-                                        <span>{docs.some(d => d.category === 'libretto') ? '🔄 Sostituisci Libretto' : '+ Libretto'}</span>
-                                        <input 
-                                          type="file" 
-                                          accept="image/*,application/pdf" 
-                                          className="hidden" 
-                                          onChange={(e) => {
-                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'libretto', e.target.files[0]);
-                                            e.target.value = '';
-                                          }} 
-                                        />
-                                      </label>
-                                      <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
-                                        <Upload className="w-3 h-3 text-emerald-400" />
-                                        <span>{docs.some(d => d.category === 'assicurazione') ? '🔄 Sostituisci Polizza' : '+ Polizza'}</span>
-                                        <input 
-                                          type="file" 
-                                          accept="image/*,application/pdf" 
-                                          className="hidden" 
-                                          onChange={(e) => {
-                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'assicurazione', e.target.files[0]);
-                                            e.target.value = '';
-                                          }} 
-                                        />
-                                      </label>
-                                      <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
-                                        <Upload className="w-3 h-3 text-blue-400" />
-                                        <span>{docs.some(d => d.category === 'bollo') ? '🔄 Sostituisci Bollo' : '+ Bollo'}</span>
-                                        <input 
-                                          type="file" 
-                                          accept="image/*,application/pdf" 
-                                          className="hidden" 
-                                          onChange={(e) => {
-                                            if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'bollo', e.target.files[0]);
-                                            e.target.value = '';
-                                          }} 
-                                        />
-                                      </label>
-                                    </div>
-                                  </div>
-
-                                  {/* Attached docs pills */}
-                                  {docs.length === 0 ? (
-                                    <p className="text-[10px] text-amber-400/80 italic flex items-center gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
-                                      <AlertCircle className="w-3 h-3 shrink-0" />
-                                      Nessuna scansione allegata per questa vettura. Usa i pulsanti sopra per caricare subito libretto, assicurazione o bollo.
-                                    </p>
-                                  ) : (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
-                                      {docs.map((doc) => (
-                                        <div 
-                                          key={doc.id} 
-                                          className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition-all"
-                                        >
-                                          <div className="min-w-0 flex items-center space-x-2">
-                                            <Paperclip className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                                            <div className="truncate">
-                                              <p className="font-semibold text-slate-200 text-[11px] truncate" title={doc.title || doc.fileName}>
-                                                {doc.title || doc.fileName}
-                                              </p>
-                                              <p className="text-[9px] text-slate-400 uppercase tracking-wider">
-                                                {doc.category || 'documento'} {doc.date ? `• ${doc.date}` : ''}
-                                              </p>
-                                            </div>
-                                          </div>
-
-                                          <div className="flex items-center space-x-1 shrink-0">
-                                            <button
-                                              type="button"
-                                              onClick={() => openDocument(doc)}
-                                              className="p-1.5 text-slate-300 hover:text-amber-400 hover:bg-slate-800 rounded transition-all"
-                                              title="Visualizza / Stampa"
-                                            >
-                                              <Eye className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => downloadDocument(doc)}
-                                              className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded transition-all"
-                                              title="Scarica File"
-                                            >
-                                              <Download className="w-3.5 h-3.5" />
-                                            </button>
-                                            <button
-                                              type="button"
-                                              onClick={() => handleDeleteCarDoc(car.id, doc.id, doc.title || doc.fileName)}
-                                              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all"
-                                              title="Elimina Documento"
-                                            >
-                                              <Trash2 className="w-3.5 h-3.5" />
-                                            </button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  {/* Section for cars without location if any */}
-                  {(() => {
-                    const unassignedCars = (cars || []).filter(c => !c.location && !c.ubicazione);
-                    if (unassignedCars.length === 0) return null;
-                    const totalDocsUnassigned = unassignedCars.reduce((acc, c) => acc + (Array.isArray(c.documents) ? c.documents.length : 0), 0);
-
-                    return (
-                      <div className="bg-slate-950/80 rounded-2xl border border-slate-800 p-3.5 space-y-3">
-                        <div className="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
-                          <div className="flex items-center space-x-2">
-                            <MapPin className="w-4 h-4 text-slate-400" />
-                            <span className="font-bold text-slate-200 text-xs sm:text-sm">Altre Vetture / Senza Ubicazione Assegnata</span>
-                            <span className="text-[10px] text-slate-400">({unassignedCars.length} vetture)</span>
-                          </div>
-                          <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-                            totalDocsUnassigned > 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
-                          }`}>
-                            {totalDocsUnassigned} documenti allegati
-                          </span>
-                        </div>
-
-                        <div className="space-y-2.5">
-                          {unassignedCars.map(car => {
-                            const docs = Array.isArray(car.documents) ? car.documents : [];
-                            return (
-                              <div key={car.id} className="bg-slate-900/90 rounded-xl p-3 border border-slate-800/80 space-y-2.5">
-                                <div className="flex items-center justify-between flex-wrap gap-2">
-                                  <div className="flex items-center space-x-2">
-                                    <Car className="w-4 h-4 text-amber-400 shrink-0" />
-                                    <span className="font-bold text-white text-xs">{car.brand} {car.model}</span>
-                                    {(car.targa || car.immatricolazione) && (
-                                      <span className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 text-amber-300 font-mono text-[10px] font-bold rounded">
-                                        {car.targa || car.immatricolazione}
-                                      </span>
-                                    )}
-                                    <span className="text-[10px] text-slate-400">
-                                      • {docs.length} allegat{docs.length === 1 ? 'o' : 'i'}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
-                                      <Upload className="w-3 h-3 text-amber-400" />
-                                      <span>{docs.some(d => d.category === 'libretto') ? '🔄 Sostituisci Libretto' : '+ Libretto'}</span>
-                                      <input 
-                                        type="file" 
-                                        accept="image/*,application/pdf" 
-                                        className="hidden" 
-                                        onChange={(e) => {
-                                          if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'libretto', e.target.files[0]);
-                                          e.target.value = '';
-                                        }} 
-                                      />
-                                    </label>
-                                    <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
-                                      <Upload className="w-3 h-3 text-emerald-400" />
-                                      <span>{docs.some(d => d.category === 'assicurazione') ? '🔄 Sostituisci Polizza' : '+ Polizza'}</span>
-                                      <input 
-                                        type="file" 
-                                        accept="image/*,application/pdf" 
-                                        className="hidden" 
-                                        onChange={(e) => {
-                                          if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'assicurazione', e.target.files[0]);
-                                          e.target.value = '';
-                                        }} 
-                                      />
-                                    </label>
-                                    <label className="cursor-pointer px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-[10px] font-medium border border-slate-700 transition-all flex items-center gap-1">
-                                      <Upload className="w-3 h-3 text-blue-400" />
-                                      <span>{docs.some(d => d.category === 'bollo') ? '🔄 Sostituisci Bollo' : '+ Bollo'}</span>
-                                      <input 
-                                        type="file" 
-                                        accept="image/*,application/pdf" 
-                                        className="hidden" 
-                                        onChange={(e) => {
-                                          if (e.target.files?.[0]) handleUploadOrReplaceDoc(car.id, 'bollo', e.target.files[0]);
-                                          e.target.value = '';
-                                        }} 
-                                      />
-                                    </label>
-                                  </div>
-                                </div>
-
-                                {docs.length === 0 ? (
-                                  <p className="text-[10px] text-amber-400/80 italic flex items-center gap-1 bg-amber-500/5 p-2 rounded-lg border border-amber-500/10">
-                                    <AlertCircle className="w-3 h-3 shrink-0" />
-                                    Nessuna scansione allegata per questa vettura.
-                                  </p>
-                                ) : (
-                                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-1">
-                                    {docs.map((doc) => (
-                                      <div 
-                                        key={doc.id} 
-                                        className="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition-all"
-                                      >
-                                        <div className="min-w-0 flex items-center space-x-2">
-                                          <Paperclip className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                                          <div className="truncate">
-                                            <p className="font-semibold text-slate-200 text-[11px] truncate" title={doc.title || doc.fileName}>
-                                              {doc.title || doc.fileName}
-                                            </p>
-                                            <p className="text-[9px] text-slate-400 uppercase tracking-wider">
-                                              {doc.category || 'documento'} {doc.date ? `• ${doc.date}` : ''}
-                                            </p>
-                                          </div>
-                                        </div>
-
-                                        <div className="flex items-center space-x-1 shrink-0">
-                                          <button
-                                            type="button"
-                                            onClick={() => openDocument(doc)}
-                                            className="p-1.5 text-slate-300 hover:text-amber-400 hover:bg-slate-800 rounded transition-all"
-                                            title="Visualizza / Stampa"
-                                          >
-                                            <Eye className="w-3.5 h-3.5" />
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => downloadDocument(doc)}
-                                            className="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded transition-all"
-                                            title="Scarica File"
-                                          >
-                                            <Download className="w-3.5 h-3.5" />
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleDeleteCarDoc(car.id, doc.id, doc.title || doc.fileName)}
-                                            className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all"
-                                            title="Elimina Documento"
-                                          >
-                                            <Trash2 className="w-3.5 h-3.5" />
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-
             </div>
           )}
 
@@ -2088,7 +1797,7 @@ export default function AdminModal({
                     <p className="text-xs text-slate-300 mt-1 leading-relaxed">
                       Scegli cosa possono vedere o non vedere le persone esterne (clienti e visitatori del sito).
                       <br className="hidden sm:inline" />
-                      <strong className="text-amber-300"> Nota:</strong> Tu come <span className="underline">Super Admin</span> (Shirantha) e Luciano come <span className="underline">Gestore</span> avrete <strong>SEMPRE visibilità completa al 100%</strong> su scadenze e dati riservati.
+                      <strong className="text-amber-300"> Nota:</strong> Tu come <span className="underline">Super Admin</span> e Luciano come <span className="underline">Gestore</span> avrete <strong>SEMPRE visibilità completa al 100%</strong> su scadenze e dati riservati.
                     </p>
                   </div>
                   <span className="shrink-0 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 flex items-center gap-1.5">
@@ -2477,13 +2186,13 @@ export default function AdminModal({
               
               {/* Header Box with Statistics */}
               <div className="bg-gradient-to-r from-amber-950/40 via-slate-900 to-blue-950/40 p-4 sm:p-5 rounded-2xl border border-amber-500/30 space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div className="p-2.5 bg-amber-500/20 text-amber-400 rounded-xl border border-amber-500/30 shrink-0">
                       <FolderOpen className="w-6 h-6" />
                     </div>
-                    <div>
-                      <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <div className="min-w-0">
+                      <h3 className="text-base font-bold text-white flex items-center gap-2 flex-wrap">
                         <span>Cartella Scansioni & Allegati</span>
                         <span className="px-2 py-0.5 bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-full text-xs font-bold">
                           {docStats.totalDocs} file totali
@@ -2495,7 +2204,7 @@ export default function AdminModal({
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap shrink-0">
                     <label className="cursor-pointer px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs transition-all flex items-center justify-center space-x-1.5 shadow-lg shadow-amber-500/20 shrink-0">
                       <FolderOpen className="w-4 h-4 text-slate-950" />
                       <span>📂 Carica Cartella "DOCUMENTI SCANSIONATI"</span>

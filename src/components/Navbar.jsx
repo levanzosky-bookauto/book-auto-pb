@@ -86,20 +86,21 @@ export default function Navbar({
           </div>
 
           {/* Search Bar - Spacious Desktop & Tablet */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-4 sm:mx-6">
+          <div className="hidden md:flex flex-1 min-w-[200px] max-w-2xl mx-3 lg:mx-4">
             <div className="relative w-full">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cerca per Marca, Modello, N° Telaio..."
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all shadow-inner"
+                className="w-full pl-10 pr-9 py-2 bg-slate-900/90 border border-slate-700/80 rounded-xl text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500/50 transition-all shadow-inner"
               />
               {searchQuery && (
                 <button 
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-slate-800 hover:bg-slate-700 text-xs text-slate-400 hover:text-white transition-colors"
+                  title="Cancella ricerca"
                 >
                   ✕
                 </button>
@@ -108,10 +109,10 @@ export default function Navbar({
           </div>
 
           {/* Desktop Right Action Controls */}
-          <div className="hidden lg:flex items-center space-x-2.5">
+          <div className="hidden lg:flex items-center space-x-2 shrink-0">
             
             {/* View Switcher */}
-            <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800">
+            <div className="flex bg-slate-900/80 p-1 rounded-xl border border-slate-800 shrink-0">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-2 rounded-lg text-xs font-medium transition-all ${
@@ -136,37 +137,36 @@ export default function Navbar({
               </button>
             </div>
 
-            {/* Favorite Filter Toggle */}
+            {/* Favorite Filter Toggle - Compact: Only Heart + Counter */}
             <button
               onClick={() => setOnlyFavorites(!onlyFavorites)}
-              className={`flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+              className={`flex items-center space-x-1.5 px-2.5 py-2 rounded-xl text-xs font-semibold border transition-all shrink-0 ${
                 onlyFavorites 
                   ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 shadow-lg shadow-rose-500/10' 
-                  : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800'
+                  : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800 hover:text-white'
               }`}
+              title={onlyFavorites ? "Mostra tutte le vetture" : "Filtra Vetture Preferite"}
             >
               <Heart className={`w-4 h-4 ${onlyFavorites ? 'fill-rose-400 text-rose-400' : 'text-slate-400'}`} />
-              <span className="hidden xl:inline">Preferiti</span>
               <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-amber-400 font-bold border border-slate-700">
                 {favoritesCount}
               </span>
             </button>
 
-            {/* Expirations & Notifications Bell Button */}
+            {/* Expirations & Notifications Bell Button - Compact: Only Bell + Counter */}
             {showExpirations && (
               <button
                 onClick={onOpenExpirationsModal}
-                className={`relative flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold border transition-all ${
+                className={`relative flex items-center space-x-1.5 px-2.5 py-2 rounded-xl text-xs font-semibold border transition-all shrink-0 ${
                   hasUrgentExpirations
                     ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 animate-pulse shadow-lg shadow-rose-500/20'
                     : expirationsCount > 0
                     ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 shadow-md shadow-amber-500/10'
-                    : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800'
+                    : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800 hover:text-white'
                 }`}
                 title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
               >
                 <Bell className={`w-4 h-4 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
-                <span className="hidden xl:inline">Scadenze</span>
                 {expirationsCount > 0 && (
                   <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-extrabold ${
                     hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
@@ -177,15 +177,14 @@ export default function Navbar({
               </button>
             )}
 
-            {/* Cartella & Archivio Documenti Button */}
+            {/* Cartella & Archivio Documenti Button - Compact: Only Folder Icon + Counter */}
             {(isStaff || (clientPermissions && clientPermissions.showDocuments)) && (
               <button
                 onClick={onOpenCartellaDocumenti}
-                className="flex items-center space-x-2 px-3 py-2 rounded-xl text-xs font-semibold bg-slate-900/60 text-slate-300 border border-slate-700/60 hover:bg-slate-800 hover:border-amber-500/40 hover:text-amber-300 transition-all"
+                className="flex items-center space-x-1.5 px-2.5 py-2 rounded-xl text-xs font-semibold bg-slate-900/60 text-slate-300 border border-slate-700/60 hover:bg-slate-800 hover:border-amber-500/40 hover:text-amber-300 transition-all shrink-0"
                 title="Archivio & Cartella Documenti Scansionati (Libretti, Assicurazioni, Bolli)"
               >
                 <FolderOpen className="w-4 h-4 text-amber-400" />
-                <span className="hidden xl:inline">Cartella Documenti</span>
                 <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-800 text-amber-400 font-bold border border-slate-700">
                   {totalDocumentsCount}
                 </span>

@@ -15,7 +15,7 @@ export const DEFAULT_CLIENT_PERMISSIONS = {
 
   // Funzionalità & Esportazioni
   allowPdfDownload: true,   // Default: TRUE (I clienti possono scaricare le schede PDF)
-  allowGuestBrowsing: true  // Default: TRUE (I visitatori possono entrare come ospiti senza password)
+  allowGuestBrowsing: false  // Default: FALSE (Accesso libero visitatori disabilitato)
 };
 
 export function getClientPermissions() {

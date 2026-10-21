@@ -14,8 +14,8 @@ import {
   EyeOff
 } from 'lucide-react';
 import { authenticateUser, authenticateUserAsync, syncUsersWithCloud, getBackgroundImages, USER_ROLES } from '../utils/auth';
-import { getClientPermissions } from '../utils/permissions';
 import BouncingCarsCanvas from './BouncingCarsCanvas';
+import ForgotCredentialsModal from './ForgotCredentialsModal';
 
 export default function AdminLoginPage({
   onLoginSuccess,
@@ -26,10 +26,12 @@ export default function AdminLoginPage({
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [backgrounds, setBackgrounds] = useState([]);
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [showForgotModal, setShowForgotModal] = useState(false);
 
   useEffect(() => {
     const bgList = getBackgroundImages();
@@ -64,7 +66,7 @@ export default function AdminLoginPage({
       const user = await authenticateUserAsync(cleanU, cleanP);
 
       if (user) {
-        onLoginSuccess(user);
+        onLoginSuccess(user, rememberMe);
       } else {
         setErrorMsg('Credenziali non riconosciute! Verifica nome utente o password.');
       }
@@ -75,7 +77,7 @@ export default function AdminLoginPage({
     }
   };
 
-  const currentBgUrl = backgrounds[currentBgIndex] || './images/cars/car_2_page.jpg';
+  const currentBgUrl = backgrounds[currentBgIndex] || './images/bg_2.jpg';
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-fade-in bg-slate-950">
@@ -190,6 +192,19 @@ export default function AdminLoginPage({
             </div>
           </div>
 
+          {/* Remember Me Option */}
+          <div className="flex items-center justify-between text-xs text-slate-400 py-0.5">
+            <label className="flex items-center space-x-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded bg-slate-950 border border-slate-700 text-amber-500 focus:ring-amber-500/40 focus:ring-offset-0 cursor-pointer accent-amber-500"
+              />
+              <span className="text-slate-300 font-medium">Rimani collegato su questo browser</span>
+            </label>
+          </div>
+
           {/* Submit Login Button */}
           <button
             type="submit"
@@ -200,34 +215,17 @@ export default function AdminLoginPage({
             <ArrowRight className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
           </button>
 
-
-
-          {/* Quick Client / Guest Exploration Mode Button */}
-          {(clientPermissions || getClientPermissions())?.allowGuestBrowsing && (
-            <div className="pt-1 text-center">
-              <div className="flex items-center my-2">
-                <div className="flex-1 border-t border-slate-700/60"></div>
-                <span className="px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">oppure</span>
-                <div className="flex-1 border-t border-slate-700/60"></div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  onLoginSuccess({
-                    id: 'guest_visitor',
-                    username: 'visitatore',
-                    name: 'Visitatore / Cliente',
-                    role: 'viewer',
-                    roleLabel: 'Visitatore / Cliente'
-                  });
-                }}
-                className="w-full py-2.5 bg-slate-800/80 hover:bg-slate-700/90 text-cyan-300 hover:text-cyan-200 border border-cyan-500/30 hover:border-cyan-400/50 font-bold text-xs rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center space-x-2"
-              >
-                <Eye className="w-4 h-4 text-cyan-400" />
-                <span>Esplora Catalogo come Visitatore</span>
-              </button>
-            </div>
-          )}
+          {/* Forgot Password / Username link */}
+          <div className="pt-2.5 text-center">
+            <button
+              type="button"
+              onClick={() => setShowForgotModal(true)}
+              className="text-xs text-amber-400/90 hover:text-amber-300 font-semibold hover:underline transition-colors py-1 inline-flex items-center space-x-1.5 group"
+            >
+              <KeyRound className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
+              <span>Hai dimenticato la password o il nome utente?</span>
+            </button>
+          </div>
         </form>
 
         {/* Background Selector Indicator */}
@@ -248,12 +246,23 @@ export default function AdminLoginPage({
 
         {/* Powered by SHI branding */}
         <div className="mt-5 pt-3 border-t border-slate-800/80 text-center">
-          <span className="text-[11px] font-bold tracking-widest text-amber-400/90 uppercase bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20 inline-block shadow-sm">
+          <span className="text-[10px] font-medium tracking-widest text-slate-500 uppercase select-none">
             Powered by SHI
           </span>
         </div>
 
       </div>
+
+      {/* Forgot Credentials Modal (Option 2 via Email & Option 3 Master PIN) */}
+      <ForgotCredentialsModal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+        onSuccessReset={(recoveredUsername) => {
+          if (recoveredUsername) {
+            setUsername(recoveredUsername);
+          }
+        }}
+      />
     </div>
   );
 }

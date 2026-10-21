@@ -27,7 +27,7 @@ import {
   Download,
   Printer
 } from 'lucide-react';
-import { getLogoForBrand, saveCustomBrandLogo, resetCustomBrandLogo } from '../utils/brandLogos';
+import { getLogoForBrand, saveCustomBrandLogo, resetCustomBrandLogo, isValidBrandLogo } from '../utils/brandLogos';
 import { getLocations, addLocation, removeLocation, renameLocation } from '../utils/locations';
 import { openDocument, downloadDocument } from '../utils/documentViewer';
 import { processScannedDocumentFile } from '../utils/storage';
@@ -280,6 +280,21 @@ export default function AddEditCarModal({
   };
 
   const handleRemoveImage = (index) => {
+    const imgToRemove = formData.images[index];
+    if (imgToRemove && typeof imgToRemove === 'string' && !imgToRemove.startsWith('data:') && typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      const currentBrand = formData.brand === 'Altro' ? formData.customBrand : formData.brand;
+      const carFolder = [currentBrand, formData.model].filter(Boolean).join(' ').trim();
+      fetch('/api/delete-car-image', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          carId: carToEdit?.id,
+          carFolder,
+          imagePath: imgToRemove
+        })
+      }).catch(err => console.warn('Could not delete image on disk:', err));
+    }
+
     setFormData(prev => ({
       ...prev,
       images: prev.images.filter((_, i) => i !== index)
@@ -303,7 +318,7 @@ export default function AddEditCarModal({
   };
 
   const selectedBrandName = formData.brand === 'Altro' ? formData.customBrand : formData.brand;
-  const activeLogoUrl = formData.customLogoImg.trim() || getLogoForBrand(selectedBrandName) || carToEdit?.logoImg || null;
+  const activeLogoUrl = formData.customLogoImg.trim() || getLogoForBrand(selectedBrandName) || (isValidBrandLogo(carToEdit?.logoImg) ? carToEdit.logoImg : null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -315,10 +330,10 @@ export default function AddEditCarModal({
       return;
     }
 
-    const assignedLogo = formData.customLogoImg.trim() || getLogoForBrand(finalBrand) || carToEdit?.logoImg || null;
+    const assignedLogo = formData.customLogoImg.trim() || getLogoForBrand(finalBrand) || (isValidBrandLogo(carToEdit?.logoImg) ? carToEdit.logoImg : null);
 
     // Permanently save brand-to-logo mapping into database/localStorage
-    if (assignedLogo && finalBrand) {
+    if (assignedLogo && finalBrand && isValidBrandLogo(assignedLogo)) {
       saveCustomBrandLogo(finalBrand, assignedLogo);
     }
 
@@ -342,8 +357,8 @@ export default function AddEditCarModal({
       images: formData.images,
       carPhotos: formData.images,
       logoImg: assignedLogo,
-      mainPhoto: formData.images.length > 0 ? formData.images[0] : (carToEdit?.mainPhoto || carToEdit?.pageImage || './images/cars/car_2_page.jpg'),
-      pageImage: formData.images.length > 0 ? formData.images[0] : (carToEdit?.pageImage || './images/cars/car_2_page.jpg'),
+      mainPhoto: formData.images.length > 0 ? formData.images[0] : (carToEdit?.mainPhoto || carToEdit?.pageImage || ''),
+      pageImage: formData.images.length > 0 ? formData.images[0] : (carToEdit?.pageImage || ''),
       isFavorite: carToEdit ? carToEdit.isFavorite : false,
 
       // Extended Fields (Documenti, Manutenzione, Costi, Viaggi)
@@ -687,9 +702,14 @@ export default function AddEditCarModal({
 
           {/* Photos Upload Section */}
           <div className="space-y-3 pt-2">
-            <label className="block text-xs font-semibold text-slate-300">
-              Galleria Foto Vettura
-            </label>
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <label className="block text-xs font-semibold text-slate-300">
+                Galleria Foto Vettura
+              </label>
+              <span className="text-[10px] text-amber-400 font-medium bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                📁 Salvataggio in: DOCUMENTI SCANSIONATI / {formData.model ? `${selectedBrandName || 'Auto'} ${formData.model}`.trim() : 'Nome Auto'} / immagini /
+              </span>
+            </div>
 
             {/* File Upload Box */}
             <div className="flex flex-col sm:flex-row gap-3">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   X, 
   Heart, 
@@ -27,12 +27,17 @@ import {
   ShieldCheck,
   FileCheck,
   Bell,
-  FolderOpen
+  FolderOpen,
+  Upload,
+  Maximize2,
+  FilePlus,
+  AlertCircle
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import ImageCropperModal from './ImageCropperModal';
-import { openDocument, downloadDocument } from '../utils/documentViewer';
+import { openDocument, downloadDocument, getSafeDocumentBlobUrl, getDocumentSource } from '../utils/documentViewer';
+import { processScannedDocumentFile } from '../utils/storage';
 import { getVehicleExpirations } from '../utils/notifications';
 import { 
   isStaffUser, 
@@ -43,6 +48,7 @@ import {
   canExportPdf, 
   canViewPrices 
 } from '../utils/permissions';
+import { getLogoForBrand, isValidBrandLogo } from '../utils/brandLogos';
 
 export default function CarDetailModal({ 
   car, 
@@ -53,6 +59,8 @@ export default function CarDetailModal({
   onUpdateCarPhotos,
   onOpenPrintPdf,
   onOpenCartellaDocumenti,
+  onSaveCar,
+  onUpdateCars,
   currentUser,
   clientPermissions
 }) {
@@ -62,6 +70,12 @@ export default function CarDetailModal({
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const modalContentRef = useRef(null);
   const [cropperTarget, setCropperTarget] = useState(null); // { index: number, imageSrc: string }
+
+  // Document Viewer & Upload states
+  const [activePreviewDoc, setActivePreviewDoc] = useState(null);
+  const [targetDocToReplace, setTargetDocToReplace] = useState(null);
+  const [isUploadingDoc, setIsUploadingDoc] = useState(false);
+  const docFileInputRef = useRef(null);
 
   const showExpirations = canViewExpirations(currentUser, clientPermissions);
   const showChassis = canViewChassis(currentUser, clientPermissions);
@@ -82,12 +96,15 @@ export default function CarDetailModal({
     }
   }, [car]);
 
-  const images = imagesList.length > 0 ? imagesList : (car.images || [car.pageImage]);
-  const carExpirations = React.useMemo(() => getVehicleExpirations([car]), [car]);
-  const bolloAlert = carExpirations.find(a => a.typeKey === 'scadenzaBollo');
-  const insuranceAlert = carExpirations.find(a => a.typeKey === 'scadenzaAssicurazione');
-  const revisionAlert = carExpirations.find(a => a.typeKey === 'scadenzaRevisione');
-  const tagliandoAlert = carExpirations.find(a => a.typeKey === 'prossimoTagliandoData');
+  const images = (imagesList && imagesList.length > 0) 
+    ? imagesList 
+    : (car?.images && car.images.length > 0 ? car.images : (car?.carPhotos && car.carPhotos.length > 0 ? car.carPhotos : [car?.pageImage].filter(Boolean)));
+  const carExpirations = useMemo(() => (car ? getVehicleExpirations([car]) : []), [car]);
+  const brandLogo = (isValidBrandLogo(car?.logoImg) ? car.logoImg : null) || getLogoForBrand(car?.brand);
+  const bolloAlert = carExpirations?.find(a => a.typeKey === 'scadenzaBollo') || null;
+  const insuranceAlert = carExpirations?.find(a => a.typeKey === 'scadenzaAssicurazione') || null;
+  const revisionAlert = carExpirations?.find(a => a.typeKey === 'scadenzaRevisione') || null;
+  const tagliandoAlert = carExpirations?.find(a => a.typeKey === 'prossimoTagliandoData') || null;
 
   if (!car) return null;
 
@@ -137,13 +154,22 @@ export default function CarDetailModal({
       return;
     }
     if (window.confirm("Sei sicuro di voler eliminare questa foto dalla vettura?")) {
+      const photoToDelete = images[indexToDelete];
       const updated = images.filter((_, i) => i !== indexToDelete);
       setImagesList(updated);
       setSelectedImgIndex(prev => Math.min(prev, updated.length - 1));
 
       if (onUpdateCarPhotos) {
-        onUpdateCarPhotos(car.id, updated);
+        onUpdateCarPhotos(car.id, updated, photoToDelete);
       }
+    }
+  };
+
+  const handlePrint = () => {
+    if (onOpenPrintPdf) {
+      onOpenPrintPdf(car);
+    } else {
+      window.print();
     }
   };
 
@@ -163,11 +189,94 @@ export default function CarDetailModal({
     }
   };
 
-  const handlePrint = () => {
-    if (onOpenPrintPdf) {
-      onOpenPrintPdf(car);
-    } else {
-      window.print();
+  const handleOpenDoc = (doc) => {
+    const src = getDocumentSource(doc);
+    if (!src) {
+      if (isStaff) {
+        if (window.confirm(`⚠️ Questa voce non contiene ancora una scansione o un file per:\n"${doc.title || doc.fileName}".\n\nVuoi selezionare e caricare il file PDF o l'immagine adesso?`)) {
+          setTargetDocToReplace(doc);
+          if (docFileInputRef.current) docFileInputRef.current.click();
+        }
+      } else {
+        alert(`⚠️ Scansione non ancora disponibile per "${doc.title || doc.fileName}".`);
+      }
+      return;
+    }
+    setActivePreviewDoc(doc);
+  };
+
+  const handleDownloadDoc = (doc) => {
+    const src = getDocumentSource(doc);
+    if (!src) {
+      if (isStaff) {
+        if (window.confirm(`⚠️ Nessun file presente da scaricare per:\n"${doc.title || doc.fileName}".\n\nVuoi selezionare e caricare il file adesso?`)) {
+          setTargetDocToReplace(doc);
+          if (docFileInputRef.current) docFileInputRef.current.click();
+        }
+      } else {
+        alert(`⚠️ File non ancora disponibile per il download.`);
+      }
+      return;
+    }
+    downloadDocument(doc);
+  };
+
+  const handlePrintDoc = (doc) => {
+    const src = getDocumentSource(doc);
+    if (!src) {
+      if (isStaff) {
+        if (window.confirm(`⚠️ Nessun file presente da stampare per:\n"${doc.title || doc.fileName}".\n\nVuoi selezionare e caricare il file adesso?`)) {
+          setTargetDocToReplace(doc);
+          if (docFileInputRef.current) docFileInputRef.current.click();
+        }
+      } else {
+        alert(`⚠️ Scansione non disponibile per la stampa.`);
+      }
+      return;
+    }
+    openDocument(doc, true);
+  };
+
+  const handleDocFileSelected = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !targetDocToReplace || !car) return;
+    setIsUploadingDoc(true);
+
+    try {
+      const carInfo = {
+        brand: car.brand,
+        model: car.model,
+        targa: car.targa,
+        immatricolazione: car.immatricolazione
+      };
+      const processed = await processScannedDocumentFile(file, carInfo, targetDocToReplace.category || 'libretto');
+      if (!processed) {
+        alert('Impossibile elaborare il file selezionato. Assicurati che sia un PDF o un\'immagine valida.');
+        return;
+      }
+      const updatedDoc = {
+        ...targetDocToReplace,
+        ...processed,
+        date: new Date().toISOString().slice(0, 10),
+        notes: `Scansione allegata il ${new Date().toLocaleDateString('it-IT')}`
+      };
+      const currentDocs = Array.isArray(car.documents) ? car.documents : [];
+      const updatedDocs = currentDocs.map(d => d.id === targetDocToReplace.id ? updatedDoc : d);
+      const updatedCar = { ...car, documents: updatedDocs };
+
+      if (onSaveCar) {
+        onSaveCar(updatedCar);
+      } else if (onUpdateCars) {
+        onUpdateCars((prev) => prev.map(c => c.id === car.id ? updatedCar : c));
+      }
+      alert(`Scansione per "${updatedDoc.title}" allegata con successo!`);
+    } catch (err) {
+      console.error('Error attaching doc file:', err);
+      alert('Errore durante il caricamento del file.');
+    } finally {
+      setIsUploadingDoc(false);
+      setTargetDocToReplace(null);
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -279,13 +388,33 @@ export default function CarDetailModal({
         <div ref={modalContentRef} className="overflow-y-auto p-6 space-y-6 flex-1">
           
           {/* Main Title & Brand Header */}
-          <div>
-            <div className="flex items-center space-x-2 text-sm text-amber-400 font-bold uppercase tracking-wider mb-1">
-              <span>{car.brand}</span>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center space-x-2 text-sm text-amber-400 font-bold uppercase tracking-wider mb-1">
+                {brandLogo && (
+                  <img 
+                    src={brandLogo} 
+                    alt="" 
+                    className="w-4 h-4 object-contain rounded-sm" 
+                    onError={(e) => { e.target.style.display = 'none'; }}
+                  />
+                )}
+                <span>{car.brand}</span>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-white tracking-tight">
+                {car.model || 'Modello Vettura'}
+              </h2>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-extrabold font-heading text-white tracking-tight">
-              {car.model || 'Modello Vettura'}
-            </h2>
+            {brandLogo && (
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-900/90 p-2.5 border border-white/10 flex items-center justify-center shrink-0 shadow-lg">
+                <img 
+                  src={brandLogo} 
+                  alt={car.brand} 
+                  className="max-w-full max-h-full object-contain" 
+                  onError={(e) => { e.target.parentElement.style.display = 'none'; }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Photos Gallery */}
@@ -691,62 +820,107 @@ export default function CarDetailModal({
                   </div>
                 </div>
 
-                {car.documents && car.documents.length > 0 ? (
+                {Array.isArray(car?.documents) && car.documents.filter(Boolean).length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {car.documents.map((doc) => (
-                      <div 
-                        key={doc.id}
-                        className="p-3 bg-slate-950 rounded-xl border border-slate-800 hover:border-amber-500/30 transition-all flex flex-col justify-between space-y-2"
-                      >
-                        <div className="flex items-start space-x-3">
-                          <div className="p-2 bg-amber-500/10 text-amber-400 rounded-lg shrink-0 mt-0.5">
-                            <Paperclip className="w-4 h-4" />
+                    {car.documents.filter(Boolean).map((doc, idx) => {
+                      const hasData = Boolean(getDocumentSource(doc));
+                      const isPdf = doc?.fileType === 'application/pdf' || (doc?.fileName && doc.fileName.toLowerCase().endsWith('.pdf'));
+
+                      return (
+                        <div 
+                          key={doc.id || idx}
+                          className={`p-3 bg-slate-950 rounded-xl border transition-all flex flex-col justify-between space-y-2 ${
+                            hasData 
+                              ? 'border-slate-800 hover:border-amber-500/40 hover:shadow-lg' 
+                              : 'border-amber-500/30 bg-amber-500/5'
+                          }`}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${
+                              hasData ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+                            }`}>
+                              <Paperclip className="w-4 h-4" />
+                            </div>
+                            <div className="overflow-hidden flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-1">
+                                <p className="text-xs font-bold text-slate-200 truncate">{doc.title}</p>
+                                {hasData ? (
+                                  <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 shrink-0">
+                                    {isPdf ? 'PDF' : 'IMG'}
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] font-bold text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded border border-amber-500/30 shrink-0">
+                                    Da allegare
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-400 truncate">{doc.fileName}</p>
+                              <div className="flex items-center space-x-2 text-[10px] text-slate-500 mt-0.5">
+                                {doc.uploadedAt && <span>Caricato: {doc.uploadedAt}</span>}
+                                {doc.fileSizeKb && <span>• ~{doc.fileSizeKb} KB</span>}
+                              </div>
+                            </div>
                           </div>
-                          <div className="overflow-hidden">
-                            <p className="text-xs font-bold text-slate-200 truncate">{doc.title}</p>
-                            <p className="text-[11px] text-slate-400 truncate">{doc.fileName}</p>
-                            {doc.uploadedAt && (
-                              <p className="text-[10px] text-slate-500">Caricato: {doc.uploadedAt}</p>
+
+                          {/* Missing file warning & quick upload trigger */}
+                          {!hasData && isStaff && (
+                            <div className="pt-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setTargetDocToReplace(doc);
+                                  if (docFileInputRef.current) docFileInputRef.current.click();
+                                }}
+                                className="w-full py-1.5 px-2 bg-amber-500/15 hover:bg-amber-500 hover:text-slate-950 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer"
+                              >
+                                <Upload className="w-3.5 h-3.5" />
+                                <span>+ Seleziona & Carica File PDF / Foto</span>
+                              </button>
+                            </div>
+                          )}
+
+                          <div className="flex items-center space-x-2 pt-1 border-t border-slate-800/80">
+                            {/* Tasto 1: Apri (Anteprima Integrata a Schermo Intero) */}
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDoc(doc)}
+                              className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-95 shadow-sm"
+                              title="Apri e visualizza scansione"
+                            >
+                              <Eye className="w-3.5 h-3.5 text-amber-400 group-hover:text-slate-950" />
+                              <span>Apri</span>
+                            </button>
+
+                            {/* Tasti 2 & 3: Scarica & Stampa */}
+                            {allowPdf && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDownloadDoc(doc)}
+                                  className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1 cursor-pointer active:scale-95 shadow-sm"
+                                  title="Scarica file PDF o immagine"
+                                >
+                                  <Download className="w-3.5 h-3.5 text-amber-400 group-hover:text-slate-950" />
+                                  <span>Scarica</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handlePrintDoc(doc)}
+                                  className="py-1.5 px-2.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center justify-center cursor-pointer active:scale-95 shadow-sm"
+                                  title="Stampa documento direttamente"
+                                >
+                                  <Printer className="w-3.5 h-3.5 text-amber-400 group-hover:text-slate-950" />
+                                </button>
+                              </>
                             )}
                           </div>
                         </div>
-
-                        <div className="flex items-center space-x-2 pt-1 border-t border-slate-800/80">
-                          <button
-                            type="button"
-                            onClick={() => openDocument(doc)}
-                            className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>Apri</span>
-                          </button>
-                          {allowPdf && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => downloadDocument(doc)}
-                                className="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center justify-center space-x-1"
-                              >
-                                <Download className="w-3.5 h-3.5" />
-                                <span>Scarica</span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => openDocument(doc, true)}
-                                className="py-1.5 px-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-lg text-xs font-bold transition-all flex items-center justify-center"
-                                title="Stampa Documento"
-                              >
-                                <Printer className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-xs text-slate-400 italic">
-                    Nessun documento scansionato allegato a questa vettura. Clicca su "Modifica Dati" per caricare il Libretto, la Polizza Assicurativa o la ricevuta del Bollo in PDF.
+                    Nessun documento scansionato allegato a questa vettura. Clicca su "Modifica Dati" o "Gestisci Cartella" per caricare il Libretto, la Polizza Assicurativa o la ricevuta del Bollo in PDF.
                   </p>
                 )}
               </div>
@@ -756,9 +930,128 @@ export default function CarDetailModal({
 
         </div>
 
-
+        {/* Hidden file input for direct document replacement/upload */}
+        <input
+          ref={docFileInputRef}
+          type="file"
+          accept=".pdf,image/png,image/jpeg,image/webp"
+          className="hidden"
+          onChange={handleDocFileSelected}
+        />
 
       </div>
+
+      {/* In-App Document Full Preview Modal */}
+      {activePreviewDoc && (
+        <div 
+          className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 bg-slate-950/90 backdrop-blur-md animate-fade-in"
+          onClick={() => setActivePreviewDoc(null)}
+        >
+          <div 
+            className="glass-panel w-full max-w-5xl h-[90vh] rounded-3xl overflow-hidden shadow-2xl border border-amber-500/30 flex flex-col bg-slate-900"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Viewer Header */}
+            <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-white/10 bg-slate-950/90 shrink-0">
+              <div className="flex items-center space-x-3 min-w-0">
+                <div className="p-2 bg-amber-500/15 text-amber-400 rounded-xl border border-amber-500/30 shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm sm:text-base font-bold text-white truncate font-heading">
+                    {activePreviewDoc.title || activePreviewDoc.fileName || 'Visualizzatore Documento'}
+                  </h3>
+                  <p className="text-xs text-slate-400 truncate">
+                    {activePreviewDoc.fileName} {activePreviewDoc.fileSizeKb ? `• ~${activePreviewDoc.fileSizeKb} KB` : ''}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Stampa */}
+                <button
+                  type="button"
+                  onClick={() => openDocument(activePreviewDoc, true)}
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl text-xs shadow-md transition-all cursor-pointer active:scale-95"
+                  title="Stampa Documento"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>Stampa</span>
+                </button>
+
+                {/* Scarica */}
+                {allowPdf && (
+                  <button
+                    type="button"
+                    onClick={() => downloadDocument(activePreviewDoc)}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                    title="Scarica File"
+                  >
+                    <Download className="w-4 h-4 text-amber-400" />
+                    <span>Scarica</span>
+                  </button>
+                )}
+
+                {/* Apri Nuova Scheda */}
+                <button
+                  type="button"
+                  onClick={() => openDocument(activePreviewDoc)}
+                  className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition-all cursor-pointer"
+                  title="Apri a Schermo Intero in Nuova Scheda"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+
+                {/* Chiudi Anteprima */}
+                <button
+                  type="button"
+                  onClick={() => setActivePreviewDoc(null)}
+                  className="p-1.5 bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-400 rounded-xl border border-slate-700 transition-all ml-1 cursor-pointer"
+                  title="Chiudi Visualizzatore"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Viewer Content Frame */}
+            <div className="flex-1 bg-slate-950 p-3 sm:p-5 overflow-auto flex items-center justify-center relative">
+              {(() => {
+                const source = getSafeDocumentBlobUrl(activePreviewDoc) || getDocumentSource(activePreviewDoc);
+                const isPdf = activePreviewDoc.fileType === 'application/pdf' || 
+                  (typeof source === 'string' && (source.startsWith('data:application/pdf') || source.toLowerCase().includes('.pdf') || source.startsWith('blob:')));
+
+                if (!source) {
+                  return (
+                    <div className="text-center p-8 text-slate-400">
+                      <p className="text-lg font-bold text-rose-400 mb-2">File non disponibile</p>
+                      <p className="text-xs">Nessuna scansione o file caricato per questo documento.</p>
+                    </div>
+                  );
+                }
+
+                if (isPdf) {
+                  return (
+                    <iframe
+                      src={`${source}#toolbar=1`}
+                      className="w-full h-full rounded-2xl bg-white border border-slate-800 shadow-2xl"
+                      title={activePreviewDoc.title || 'PDF Document'}
+                    />
+                  );
+                }
+
+                return (
+                  <img
+                    src={source}
+                    alt={activePreviewDoc.title || 'Documento Scansionato'}
+                    className="max-w-full max-h-[78vh] object-contain rounded-2xl shadow-2xl border border-slate-800"
+                  />
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Image Cropper Modal */}
       {cropperTarget && (

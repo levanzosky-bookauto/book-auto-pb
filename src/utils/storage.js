@@ -82,11 +82,12 @@ function createLightweightCarsCopy(cars) {
       documents: car.documents.map(doc => {
         if (!doc) return doc;
         // Keep metadata but omit huge fileData in localStorage (IndexedDB and Supabase hold the full file)
-        const { fileData, ...docMeta } = doc;
+        const { fileData, dataUrl, url, ...docMeta } = doc;
+        const actualData = fileData || dataUrl || url;
         return {
           ...docMeta,
-          hasStoredData: Boolean(fileData),
-          fileDataLength: fileData ? fileData.length : 0
+          hasStoredData: Boolean(actualData),
+          fileDataLength: actualData ? actualData.length : 0
         };
       })
     };
@@ -198,17 +199,41 @@ export async function processScannedDocumentFile(file, carInfo = {}, category = 
 
   // Format title & filename using the car's identity
   const { title, fileName } = generateCarDocumentName(carInfo, category, originalName, isPdf);
+  const carFolder = [carInfo.brand, carInfo.model].filter(Boolean).join(' ').trim() || 'Vettura';
 
-  return {
+  const docRecord = {
     id: `doc_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
     category,
     title,
     fileName,
     fileType,
     fileData,
+    dataUrl: fileData,
+    url: fileData,
     fileSizeKb: Math.round(fileData.length * 0.75 / 1024),
     uploadedAt: new Date().toISOString().slice(0, 10)
   };
+
+  // If in localhost, write directly to local Mac folder DOCUMENTI SCANSIONATI/<carFolder>/<fileName>
+  if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    fetch('/api/save-document', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        carFolder,
+        fileName,
+        fileData,
+        carId: carInfo.id,
+        docMetadata: docRecord
+      })
+    }).then(res => res.json()).then(result => {
+      console.log('✅ Physical document saved to Mac folder:', result);
+    }).catch(err => {
+      console.warn('Could not save physical document to local disk folder:', err);
+    });
+  }
+
+  return docRecord;
 }
 
 // Generate standardized Document Title and File Name incorporating Car Brand, Model, and Targa

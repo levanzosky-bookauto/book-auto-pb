@@ -363,8 +363,18 @@ export async function sendBackgroundEmailJS(recipientEmail, cars = [], forcedPro
  */
 export function checkAndTriggerAutomaticEmailAlerts(cars = [], force = false) {
   if (!isEmailAlertsEnabled()) return null;
+  const config = getEmailJSConfig();
   const targetEmail = getAdminEmail();
-  if (!targetEmail) return null;
+
+  // If provider is Formspree, verify the endpoint is valid (targetEmail is optional since Formspree routes to form owner)
+  if (config.provider === 'formspree') {
+    const urlToUse = config.webhookUrl || DEFAULT_FORMSPREE_URL;
+    const validation = validateFormspreeUrl(urlToUse);
+    if (!validation.valid) return null;
+  } else if (!targetEmail) {
+    // For other providers (EmailJS, Mailto), targetEmail is strictly needed
+    return null;
+  }
 
   const alerts = getVehicleExpirations(cars);
   if (!alerts || alerts.length === 0) return null;
@@ -398,8 +408,9 @@ export function checkAndTriggerAutomaticEmailAlerts(cars = [], force = false) {
 
   // Trigger Browser Desktop Notification if allowed
   if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    const destLabel = targetEmail ? ` a ${targetEmail}` : ' alla tua casella';
     new Notification('🚨 Book Auto PB — Avviso Scadenza Vettura!', {
-      body: `Nuova scadenza rilevata (${newMilestoneAlerts[0].carBrand} ${newMilestoneAlerts[0].carModel} - ${newMilestoneAlerts[0].typeLabel}). Email inviata a ${targetEmail}.`,
+      body: `Nuova scadenza rilevata (${newMilestoneAlerts[0].carBrand} ${newMilestoneAlerts[0].carModel} - ${newMilestoneAlerts[0].typeLabel}). Email inviata${destLabel}.`,
       icon: '/favicon.ico'
     });
   } else if (typeof Notification !== 'undefined' && Notification.permission !== 'denied') {
@@ -409,9 +420,98 @@ export function checkAndTriggerAutomaticEmailAlerts(cars = [], force = false) {
   // Try background REST email sending
   sendBackgroundEmailJS(targetEmail, cars).then(res => {
     if (!res.success) {
-      console.log('Automated background email prompt fallback required.');
+      console.log('Automated background email prompt fallback required:', res?.reason);
     }
   });
 
   return { autoTriggered: true, alerts: newMilestoneAlerts, targetEmail };
+}
+
+/**
+ * Send a 6-digit verification code OTP for credential recovery (Option 2)
+ */
+export async function sendPasswordRecoveryEmail(recipientEmail, userName, otpCode, loginUsername = '') {
+  const targetEmail = (recipientEmail || getAdminEmail()).trim();
+  if (!targetEmail) {
+    return { success: false, reason: 'Nessun indirizzo email configurato per questo account.' };
+  }
+
+  const savedConfig = getEmailJSConfig();
+  const subject = `[Book Auto PB] Codice di Recupero Credenziali: ${otpCode}`;
+  const messageBody = `Ciao ${userName || 'Utente'},\n\n` +
+    `Hai richiesto il recupero delle credenziali per l'accesso a Book Auto PB.\n\n` +
+    (loginUsername ? `👤 Il tuo Nome Utente registrato è: ${loginUsername}\n\n` : '') +
+    `👉 IL TUO CODICE DI SICUREZZA TEMPORANEO È:\n` +
+    `   ${otpCode}\n\n` +
+    `Inserisci questo codice a 6 cifre nella finestra di recupero per reimpostare la tua password.\n` +
+    `Questo codice è valido per 15 minuti.\n\n` +
+    `Se non sei stato tu a richiedere il recupero, puoi ignorare questo messaggio: le tue credenziali attuali rimarranno invariate.\n\n` +
+    `Distinti saluti,\nBook Auto PB Management`;
+
+  // 1. FORMSPREE
+  if (savedConfig.provider === 'formspree') {
+    const urlToUse = savedConfig.webhookUrl || DEFAULT_FORMSPREE_URL;
+    const validation = validateFormspreeUrl(urlToUse);
+    if (validation.valid) {
+      try {
+        const res = await fetch(validation.url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({
+            email: targetEmail,
+            to: targetEmail,
+            _subject: subject,
+            subject: subject,
+            message: messageBody,
+            otpCode: otpCode,
+            username: loginUsername
+          })
+        });
+        if (res.ok) {
+          return { success: true, method: 'formspree', targetEmail };
+        }
+      } catch (e) {
+        console.warn('Formspree recovery email error:', e);
+      }
+    }
+  }
+
+  // 2. EMAILJS
+  if (savedConfig.provider === 'emailjs' && savedConfig.serviceId && savedConfig.templateId && savedConfig.publicKey) {
+    try {
+      const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: savedConfig.serviceId,
+          template_id: savedConfig.templateId,
+          user_id: savedConfig.publicKey,
+          template_params: {
+            to_email: targetEmail,
+            email: targetEmail,
+            to: targetEmail,
+            recipient: targetEmail,
+            message_body: messageBody,
+            message: messageBody,
+            content: messageBody,
+            subject: subject
+          }
+        })
+      });
+      if (res.ok) {
+        return { success: true, method: 'emailjs', targetEmail };
+      }
+    } catch (e) {
+      console.warn('EmailJS recovery email error:', e);
+    }
+  }
+
+  // 3. Fallback: Mailto
+  try {
+    const mailtoUrl = `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(messageBody)}`;
+    window.location.href = mailtoUrl;
+    return { success: true, method: 'mailto', targetEmail };
+  } catch (e) {
+    return { success: false, reason: 'Impossibile inviare email automatica.' };
+  }
 }

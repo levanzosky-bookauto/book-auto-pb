@@ -3,32 +3,68 @@ const CUSTOM_LOGOS_STORAGE_KEY = 'book_auto_pb_custom_brand_logos_v1';
 // In-memory fallback cache so added brands are NEVER lost even if localStorage quota fails
 let memoryLogosCache = null;
 
+// Check if a given path is an authentic brand logo (and NOT a car photo)
+export function isValidBrandLogo(logoPath) {
+  if (!logoPath || typeof logoPath !== 'string') return false;
+  const lower = logoPath.toLowerCase();
+  // Filter out car photos mistakenly saved as logos
+  if (
+    lower.includes('/images/cars/') ||
+    lower.includes('images/cars') ||
+    lower.includes('/immagini/foto_') ||
+    lower.includes('immagini/foto_') ||
+    lower.includes('foto_') ||
+    lower.includes('car_')
+  ) {
+    return false;
+  }
+  return true;
+}
+
+// Normalize brand names: strip diacritics, hyphens, extra whitespace
+export function normalizeBrandName(name) {
+  if (!name) return '';
+  return name.trim().toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // removes umlauts / accents
+    .replace(/[^a-z0-9]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export const DEFAULT_BRAND_LOGOS = {
-  "alfa romeo": "./images/cars/car_2_img_4.jpeg",
-  "aston martin": "./images/cars/car_3_img_5.jpeg",
-  "audi": "./images/cars/car_4_img_1.jpeg",
-  "bmw": "./images/cars/car_9_img_1.jpeg",
-  "bentley": "./images/cars/car_7_img_5.jpeg",
-  "bizzarrini": "./images/cars/car_8_img_1.png",
-  "bugatti": "./images/cars/car_10_img_1.png",
-  "citroën": "./images/cars/car_11_img_1.jpeg",
-  "ferrari": "./images/cars/car_12_img_1.jpeg",
-  "fiat": "./images/cars/car_23_img_1.jpeg",
-  "ford": "./images/cars/car_24_img_7.jpeg",
-  "lamborghini": "./images/cars/car_25_img_6.jpeg",
-  "lancia": "./images/cars/car_26_img_1.jpeg",
-  "land rover": "./images/cars/car_29_img_2.jpeg",
-  "mercedes-amg": "./images/cars/car_30_img_1.jpeg",
-  "mercedes-benz": "./images/cars/car_31_img_1.jpeg",
-  "polaris": "./images/cars/car_33_img_1.png",
-  "pontiac": "./images/cars/car_34_img_1.png",
-  "porsche": "./images/cars/car_35_img_1.jpeg",
-  "renault": "./images/cars/car_48_img_5.jpeg",
-  "rolls-royce": "./images/cars/car_49_img_4.jpeg",
-  "rover": "./images/cars/car_50_img_5.jpeg",
-  "saab": "./images/cars/car_51_img_5.jpeg",
-  "toyota": "./images/cars/car_52_img_1.jpeg",
-  "volkswagen": "./images/cars/car_53_img_1.jpeg"
+  "alfa romeo": "./images/logos/alfa_romeo.jpeg",
+  "alfa-romeo": "./images/logos/alfa_romeo.jpeg",
+  "aston martin": "./images/logos/aston_martin.jpeg",
+  "aston-martin": "./images/logos/aston_martin.jpeg",
+  "audi": "./images/logos/audi.jpeg",
+  "bmw": "./images/logos/bmw.jpeg",
+  "bentley": "./images/logos/bentley.jpeg",
+  "bizzarrini": "./images/logos/bizzarrini.png",
+  "bugatti": "./images/logos/bugatti.png",
+  "citroen": "./images/logos/citroen.jpeg",
+  "citroën": "./images/logos/citroen.jpeg",
+  "ferrari": "./images/logos/ferrari.jpeg",
+  "fiat": "./images/logos/fiat.jpeg",
+  "ford": "./images/logos/ford.jpeg",
+  "lamborghini": "./images/logos/lamborghini.jpeg",
+  "lancia": "./images/logos/lancia.jpeg",
+  "land rover": "./images/logos/land_rover.jpeg",
+  "land-rover": "./images/logos/land_rover.jpeg",
+  "mercedes": "./images/logos/mercedes_benz.jpeg",
+  "mercedes-benz": "./images/logos/mercedes_benz.jpeg",
+  "mercedes benz": "./images/logos/mercedes_benz.jpeg",
+  "mercedes-amg": "./images/logos/mercedes_amg.jpeg",
+  "mercedes amg": "./images/logos/mercedes_amg.jpeg",
+  "polaris": "./images/logos/polaris.png",
+  "pontiac": "./images/logos/pontiac.png",
+  "porsche": "./images/logos/porsche.jpeg",
+  "renault": "./images/logos/renault.jpeg",
+  "rolls-royce": "./images/logos/rolls_royce.jpeg",
+  "rolls royce": "./images/logos/rolls_royce.jpeg",
+  "rover": "./images/logos/rover.jpeg",
+  "saab": "./images/logos/saab.jpeg",
+  "toyota": "./images/logos/toyota.jpeg",
+  "volkswagen": "./images/logos/volkswagen.jpeg"
 };
 
 // Compression helper for custom uploaded brand logos
@@ -84,43 +120,73 @@ export function getCustomBrandLogos() {
 }
 
 // Get logo for a brand name
-export function getLogoForBrand(brandName) {
-  if (!brandName) return null;
-  const key = brandName.trim().toLowerCase();
-  
-  const customLogos = getCustomBrandLogos();
-  if (customLogos[key]) {
-    return customLogos[key];
+export function getLogoForBrand(brandName, fallbackLogo = null) {
+  if (fallbackLogo && isValidBrandLogo(fallbackLogo)) {
+    return fallbackLogo;
   }
-  
-  return DEFAULT_BRAND_LOGOS[key] || null;
+  if (!brandName) return null;
+
+  const rawKey = brandName.trim().toLowerCase();
+  const normKey = normalizeBrandName(brandName);
+
+  const customLogos = getCustomBrandLogos();
+  if (customLogos[rawKey] && isValidBrandLogo(customLogos[rawKey])) {
+    return customLogos[rawKey];
+  }
+  if (customLogos[normKey] && isValidBrandLogo(customLogos[normKey])) {
+    return customLogos[normKey];
+  }
+
+  return DEFAULT_BRAND_LOGOS[rawKey] || DEFAULT_BRAND_LOGOS[normKey] || null;
 }
 
 // Save or update custom brand logo
 export function saveCustomBrandLogo(brandName, logoUrl) {
   if (!brandName || !logoUrl) return;
-  const key = brandName.trim().toLowerCase();
-  
+  const rawKey = brandName.trim().toLowerCase();
+  const normKey = normalizeBrandName(brandName);
+
   const customLogos = getCustomBrandLogos();
-  customLogos[key] = logoUrl;
+  customLogos[rawKey] = logoUrl;
+  customLogos[normKey] = logoUrl;
   memoryLogosCache = { ...customLogos };
-  
+
   try {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
     console.warn('LocalStorage save failed, keeping brand in memory:', e);
+  }
+
+  // If in local development, save physically to public/images/logos/<brand> and update public/data/cars.json
+  if (typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname === '0.0.0.0'
+  )) {
+    fetch('/api/save-brand-logo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ brandName, logoData: logoUrl })
+    })
+    .then(r => r.json())
+    .then(res => {
+      console.log('Brand logo permanently saved to disk in public/images/logos:', res);
+    })
+    .catch(err => console.warn('Could not save brand logo via local API:', err));
   }
 }
 
 // Remove custom logo override for a brand
 export function resetCustomBrandLogo(brandName) {
   if (!brandName) return;
-  const key = brandName.trim().toLowerCase();
-  
+  const rawKey = brandName.trim().toLowerCase();
+  const normKey = normalizeBrandName(brandName);
+
   const customLogos = getCustomBrandLogos();
-  delete customLogos[key];
+  delete customLogos[rawKey];
+  delete customLogos[normKey];
   memoryLogosCache = { ...customLogos };
-  
+
   try {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
@@ -133,13 +199,17 @@ export function renameCustomBrand(oldBrandName, newBrandName) {
   if (!oldBrandName || !newBrandName) return;
   const oldKey = oldBrandName.trim().toLowerCase();
   const newKey = newBrandName.trim().toLowerCase();
+  const oldNorm = normalizeBrandName(oldBrandName);
+  const newNorm = normalizeBrandName(newBrandName);
 
   const customLogos = getCustomBrandLogos();
-  const existingLogo = customLogos[oldKey] || DEFAULT_BRAND_LOGOS[oldKey] || null;
+  const existingLogo = customLogos[oldKey] || customLogos[oldNorm] || DEFAULT_BRAND_LOGOS[oldKey] || null;
 
   delete customLogos[oldKey];
+  delete customLogos[oldNorm];
   if (existingLogo) {
     customLogos[newKey] = existingLogo;
+    customLogos[newNorm] = existingLogo;
   }
   memoryLogosCache = { ...customLogos };
 
@@ -153,10 +223,12 @@ export function renameCustomBrand(oldBrandName, newBrandName) {
 // Delete custom brand entry
 export function deleteCustomBrand(brandName) {
   if (!brandName) return;
-  const key = brandName.trim().toLowerCase();
+  const rawKey = brandName.trim().toLowerCase();
+  const normKey = normalizeBrandName(brandName);
 
   const customLogos = getCustomBrandLogos();
-  delete customLogos[key];
+  delete customLogos[rawKey];
+  delete customLogos[normKey];
   memoryLogosCache = { ...customLogos };
 
   try {

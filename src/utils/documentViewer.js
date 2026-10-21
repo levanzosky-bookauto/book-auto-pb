@@ -1,176 +1,153 @@
 // Utility for viewing, downloading, and printing uploaded car PDF documents and scanned files
+// High-performance cross-browser implementation supporting Blob URLs, Safari macOS/iOS, Base64, and Print
 
+/**
+ * Safely converts a base64 Data URL to a native browser Blob with clean MIME type
+ */
+export function dataUrlToBlob(dataUrl, fallbackType = 'application/pdf') {
+  if (!dataUrl || typeof dataUrl !== 'string') return null;
+  if (!dataUrl.startsWith('data:')) return null;
+  try {
+    const commaIndex = dataUrl.indexOf(',');
+    if (commaIndex === -1) return null;
+
+    const meta = dataUrl.slice(5, commaIndex);
+    let mime = meta.split(';')[0].trim() || fallbackType;
+    if (!mime.includes('/')) mime = fallbackType;
+
+    const base64Data = dataUrl.slice(commaIndex + 1);
+    const raw = window.atob(base64Data);
+    const rawLength = raw.length;
+    const uInt8Array = new Uint8Array(rawLength);
+    for (let i = 0; i < rawLength; ++i) {
+      uInt8Array[i] = raw.charCodeAt(i);
+    }
+    return new Blob([uInt8Array], { type: mime });
+  } catch (e) {
+    console.error('Error converting dataUrl to Blob:', e);
+    return null;
+  }
+}
+
+/**
+ * Normalizes any document file source (resolves raw base64, data URLs, remote URLs, blob URLs)
+ */
+export function getDocumentSource(doc) {
+  if (!doc) return null;
+  const raw = doc.fileData || doc.dataUrl || doc.url || doc.file_url || doc.src;
+  if (!raw || typeof raw !== 'string') return null;
+
+  // If raw string doesn't start with protocol or data:, but looks like base64
+  if (!raw.startsWith('data:') && !raw.startsWith('http://') && !raw.startsWith('https://') && !raw.startsWith('/') && !raw.startsWith('blob:')) {
+    const isPdf = doc.fileType === 'application/pdf' || raw.startsWith('JVBERi0');
+    return `data:${isPdf ? 'application/pdf' : (doc.fileType || 'image/jpeg')};base64,${raw}`;
+  }
+
+  return raw;
+}
+
+/**
+ * Returns a native Blob URL for a document (best for Safari/Chrome iframe embedding & downloads)
+ */
+export function getSafeDocumentBlobUrl(doc) {
+  const source = getDocumentSource(doc);
+  if (!source) return null;
+
+  if (source.startsWith('data:')) {
+    const isPdf = doc?.fileType === 'application/pdf' || source.startsWith('data:application/pdf');
+    const blob = dataUrlToBlob(source, isPdf ? 'application/pdf' : (doc?.fileType || 'image/jpeg'));
+    if (blob) {
+      return URL.createObjectURL(blob);
+    }
+  }
+
+  return source;
+}
+
+/**
+ * Download a document file with custom filename (supports Base64, Blob URLs, Remote URLs)
+ */
 export function downloadDocument(doc) {
-  const fileSource = doc?.fileData || doc?.dataUrl || doc?.url;
-  if (!doc || !fileSource) return;
+  const fileSource = getDocumentSource(doc);
+  if (!doc || !fileSource) {
+    alert(`⚠️ Nessun file o scansione presente per "${doc?.title || doc?.fileName || 'questo documento'}". Clicca su "Modifica Dati" o "Gestisci Cartella" per caricare il file PDF o l'immagine.`);
+    return;
+  }
+
+  const isPdf = doc.fileType === 'application/pdf' || 
+    (typeof fileSource === 'string' && (fileSource.startsWith('data:application/pdf') || fileSource.toLowerCase().includes('.pdf')));
+  const fileName = doc.fileName || `${(doc.title || 'documento').replace(/\s+/g, '_')}.${isPdf ? 'pdf' : 'jpg'}`;
+
+  if (typeof fileSource === 'string' && fileSource.startsWith('data:')) {
+    const blob = dataUrlToBlob(fileSource, doc.fileType || (isPdf ? 'application/pdf' : 'image/jpeg'));
+    if (blob) {
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+      return;
+    }
+  }
+
   const link = document.createElement('a');
   link.href = fileSource;
-  link.download = doc.fileName || `${(doc.title || 'documento').replace(/\s+/g, '_')}.pdf`;
+  link.download = fileName;
+  link.target = '_blank';
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
+/**
+ * Open a document for viewing or printing (supports PDF native viewer, Images, and Print)
+ */
 export function openDocument(doc, autoPrint = false) {
-  const fileSource = doc?.fileData || doc?.dataUrl || doc?.url;
-  if (!doc || !fileSource) return;
-
-  const win = window.open('', '_blank');
-  if (!win) {
-    alert('Impossibile aprire la finestra del documento. Abilita i popup nel browser.');
+  const fileSource = getDocumentSource(doc);
+  if (!doc || !fileSource) {
+    alert(`⚠️ Nessun file o scansione presente per "${doc?.title || doc?.fileName || 'questo documento'}". Clicca su "Modifica Dati" o "Gestisci Cartella" per caricare il file PDF o l'immagine.`);
     return;
   }
 
-  const isPdf = doc.fileType === 'application/pdf' || (fileSource && fileSource.startsWith('data:application/pdf'));
-  const title = doc.title || doc.fileName || 'Documento Vettura';
-  const fileName = doc.fileName || 'documento.pdf';
+  const isPdf = doc.fileType === 'application/pdf' || 
+    (typeof fileSource === 'string' && (fileSource.startsWith('data:application/pdf') || fileSource.toLowerCase().includes('.pdf')));
 
-  win.document.write(`
-    <!DOCTYPE html>
-    <html lang="it">
-      <head>
-        <meta charset="UTF-8" />
-        <title>${title} — Book Auto PB</title>
-        <style>
-          * { box-sizing: border-box; margin: 0; padding: 0; }
-          body { 
-            background: #090d16; 
-            color: #f8fafc; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            display: flex; 
-            flex-direction: column; 
-            height: 100vh; 
-            overflow: hidden; 
-          }
-          .toolbar { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 12px 24px; 
-            background: #0f172a; 
-            border-bottom: 1px solid #1e293b; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4); 
-            z-index: 10; 
-          }
-          .title-area { display: flex; align-items: center; gap: 12px; }
-          .icon { font-size: 20px; }
-          .title { font-weight: 800; font-size: 16px; color: #f59e0b; letter-spacing: -0.01em; }
-          .subtitle { font-size: 12px; color: #94a3b8; margin-top: 2px; }
-          .actions { display: flex; align-items: center; gap: 10px; }
-          .btn { 
-            background: #1e293b; 
-            color: #f8fafc; 
-            border: 1px solid #334155; 
-            padding: 8px 16px; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: 700; 
-            font-size: 13px; 
-            text-decoration: none; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 6px; 
-            transition: all 0.2s ease; 
-          }
-          .btn:hover { background: #334155; color: #ffffff; }
-          .btn-print { 
-            background: linear-gradient(135deg, #f59e0b, #d97706); 
-            color: #090d16; 
-            border: none; 
-            box-shadow: 0 4px 12px rgba(245,158,11,0.25); 
-          }
-          .btn-print:hover { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
-          .content-container { 
-            flex: 1; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 20px; 
-            background: #020617; 
-            overflow: auto; 
-          }
-          iframe, img { 
-            max-width: 100%; 
-            max-height: 100%; 
-            border: none; 
-            border-radius: 12px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8); 
-          }
-          iframe { width: 100%; height: 100%; background: #ffffff; }
+  // Convert Base64 data URL to native Blob URL
+  let targetSource = fileSource;
+  if (typeof fileSource === 'string' && fileSource.startsWith('data:')) {
+    const blob = dataUrlToBlob(fileSource, isPdf ? 'application/pdf' : (doc.fileType || 'image/jpeg'));
+    if (blob) {
+      targetSource = URL.createObjectURL(blob);
+    }
+  }
 
-          @page {
-            size: auto;
-            margin: 0;
+  // AUTO-PRINT ACTION
+  if (autoPrint) {
+    const printWindow = window.open(targetSource, '_blank');
+    if (printWindow) {
+      printWindow.onload = () => {
+        setTimeout(() => {
+          try {
+            printWindow.focus();
+            printWindow.print();
+          } catch (e) {
+            console.warn('Auto-print error:', e);
           }
+        }, 500);
+      };
+    }
+    return;
+  }
 
-          @media print {
-            html, body {
-              background: #ffffff !important;
-              color: #000000 !important;
-              height: 100% !important;
-              width: 100% !important;
-              margin: 0 !important;
-              padding: 0 !important;
-              overflow: visible !important;
-            }
-            .toolbar {
-              display: none !important;
-            }
-            .content-container {
-              padding: 0 !important;
-              margin: 0 !important;
-              background: #ffffff !important;
-              height: 100vh !important;
-              width: 100vw !important;
-              display: flex !important;
-              align-items: center !important;
-              justify-content: center !important;
-              overflow: hidden !important;
-            }
-            img {
-              max-width: 100% !important;
-              max-height: 100vh !important;
-              object-fit: contain !important;
-              border-radius: 0 !important;
-              box-shadow: none !important;
-            }
-            iframe {
-              width: 100vw !important;
-              height: 100vh !important;
-              border: none !important;
-              box-shadow: none !important;
-              border-radius: 0 !important;
-            }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="toolbar">
-          <div class="title-area">
-            <span class="icon">📄</span>
-            <div>
-              <div class="title">${title}</div>
-              <div class="subtitle">Allegato Scansionato (${fileName})</div>
-            </div>
-          </div>
-          <div class="actions">
-            <button class="btn btn-print" onclick="window.print()">🖨️ Stampa Documento</button>
-            <a class="btn" href="${doc.fileData}" download="${fileName}">⬇️ Scarica File</a>
-          </div>
-        </div>
-        <div class="content-container">
-          ${isPdf 
-            ? `<iframe src="${doc.fileData}#toolbar=1" type="application/pdf"></iframe>` 
-            : `<img src="${doc.fileData}" alt="${title}" />`
-          }
-        </div>
-        <script>
-          ${autoPrint ? 'window.onload = function() { setTimeout(function() { window.print(); }, 300); };' : ''}
-        </script>
-      </body>
-    </html>
-  `);
-  win.document.close();
+  // DIRECT VIEW: open Blob URL directly in new tab (never opens about:blank!)
+  const win = window.open(targetSource, '_blank');
+  if (!win) {
+    // If popup was blocked, fallback
+    window.location.href = targetSource;
+  }
 }
 
 export function printDocumentDirectly(doc) {

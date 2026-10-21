@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Heart, 
   ChevronLeft, 
@@ -9,14 +9,15 @@ import {
   Calendar, 
   Hash, 
   Gauge, 
-  Award,
-  Maximize2,
-  Trash2,
-  MapPin,
-  Bell
+  Award, 
+  Maximize2, 
+  Trash2, 
+  MapPin, 
+  Bell 
 } from 'lucide-react';
 import { getVehicleExpirations } from '../utils/notifications';
 import { isStaffUser, canViewExpirations, canViewChassis, canViewLocation } from '../utils/permissions';
+import { getLogoForBrand, isValidBrandLogo } from '../utils/brandLogos';
 
 export default function CarCard({ 
   car, 
@@ -34,7 +35,8 @@ export default function CarCard({
   const showChassis = canViewChassis(currentUser, clientPermissions);
   const showLocation = canViewLocation(currentUser, clientPermissions);
   const isStaff = isStaffUser(currentUser);
-  const carExpirations = React.useMemo(() => getVehicleExpirations([car]), [car]);
+  const carExpirations = useMemo(() => (car ? getVehicleExpirations([car]) : []), [car]);
+  const brandLogo = (isValidBrandLogo(car?.logoImg) ? car.logoImg : null) || getLogoForBrand(car?.brand);
 
   // Determine image list (use images extracted or fallback to page render)
   const images = car.images && car.images.length > 0 ? car.images : [car.pageImage];
@@ -120,16 +122,16 @@ export default function CarCard({
 
         {/* Image Navigation Carousel Arrows */}
         {images.length > 1 && (
-          <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between opacity-0 group-hover/img:opacity-100 transition-opacity z-10">
+          <div className="absolute inset-x-2 top-1/2 -translate-y-1/2 flex justify-between opacity-85 sm:opacity-0 group-hover/img:opacity-100 transition-opacity z-10">
             <button
               onClick={handlePrevImg}
-              className="p-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white border border-white/20 hover:bg-amber-500 hover:text-slate-950 transition-all"
+              className="p-2 sm:p-1.5 rounded-full bg-slate-900/85 backdrop-blur-md text-white border border-white/20 hover:bg-amber-500 hover:text-slate-950 transition-all active:scale-95"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               onClick={handleNextImg}
-              className="p-1.5 rounded-full bg-slate-900/80 backdrop-blur-md text-white border border-white/20 hover:bg-amber-500 hover:text-slate-950 transition-all"
+              className="p-2 sm:p-1.5 rounded-full bg-slate-900/85 backdrop-blur-md text-white border border-white/20 hover:bg-amber-500 hover:text-slate-950 transition-all active:scale-95"
             >
               <ChevronRight className="w-4 h-4" />
             </button>
@@ -156,12 +158,22 @@ export default function CarCard({
         
         <div>
           {/* Brand & Model */}
-          <div className="flex items-baseline justify-between mb-1">
-            <span className="text-xs font-bold uppercase tracking-wider text-amber-400 font-heading">
-              {car.brand}
-            </span>
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center space-x-1.5 min-w-0">
+              {brandLogo && (
+                <img 
+                  src={brandLogo} 
+                  alt="" 
+                  className="w-4 h-4 object-contain shrink-0 rounded-sm" 
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              )}
+              <span className="text-xs font-bold uppercase tracking-wider text-amber-400 font-heading truncate">
+                {car.brand}
+              </span>
+            </div>
             {car.immatricolazione && (
-              <span className="text-xs text-slate-400 flex items-center font-medium">
+              <span className="text-xs text-slate-400 flex items-center font-medium shrink-0 ml-2">
                 <Calendar className="w-3 h-3 mr-1 text-slate-500" />
                 {car.immatricolazione}
               </span>

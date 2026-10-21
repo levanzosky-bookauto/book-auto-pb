@@ -12,7 +12,7 @@ import {
   Filter,
   Car
 } from 'lucide-react';
-import { getLogoForBrand } from '../utils/brandLogos';
+import { getLogoForBrand, isValidBrandLogo } from '../utils/brandLogos';
 
 import { sendTestEmailMailto, getAdminEmail } from '../utils/emailAlerts';
 import { Send } from 'lucide-react';
@@ -198,7 +198,7 @@ export default function ExpirationsModal({
             </div>
           ) : (
             filteredAlerts.map(alert => {
-              const carLogo = alert.carLogo || getLogoForBrand(alert.carBrand);
+              const carLogo = (isValidBrandLogo(alert.carLogo) ? alert.carLogo : null) || getLogoForBrand(alert.carBrand);
 
               return (
                 <div 

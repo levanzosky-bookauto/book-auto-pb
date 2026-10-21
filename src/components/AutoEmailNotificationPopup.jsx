@@ -45,7 +45,7 @@ export default function AutoEmailNotificationPopup({
   };
 
   return (
-    <div className="fixed bottom-4 right-4 z-[90] max-w-md w-full p-1 animate-slide-up">
+    <div className="fixed bottom-4 left-3 right-3 sm:left-auto sm:right-4 z-[90] sm:max-w-md p-1 animate-slide-up">
       <div className="bg-slate-900/95 backdrop-blur-xl border-2 border-amber-500/80 text-slate-100 rounded-3xl p-5 shadow-2xl relative overflow-hidden">
         
         {/* Top Glow bar */}
