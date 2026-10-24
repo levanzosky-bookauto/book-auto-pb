@@ -60,19 +60,19 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 glass-panel border-b border-white/10 shadow-2xl">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Title */}
-          <div className="flex items-center space-x-3 cursor-pointer shrink-0" onClick={() => { setSelectedBrand('Tutti'); setOnlyFavorites(false); setSearchQuery(''); }}>
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-200 p-0.5 shadow-lg shadow-amber-500/20">
-              <div className="w-full h-full bg-[#0b132b] rounded-[14px] flex items-center justify-center">
-                <Car className="w-6 h-6 text-amber-400" />
+          <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer shrink-0" onClick={() => { setSelectedBrand('Tutti'); setOnlyFavorites(false); setSearchQuery(''); }}>
+            <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-200 p-0.5 shadow-lg shadow-amber-500/20 shrink-0">
+              <div className="w-full h-full bg-[#0b132b] rounded-[10px] sm:rounded-[14px] flex items-center justify-center">
+                <Car className="w-4 h-4 sm:w-6 sm:h-6 text-amber-400" />
               </div>
             </div>
             <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-heading font-bold text-xl sm:text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500">
+              <div className="flex items-center space-x-1.5 sm:space-x-2">
+                <span className="font-heading font-bold text-base sm:text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500">
                   BOOK AUTO PB
                 </span>
                 <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20 hidden xl:inline">
@@ -266,12 +266,12 @@ export default function Navbar({
           <div className="flex lg:hidden items-center space-x-1.5 sm:space-x-2">
             <button
               onClick={() => setOnlyFavorites(!onlyFavorites)}
-              className={`p-2 rounded-xl border ${
+              className={`p-1.5 sm:p-2 rounded-xl border transition-all active:scale-95 ${
                 onlyFavorites ? 'bg-rose-500/20 text-rose-400 border-rose-500/40' : 'bg-slate-900/60 text-slate-300 border-slate-700'
               }`}
               title="Filtra Preferiti"
             >
-              <Heart className={`w-5 h-5 ${onlyFavorites ? 'fill-rose-400' : ''}`} />
+              <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${onlyFavorites ? 'fill-rose-400' : ''}`} />
             </button>
 
             {/* Mobile Expirations Bell Button (Directly visible on phones if allowed) */}
@@ -279,7 +279,7 @@ export default function Navbar({
               <button
                 type="button"
                 onClick={onOpenExpirationsModal}
-                className={`relative p-2 rounded-xl border transition-all ${
+                className={`relative p-1.5 sm:p-2 rounded-xl border transition-all active:scale-95 ${
                   hasUrgentExpirations
                     ? 'bg-rose-500/25 text-rose-300 border-rose-500/60 shadow-lg shadow-rose-500/30 animate-pulse'
                     : expirationsCount > 0
@@ -288,9 +288,9 @@ export default function Navbar({
                 }`}
                 title="Scadenze & Notifiche Vetture (Bollo, Assicurazione, Revisione, Tagliando)"
               >
-                <Bell className={`w-5 h-5 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
+                <Bell className={`w-4 h-4 sm:w-5 sm:h-5 ${hasUrgentExpirations ? 'text-rose-400' : expirationsCount > 0 ? 'text-amber-400' : 'text-slate-400'}`} />
                 {expirationsCount > 0 && (
-                  <span className={`absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-extrabold shadow-md ${
+                  <span className={`absolute -top-1 -right-1 min-w-[16px] h-[16px] sm:min-w-[18px] sm:h-[18px] px-1 flex items-center justify-center rounded-full text-[9px] sm:text-[10px] font-extrabold shadow-md ${
                     hasUrgentExpirations ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
                   }`}>
                     {expirationsCount}
@@ -298,41 +298,27 @@ export default function Navbar({
                 )}
               </button>
             )}
-            
-            {(isStaff || (clientPermissions && clientPermissions.showDocuments)) && (
-              <button
-                type="button"
-                onClick={onOpenCartellaDocumenti}
-                className="relative p-2 rounded-xl border bg-slate-900/60 text-slate-300 border-slate-700 hover:text-amber-400"
-                title="Cartella Documenti"
-              >
-                <FolderOpen className="w-5 h-5 text-amber-400" />
-                {totalDocumentsCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full text-[10px] font-extrabold bg-amber-500 text-slate-950 shadow-md">
-                    {totalDocumentsCount}
-                  </span>
-                )}
-              </button>
-            )}
+
+            {/* Folder button removed from mobile header to prevent overflow (already accessible in dropdown menu below) */}
 
             {isStaff && (
               <button
                 onClick={onOpenAddModal}
-                className="p-2 bg-amber-500 text-slate-950 font-bold rounded-xl shadow-md"
+                className="p-1.5 sm:p-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl shadow-md transition-all active:scale-95"
                 title="Aggiungi Auto"
               >
-                <Plus className="w-5 h-5" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             )}
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="relative p-2 text-slate-300 bg-slate-900/80 rounded-xl border border-slate-700"
+              className="relative p-1.5 sm:p-2 text-slate-300 bg-slate-900/80 hover:bg-slate-800 rounded-xl border border-slate-700 transition-all active:scale-95"
               title="Menu Opzioni, Utente & Admin"
             >
-              <SlidersHorizontal className="w-5 h-5" />
+              <SlidersHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
               {expirationsCount > 0 && (
-                <span className="absolute 1 top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
               )}
             </button>
           </div>
@@ -469,23 +455,14 @@ export default function Navbar({
               )}
 
               {isStaff && (
-                <div className="flex space-x-2">
-                  <button
-                    onClick={onOpenBackupModal}
-                    className="flex-1 flex items-center justify-center space-x-2 py-2.5 bg-slate-900 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold"
-                  >
-                    <Download className="w-4 h-4 text-amber-400" />
-                    <span>Backup & Export</span>
-                  </button>
-                  
-                  <button
-                    onClick={onResetData}
-                    className="flex items-center justify-center p-2.5 bg-rose-500/10 text-rose-400 border border-rose-500/20 rounded-xl text-xs"
-                    title="Ripristina Catalogo PDF"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => { setMobileMenuOpen(false); onOpenBackupModal && onOpenBackupModal(); }}
+                  className="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-amber-500/40 rounded-xl text-xs font-semibold shadow transition-all active:scale-95"
+                >
+                  <Download className="w-4 h-4 text-amber-400" />
+                  <span>Backup & Export</span>
+                </button>
               )}
             </div>
           </div>

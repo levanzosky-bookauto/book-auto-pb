@@ -288,23 +288,81 @@ export default function CarDetailModal({
       >
         
         {/* Modal Top Header Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-4 border-b border-white/10 bg-slate-900/80 shrink-0">
-          <div className="flex items-center space-x-3">
-            <span className="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20">
-              {car.brand}
-            </span>
-            <span className="text-sm font-bold text-white font-heading truncate max-w-[200px] sm:max-w-xs">
-              {car.model}
-            </span>
+        <div className="flex flex-col gap-2.5 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 bg-slate-900/80 shrink-0">
+          
+          {/* Top Row: Brand & Model on Left, Close button (X) and quick actions on Far Top-Right */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 shrink-0">
+                {car.brand}
+              </span>
+              <span className="text-sm sm:text-base font-bold text-white font-heading truncate">
+                {car.model}
+              </span>
+            </div>
+
+            {/* Top Right: Favorite, Delete & Main Close (X) button */}
+            <div className="flex items-center space-x-1.5 shrink-0 ml-auto">
+              {/* Preferito */}
+              <button
+                onClick={() => onToggleFavorite(car.id)}
+                className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
+                  car.isFavorite
+                    ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
+                    : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
+                }`}
+                title="Preferito"
+              >
+                <Heart className={`w-4 h-4 ${car.isFavorite ? 'fill-rose-400' : ''}`} />
+              </button>
+
+              {/* Elimina (Staff only) */}
+              {isStaff && onDeleteCar && (
+                <button
+                  onClick={() => {
+                    if (window.confirm(`Sei sicuro di voler eliminare ${car.brand} ${car.model}?`)) {
+                      onDeleteCar(car.id);
+                      onClose();
+                    }
+                  }}
+                  className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl transition-all cursor-pointer"
+                  title="Elimina"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+
+              {/* Chiudi X (Fisso in alto a destra) */}
+              <button
+                onClick={onClose}
+                className="p-1.5 sm:p-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all cursor-pointer shadow-sm ml-0.5"
+                title="Chiudi"
+              >
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
           </div>
 
+          {/* Action Buttons Row: Modifica Dati, Stampa PDF, Scarica PDF */}
           <div className="flex flex-wrap items-center gap-2">
+            {/* Modifica Dati Button (Staff only) */}
+            {isStaff && onEditCar && (
+              <button
+                onClick={() => onEditCar(car)}
+                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer active:scale-95"
+                title="Modifica Dati Vettura"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+                <span>Modifica Dati</span>
+              </button>
+            )}
+
             {/* Stampa PDF & Scarica PDF Buttons (If allowed) */}
             {allowPdf && (
               <>
                 <button
                   onClick={handlePrint}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all cursor-pointer"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition-all cursor-pointer active:scale-95"
                   title="Stampa PDF"
                 >
                   <Printer className="w-3.5 h-3.5 text-amber-400" />
@@ -314,7 +372,7 @@ export default function CarDetailModal({
                 <button
                   onClick={handleDownloadPdf}
                   disabled={isDownloadingPdf}
-                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-xl text-xs font-semibold border border-amber-500/30 transition-all disabled:opacity-50 cursor-pointer"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 rounded-xl text-xs font-semibold border border-amber-500/30 transition-all disabled:opacity-50 cursor-pointer active:scale-95"
                   title="Scarica PDF"
                 >
                   {isDownloadingPdf ? (
@@ -331,56 +389,6 @@ export default function CarDetailModal({
                 </button>
               </>
             )}
-
-            {/* Modifica Dati Button (Staff only) */}
-            {isStaff && onEditCar && (
-              <button
-                onClick={() => onEditCar(car)}
-                className="flex items-center space-x-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-md transition-all cursor-pointer active:scale-95"
-                title="Modifica Dati Vettura"
-              >
-                <Edit3 className="w-3.5 h-3.5" />
-                <span>Modifica Dati</span>
-              </button>
-            )}
-
-            {/* Preferito */}
-            <button
-              onClick={() => onToggleFavorite(car.id)}
-              className={`p-1.5 rounded-xl border transition-all ${
-                car.isFavorite
-                  ? 'bg-rose-500/20 text-rose-400 border-rose-500/40'
-                  : 'bg-slate-800 text-slate-400 border-slate-700 hover:text-white'
-              }`}
-              title="Preferito"
-            >
-              <Heart className={`w-4 h-4 ${car.isFavorite ? 'fill-rose-400' : ''}`} />
-            </button>
-
-            {/* Elimina (Staff only) */}
-            {isStaff && onDeleteCar && (
-              <button
-                onClick={() => {
-                  if (window.confirm(`Sei sicuro di voler eliminare ${car.brand} ${car.model}?`)) {
-                    onDeleteCar(car.id);
-                    onClose();
-                  }
-                }}
-                className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 rounded-xl transition-all"
-                title="Elimina"
-              >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            )}
-
-            {/* Chiudi */}
-            <button
-              onClick={onClose}
-              className="p-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-400 rounded-xl border border-slate-700 transition-all ml-1"
-              title="Chiudi"
-            >
-              <X className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
