@@ -607,7 +607,7 @@ export default function AdminModal({
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-6 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-fade-in">
       <div 
-        className="glass-panel w-full max-w-6xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[92vh] bg-slate-900 text-slate-100"
+        className="glass-panel w-full max-w-5xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/10 my-auto flex flex-col max-h-[96vh] sm:max-h-[92vh] bg-slate-900 text-slate-100"
         onClick={(e) => e.stopPropagation()}
       >
         
@@ -1374,72 +1374,75 @@ export default function AdminModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Nome Completo</label>
+                    <label className="block text-slate-300 font-semibold mb-1 text-xs">Nome Completo</label>
                     <input
                       type="text"
                       value={newName}
                       onChange={(e) => setNewName(e.target.value)}
                       placeholder="Es. Mario Rossi"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Nome Utente (Login)</label>
+                    <label className="block text-slate-300 font-semibold mb-1 text-xs">Nome Utente (Login)</label>
                     <input
                       type="text"
                       value={newUsername}
                       onChange={(e) => setNewUsername(e.target.value)}
                       placeholder="Es. mario"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-mono text-xs sm:text-sm"
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-mono text-xs sm:text-sm"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Password</label>
+                    <label className="block text-slate-300 font-semibold mb-1 text-xs">Password</label>
                     <input
                       type="text"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Password..."
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
                       required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-300 font-semibold mb-1">Email Recupero (Opz.)</label>
+                    <label className="block text-slate-300 font-semibold mb-1 text-xs">Email Recupero (Opz.)</label>
                     <input
                       type="email"
                       value={newUserEmail}
                       onChange={(e) => setNewUserEmail(e.target.value)}
                       placeholder="email@esempio.com"
-                      className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 text-xs sm:text-sm"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-slate-300 font-semibold mb-1">Ruolo / Categoria Accesso</label>
-                  <select
-                    value={newRole}
-                    onChange={(e) => setNewRole(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-semibold"
-                  >
-                    <option value="super_admin">👑 Super Admin (Proprietario) — Accesso totale e modifiche</option>
-                    <option value="editor">🛠️ Gestore / Editor — Inserimento e modifica vetture</option>
-                    <option value="viewer">👁️ Visualizzatore / Cliente — Sola lettura e stampa PDF</option>
-                  </select>
-                </div>
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pt-1">
+                  <div className="w-full sm:max-w-xs">
+                    <label className="block text-slate-300 font-semibold mb-1 text-xs">Ruolo / Categoria Accesso</label>
+                    <select
+                      value={newRole}
+                      onChange={(e) => setNewRole(e.target.value)}
+                      className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-semibold text-xs sm:text-sm"
+                    >
+                      <option value="super_admin">👑 Super Admin (Proprietario)</option>
+                      <option value="editor">🛠️ Gestore / Editor</option>
+                      <option value="viewer">👁️ Visualizzatore / Cliente</option>
+                    </select>
+                  </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-lg transition-all"
-                >
-                  Crea Utente
-                </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-md transition-all flex items-center justify-center space-x-1.5 cursor-pointer active:scale-95 text-xs sm:text-sm shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Crea Utente</span>
+                  </button>
+                </div>
               </form>
 
               {/* Users List */}
@@ -1473,7 +1476,7 @@ export default function AdminModal({
 
                           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                             <div>
-                              <label className="block text-slate-400 font-semibold mb-1">Nome Completo</label>
+                              <label className="block text-slate-400 font-semibold mb-1 text-xs">Nome Completo</label>
                               <input
                                 type="text"
                                 value={editName}
@@ -1482,7 +1485,7 @@ export default function AdminModal({
                               />
                             </div>
                             <div>
-                              <label className="block text-slate-400 font-semibold mb-1">Username (Login)</label>
+                              <label className="block text-slate-400 font-semibold mb-1 text-xs">Username (Login)</label>
                               <input
                                 type="text"
                                 value={editUsername}
@@ -1491,7 +1494,7 @@ export default function AdminModal({
                               />
                             </div>
                             <div>
-                              <label className="block text-slate-400 font-semibold mb-1">Password</label>
+                              <label className="block text-slate-400 font-semibold mb-1 text-xs">Password</label>
                               <input
                                 type="text"
                                 value={editPassword}
@@ -1500,7 +1503,7 @@ export default function AdminModal({
                               />
                             </div>
                             <div>
-                              <label className="block text-slate-400 font-semibold mb-1">Email Recupero</label>
+                              <label className="block text-slate-400 font-semibold mb-1 text-xs">Email Recupero</label>
                               <input
                                 type="email"
                                 value={editEmail}
@@ -1511,34 +1514,36 @@ export default function AdminModal({
                             </div>
                           </div>
 
-                          <div>
-                            <label className="block text-slate-400 font-semibold mb-1">Ruolo / Accesso</label>
-                            <select
-                              value={editRole}
-                              onChange={(e) => setEditRole(e.target.value)}
-                              className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-semibold"
-                            >
-                              <option value="super_admin">👑 Super Admin (Proprietario)</option>
-                              <option value="editor">🛠️ Gestore / Editor</option>
-                              <option value="viewer">👁️ Visualizzatore / Cliente</option>
-                            </select>
-                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pt-1">
+                            <div className="w-full sm:max-w-xs">
+                              <label className="block text-slate-400 font-semibold mb-1 text-xs">Ruolo / Accesso</label>
+                              <select
+                                value={editRole}
+                                onChange={(e) => setEditRole(e.target.value)}
+                                className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-100 font-semibold text-xs"
+                              >
+                                <option value="super_admin">👑 Super Admin (Proprietario)</option>
+                                <option value="editor">🛠️ Gestore / Editor</option>
+                                <option value="viewer">👁️ Visualizzatore / Cliente</option>
+                              </select>
+                            </div>
 
-                          <div className="flex justify-end space-x-2 pt-1">
-                            <button
-                              type="button"
-                              onClick={() => setEditingUserId(null)}
-                              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs"
-                            >
-                              Annulla
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleSaveEditUser(u.id)}
-                              className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-xs shadow-md"
-                            >
-                              Salva Modifiche Credenziali
-                            </button>
+                            <div className="flex items-center space-x-2 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => setEditingUserId(null)}
+                                className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                              >
+                                Annulla
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSaveEditUser(u.id)}
+                                className="px-4 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold rounded-xl text-xs shadow-md transition-all active:scale-95 cursor-pointer"
+                              >
+                                Salva Modifiche Credenziali
+                              </button>
+                            </div>
                           </div>
                         </div>
                       );
