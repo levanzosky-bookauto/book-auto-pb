@@ -124,14 +124,15 @@ export default function AddEditCarModal({
     setAvailableLocations(currentLocs);
 
     if (carToEdit) {
-      const locVal = carToEdit.location || '';
-      const isKnownLoc = currentLocs.includes(locVal);
+      const locVal = (carToEdit.location || carToEdit.ubicazione || '').trim().replace(/\s+/g, ' ');
+      const matchedLoc = currentLocs.find(l => l.toLowerCase() === locVal.toLowerCase());
+      const isKnownLoc = Boolean(matchedLoc);
 
       setFormData({
         brand: existingBrands.includes(carToEdit.brand) ? carToEdit.brand : 'Altro',
         customBrand: existingBrands.includes(carToEdit.brand) ? '' : carToEdit.brand,
         model: carToEdit.model || '',
-        location: isKnownLoc ? locVal : (locVal ? 'Altro' : ''),
+        location: isKnownLoc ? matchedLoc : (locVal ? 'Altro' : ''),
         customLocation: !isKnownLoc ? locVal : '',
         immatricolazione: carToEdit.immatricolazione || '',
         chassis: carToEdit.chassis || '',
@@ -899,22 +900,22 @@ export default function AddEditCarModal({
                     />
                   </div>
 
-                  {/* Collocazione Fisica / Ubicazione Veicolo */}
+                  {/* Ubicazione / Garage Veicolo */}
                   <div className="sm:col-span-2 flex flex-col justify-end h-full pt-2 border-t border-slate-800/80">
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center">
                         <MapPin className="w-3.5 h-3.5 mr-1.5 text-amber-400" />
-                        <span>Collocazione Fisica / Ubicazione (Garage / Casa / Deposito)</span>
-                        <InfoTooltip text="Luogo di stazionamento fisico della vettura (es. Garage Milano, Residenza Mare, Deposito)." />
+                        <span>Ubicazione / Garage (Sede Vettura)</span>
+                        <InfoTooltip text="Luogo di stazionamento fisico della vettura (es. Garage Principale, Milano Portaromana 91, Residenza Mare, Deposito)." />
                       </label>
                       <button
                         type="button"
                         onClick={() => setIsManagingLocations(true)}
                         className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400 hover:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 rounded-lg border border-amber-500/30 transition-all"
-                        title="Gestisci ed edita voci collocazioni in autonomia"
+                        title="Gestisci ed edita elenco ubicazioni e garage"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
-                        <span>Modifica Elenco Voci</span>
+                        <span>Gestisci Ubicazioni</span>
                       </button>
                     </div>
 
@@ -929,16 +930,8 @@ export default function AddEditCarModal({
                         {availableLocations.map(loc => (
                           <option key={loc} value={loc}>{loc}</option>
                         ))}
-                        <option value="Altro">+ Nuova Collocazione / Garage...</option>
+                        <option value="Altro">+ Nuova Ubicazione / Garage...</option>
                       </select>
-                      <button
-                        type="button"
-                        onClick={() => setIsManagingLocations(true)}
-                        className="p-2.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-400 rounded-xl border border-slate-700 transition-all shrink-0"
-                        title="Modifica, aggiungi o cancella collocazioni"
-                      >
-                        <Edit3 className="w-4 h-4" />
-                      </button>
                     </div>
 
                     {formData.location === 'Altro' && (
@@ -1447,7 +1440,7 @@ export default function AddEditCarModal({
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center space-x-2 text-amber-400">
                 <MapPin className="w-5 h-5" />
-                <h3 className="font-bold text-base text-white font-heading">Gestisci Collocazioni & Garage</h3>
+                <h3 className="font-bold text-base text-white font-heading">Gestisci Ubicazioni & Garage</h3>
               </div>
               <button
                 type="button"
@@ -1459,7 +1452,7 @@ export default function AddEditCarModal({
             </div>
 
             <p className="text-xs text-slate-400">
-              Modifica i nomi delle collocazioni attive, aggiungine di nuove o rimuovile dall'elenco.
+              Modifica i nomi delle ubicazioni e garage attivi, aggiungine di nuovi o rimuovili dall'elenco.
             </p>
 
             {/* Add New Location Input */}
@@ -1560,14 +1553,14 @@ export default function AddEditCarModal({
                             setEditingValue(loc);
                           }}
                           className="p-1.5 text-slate-400 hover:text-amber-400 hover:bg-slate-800 rounded-lg transition-colors"
-                          title="Modifica Nome Collocazione"
+                          title="Modifica Nome Ubicazione"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           type="button"
                           onClick={() => {
-                            if (confirm(`Eliminare la collocazione "${loc}"?`)) {
+                            if (confirm(`Eliminare l'ubicazione "${loc}"?`)) {
                               const updated = removeLocation(loc);
                               setAvailableLocations(updated);
                               if (formData.location === loc) {
@@ -1576,7 +1569,7 @@ export default function AddEditCarModal({
                             }
                           }}
                           className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition-colors"
-                          title="Elimina Collocazione"
+                          title="Elimina Ubicazione"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>

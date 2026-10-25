@@ -1,22 +1,48 @@
-// Utility for managing Physical Locations (Collocazione Fisica Vetture) with Supabase Cloud Sync
+// Utility for managing Physical Locations (Ubicazioni Vetture / Garage) with Supabase Cloud Sync
 import { fetchLocationsFromSupabase, syncLocationsToSupabase } from './supabase';
 
 const LOCATIONS_STORAGE_KEY = 'book_auto_pb_locations_v1';
 
 export const DEFAULT_LOCATIONS = [
   'Garage Principale',
-  'Garage Milano',
+  'Milano Portaromana 91',
   'Villa / Residenza',
   'Deposito / Caveau',
   'Officina / Restauro'
 ];
+
+/**
+ * Normalizes location string: trims whitespace and collapses multiple spaces
+ */
+export function normalizeLocation(loc) {
+  if (!loc || typeof loc !== 'string') return '';
+  return loc.trim().replace(/\s+/g, ' ');
+}
+
+/**
+ * Deduplicates an array of location strings case-insensitively while preserving formatting
+ */
+export function dedupeLocations(list) {
+  if (!Array.isArray(list)) return [];
+  const map = new Map();
+  list.forEach(item => {
+    const norm = normalizeLocation(item);
+    if (norm && !map.has(norm.toLowerCase())) {
+      map.set(norm.toLowerCase(), norm);
+    }
+  });
+  return Array.from(map.values());
+}
 
 export function getLocations() {
   const saved = localStorage.getItem(LOCATIONS_STORAGE_KEY);
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const deduped = dedupeLocations(parsed);
+        return deduped.length > 0 ? deduped : DEFAULT_LOCATIONS;
+      }
     } catch (e) {
       console.error('Error parsing locations storage:', e);
     }
@@ -27,8 +53,9 @@ export function getLocations() {
 
 export function saveLocations(locations) {
   if (!Array.isArray(locations)) return;
-  localStorage.setItem(LOCATIONS_STORAGE_KEY, JSON.stringify(locations));
-  syncLocationsToSupabase(locations).catch(err => {
+  const deduped = dedupeLocations(locations);
+  localStorage.setItem(LOCATIONS_STORAGE_KEY, JSON.stringify(deduped));
+  syncLocationsToSupabase(deduped).catch(err => {
     console.warn('Background syncLocationsToSupabase error:', err);
   });
 }
@@ -37,8 +64,9 @@ export async function syncLocationsWithCloud() {
   try {
     const remote = await fetchLocationsFromSupabase();
     if (Array.isArray(remote) && remote.length > 0) {
-      localStorage.setItem(LOCATIONS_STORAGE_KEY, JSON.stringify(remote));
-      return remote;
+      const deduped = dedupeLocations(remote);
+      localStorage.setItem(LOCATIONS_STORAGE_KEY, JSON.stringify(deduped));
+      return deduped;
     } else {
       const current = getLocations();
       await syncLocationsToSupabase(current);
@@ -51,11 +79,12 @@ export async function syncLocationsWithCloud() {
 }
 
 export function addLocation(newLocation) {
-  const clean = (newLocation || '').trim();
+  const clean = normalizeLocation(newLocation);
   if (!clean) return getLocations();
   const current = getLocations();
-  if (!current.includes(clean)) {
-    const updated = [...current, clean];
+  const exists = current.some(l => l.toLowerCase() === clean.toLowerCase());
+  if (!exists) {
+    const updated = dedupeLocations([...current, clean]);
     saveLocations(updated);
     return updated;
   }
@@ -63,18 +92,21 @@ export function addLocation(newLocation) {
 }
 
 export function removeLocation(locationToRemove) {
+  const normTarget = normalizeLocation(locationToRemove).toLowerCase();
   const current = getLocations();
-  const updated = current.filter(l => l !== locationToRemove);
+  const updated = current.filter(l => normalizeLocation(l).toLowerCase() !== normTarget);
   saveLocations(updated);
   return updated;
 }
 
 export function renameLocation(oldName, newName) {
-  const cleanOld = (oldName || '').trim();
-  const cleanNew = (newName || '').trim();
+  const cleanOld = normalizeLocation(oldName).toLowerCase();
+  const cleanNew = normalizeLocation(newName);
   if (!cleanOld || !cleanNew) return getLocations();
   const current = getLocations();
-  const updated = current.map(l => l === cleanOld ? cleanNew : l);
+  const updated = dedupeLocations(
+    current.map(l => normalizeLocation(l).toLowerCase() === cleanOld ? cleanNew : l)
+  );
   saveLocations(updated);
   return updated;
 }

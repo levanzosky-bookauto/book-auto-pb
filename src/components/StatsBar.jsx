@@ -73,8 +73,11 @@ export default function StatsBar({
           </button>
 
           {locations.map(loc => {
-            const count = cars.filter(c => c.location === loc).length;
-            const isSelected = selectedLocation === loc;
+            const count = cars.filter(c => {
+              const carLoc = (c.location || c.ubicazione || '').trim().replace(/\s+/g, ' ').toLowerCase();
+              return carLoc === loc.trim().replace(/\s+/g, ' ').toLowerCase();
+            }).length;
+            const isSelected = selectedLocation.trim().toLowerCase() === loc.trim().toLowerCase();
             return (
               <button
                 key={loc}

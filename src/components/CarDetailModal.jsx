@@ -707,15 +707,15 @@ export default function CarDetailModal({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               
-              {/* Collocazione Fisica / Posizione (Only if allowed) */}
+              {/* Ubicazione / Garage (Only if allowed) */}
               {showLocation && (
                 <div className="bg-slate-900/70 p-4 rounded-2xl border border-amber-500/30 flex items-center space-x-3 col-span-1 sm:col-span-2 bg-gradient-to-r from-amber-500/10 via-slate-900/70 to-slate-900/70">
                   <div className="p-3 bg-amber-500/20 text-amber-300 rounded-xl border border-amber-500/30 shadow-md">
                     <MapPin className="w-5 h-5 text-amber-400" />
                   </div>
                   <div>
-                    <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">Collocazione Fisica / Ubicazione</p>
-                    <p className="text-base font-extrabold text-white">{car.location || 'Non specificata (Garage Predefinito)'}</p>
+                    <p className="text-xs text-amber-400 font-bold uppercase tracking-wider">Ubicazione / Garage</p>
+                    <p className="text-base font-extrabold text-white">{car.location || car.ubicazione || 'Non specificata (Garage Predefinito)'}</p>
                   </div>
                 </div>
               )}

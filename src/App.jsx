@@ -691,8 +691,14 @@ export default function App() {
 
   // Extract list of all unique locations present in cars
   const locations = useMemo(() => {
-    const set = new Set(cars.map(c => c.location).filter(Boolean));
-    return Array.from(set).sort();
+    const map = new Map();
+    cars.forEach(c => {
+      const loc = (c.location || c.ubicazione || '').trim().replace(/\s+/g, ' ');
+      if (loc && !map.has(loc.toLowerCase())) {
+        map.set(loc.toLowerCase(), loc);
+      }
+    });
+    return Array.from(map.values()).sort();
   }, [cars]);
 
   // Filter & Sort Logic
@@ -705,7 +711,7 @@ export default function App() {
         const matchModel = (car.model || '').toLowerCase().includes(q);
         const matchChassis = (car.chassis || '').toLowerCase().includes(q);
         const matchYear = (car.immatricolazione || '').toLowerCase().includes(q);
-        const matchLocation = (car.location || '').toLowerCase().includes(q);
+        const matchLocation = (car.location || car.ubicazione || '').toLowerCase().includes(q);
         const matchPlate = (car.targa || '').toLowerCase().includes(q);
         if (!matchBrand && !matchModel && !matchChassis && !matchYear && !matchLocation && !matchPlate) {
           return false;
@@ -718,8 +724,12 @@ export default function App() {
       }
 
       // Location filter
-      if (selectedLocation !== 'Tutti' && car.location !== selectedLocation) {
-        return false;
+      if (selectedLocation !== 'Tutti') {
+        const carLoc = (car.location || car.ubicazione || '').trim().replace(/\s+/g, ' ').toLowerCase();
+        const selLoc = selectedLocation.trim().replace(/\s+/g, ' ').toLowerCase();
+        if (carLoc !== selLoc) {
+          return false;
+        }
       }
 
       // Favorite filter

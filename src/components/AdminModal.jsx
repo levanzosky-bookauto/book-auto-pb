@@ -462,7 +462,7 @@ export default function AdminModal({
     const updated = addLocation(newLocationName.trim());
     setLocationsList(updated);
     setNewLocationName('');
-    setLocationMsg('Nuova collocazione / garage aggiunta con successo!');
+    setLocationMsg('Nuova ubicazione / garage aggiunta con successo!');
     setTimeout(() => setLocationMsg(''), 3000);
   };
 
