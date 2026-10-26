@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Car, 
   Search, 
@@ -20,7 +20,8 @@ import {
   Settings,
   LogOut,
   User,
-  FolderOpen
+  FolderOpen,
+  ChevronDown
 } from 'lucide-react';
 import { isStaffUser, canViewExpirations } from '../utils/permissions';
 
@@ -57,12 +58,29 @@ export default function Navbar({
   setTheme
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef(null);
   const showExpirations = canViewExpirations(currentUser, clientPermissions);
   const isStaff = isStaffUser(currentUser);
 
+  // Close user dropdown menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setUserMenuOpen(false);
+      }
+    };
+    if (userMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [userMenuOpen]);
+
   return (
     <header className="sticky top-0 z-40 glass-panel border-b border-white/10 shadow-2xl">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Title */}
@@ -76,9 +94,6 @@ export default function Navbar({
               <div className="flex items-center space-x-1.5 sm:space-x-2">
                 <span className="font-heading font-bold text-base sm:text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500">
                   BOOK AUTO PB
-                </span>
-                <span className="px-2 py-0.5 text-[10px] font-bold tracking-wider uppercase bg-amber-500/10 text-amber-400 rounded-full border border-amber-500/20 hidden xl:inline">
-                  Catalog & Garage
                 </span>
               </div>
               <p className="text-xs text-slate-400 font-medium hidden sm:block">
@@ -221,61 +236,143 @@ export default function Navbar({
               </button>
             )}
 
-            {/* Active User Chip & Admin Controls */}
+            {/* Active User Dropdown Menu */}
             {currentUser && (
-              <div className="flex items-center space-x-2 pl-2 border-l border-slate-800">
-                {isStaff && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={onOpenAdminModal}
-                      className="hidden xl:flex flex-col text-right hover:opacity-80 transition-opacity cursor-pointer text-left"
-                      title="Apri Pannello Amministratore (Gestione Utenti, Email & Sfondi)"
-                    >
-                      <span className="text-xs font-bold text-amber-300 flex items-center justify-end space-x-1">
-                        <User className="w-3 h-3 text-amber-400 inline mr-1" />
-                        {currentUser.name || currentUser.username}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {currentUser.roleLabel || 'Utente Admin'} ⚙️
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onOpenAdminModal && onOpenAdminModal();
-                      }}
-                      className="flex items-center space-x-1.5 px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg shadow-amber-500/25 transition-all active:scale-95 shrink-0 cursor-pointer"
-                      title="Apri Pannello Amministratore (Gestione Utenti, Email & Sfondi)"
-                    >
-                      <ShieldCheck className="w-4 h-4 stroke-[2.5]" />
-                      <span className="font-extrabold">Pannello Admin</span>
-                    </button>
-                  </>
-                )}
-
-                {!isStaff && (
-                  <div className="hidden sm:flex flex-col text-right px-2">
-                    <span className="text-xs font-bold text-slate-200">
-                      {currentUser.name || currentUser.username}
+              <div className="relative shrink-0 pl-1 sm:pl-2 border-l border-slate-800" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className={`flex items-center space-x-2 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
+                    userMenuOpen
+                      ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-md shadow-amber-500/10'
+                      : 'bg-slate-900/80 hover:bg-slate-800 border-slate-700/80 hover:border-amber-500/40 text-slate-200'
+                  }`}
+                  title="Menu Utente & Funzioni Amministratore"
+                >
+                  <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-300 p-0.5 flex items-center justify-center shrink-0 shadow-sm">
+                    <div className="w-full h-full bg-[#0b132b] rounded-[6px] flex items-center justify-center">
+                      <User className="w-3.5 h-3.5 text-amber-400" />
+                    </div>
+                  </div>
+                  <div className="flex flex-col text-left leading-tight">
+                    <span className="font-bold text-xs text-amber-300 flex items-center space-x-1">
+                      <span>{currentUser.name || currentUser.username}</span>
                     </span>
-                    <span className="text-[10px] text-cyan-400 font-mono">
-                      Visitatore / Cliente
+                    <span className="text-[9px] text-slate-400 font-mono tracking-tight">
+                      {isStaff ? 'Admin ⚙️' : 'Cliente'}
                     </span>
                   </div>
-                )}
-
-                <button
-                  onClick={onLogout}
-                  className="flex items-center space-x-1 px-2.5 py-2 bg-slate-900/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 border border-slate-700/80 hover:border-rose-500/40 rounded-xl text-xs font-bold transition-all"
-                  title="Disconnetti ed esci dall'account"
-                >
-                  <LogOut className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Esci</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${userMenuOpen ? 'rotate-180 text-amber-400' : ''}`} />
                 </button>
+
+                {/* Dropdown Menu Popup */}
+                {userMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-slate-900/95 border border-amber-500/30 shadow-2xl shadow-black/80 backdrop-blur-xl py-2 z-50 animate-fade-in">
+                    {/* User Header */}
+                    <div className="px-4 py-2.5 border-b border-slate-800 flex items-center space-x-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                        <User className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-white truncate">
+                          {currentUser.name || currentUser.username}
+                        </p>
+                        <p className="text-[10px] text-amber-400/90 font-mono">
+                          {currentUser.roleLabel || (isStaff ? 'Super Admin' : 'Visualizzatore')}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="p-1.5 space-y-1 text-xs">
+                      {isStaff && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUserMenuOpen(false);
+                              onOpenAdminModal && onOpenAdminModal();
+                            }}
+                            className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-200 hover:text-slate-950 hover:bg-gradient-to-r hover:from-amber-400 hover:to-amber-500 font-bold transition-all group cursor-pointer text-left shadow-sm"
+                          >
+                            <ShieldCheck className="w-4 h-4 text-amber-400 group-hover:text-slate-950 shrink-0" />
+                            <span>Pannello Admin & Email</span>
+                          </button>
+
+                          {onOpenAddModal && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUserMenuOpen(false);
+                                onOpenAddModal();
+                              }}
+                              className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer text-left"
+                            >
+                              <Plus className="w-4 h-4 text-amber-400 shrink-0" />
+                              <span>Aggiungi Nuova Vettura</span>
+                            </button>
+                          )}
+
+                          {onOpenBrandLogosModal && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUserMenuOpen(false);
+                                onOpenBrandLogosModal();
+                              }}
+                              className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer text-left"
+                            >
+                              <Shield className="w-4 h-4 text-amber-400 shrink-0" />
+                              <span>Gestione Marchi & Loghi</span>
+                            </button>
+                          )}
+
+                          {onOpenBackupModal && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUserMenuOpen(false);
+                                onOpenBackupModal();
+                              }}
+                              className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-slate-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer text-left"
+                            >
+                              <Download className="w-4 h-4 text-amber-400 shrink-0" />
+                              <span>Backup Dati & Scansioni</span>
+                            </button>
+                          )}
+
+                          {onRefreshCloudData && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setUserMenuOpen(false);
+                                onRefreshCloudData();
+                              }}
+                              className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-cyan-300 hover:text-white hover:bg-slate-800 transition-all cursor-pointer text-left"
+                            >
+                              <RotateCcw className="w-4 h-4 text-cyan-400 shrink-0" />
+                              <span>Sincronizza Cloud</span>
+                            </button>
+                          )}
+
+                          <div className="my-1 border-t border-slate-800" />
+                        </>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setUserMenuOpen(false);
+                          onLogout && onLogout();
+                        }}
+                        className="w-full flex items-center space-x-2.5 px-3 py-2 rounded-xl text-rose-300 hover:text-white hover:bg-rose-500/20 transition-all cursor-pointer text-left font-semibold"
+                      >
+                        <LogOut className="w-4 h-4 text-rose-400 shrink-0" />
+                        <span>Disconnetti (Esci)</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
