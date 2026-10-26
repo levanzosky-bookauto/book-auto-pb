@@ -23,7 +23,8 @@ import {
   deleteCustomBrand,
   compressLogoImage,
   getCanonicalBrandName,
-  normalizeBrandName
+  normalizeBrandName,
+  getDeletedBrands
 } from '../utils/brandLogos';
 import ImageCropperModal from './ImageCropperModal';
 
@@ -56,6 +57,7 @@ export default function BrandLogosModal({
   // Combine default brands, car dataset brands, and any custom added brands with strict deduplication
   const allBrands = React.useMemo(() => {
     const brandMap = new Map(); // normKey -> canonicalDisplayName
+    const deleted = getDeletedBrands();
     const candidates = [
       ...Object.keys(DEFAULT_BRAND_LOGOS),
       ...existingBrands,
@@ -66,6 +68,9 @@ export default function BrandLogosModal({
       if (!rawBrand || typeof rawBrand !== 'string') return;
       const canonical = getCanonicalBrandName(rawBrand);
       const normKey = normalizeBrandName(canonical);
+      if (deleted.has(normKey) || deleted.has(canonical.toLowerCase()) || deleted.has(rawBrand.trim().toLowerCase())) {
+        return;
+      }
       if (normKey && !brandMap.has(normKey)) {
         brandMap.set(normKey, canonical);
       }

@@ -14,7 +14,7 @@ import AdminLoginPage from './components/AdminLoginPage';
 import AutoEmailNotificationPopup from './components/AutoEmailNotificationPopup';
 import CartellaDocumentiModal from './components/CartellaDocumentiModal';
 import { SlidersHorizontal, ArrowUpDown, Plus, RotateCcw, Car as CarIcon, Sparkles, CheckSquare, Printer, Square, Trash2, Bell } from 'lucide-react';
-import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS, isValidBrandLogo } from './utils/brandLogos';
+import { getLogoForBrand, getCustomBrandLogos, DEFAULT_BRAND_LOGOS, isValidBrandLogo, getCanonicalBrandName, normalizeBrandName } from './utils/brandLogos';
 import { getVehicleExpirations } from './utils/notifications';
 import { getCurrentUser, setCurrentUser as setCurrentUserInStorage, logoutUser, syncUsersWithCloud, syncBackgroundsWithCloud } from './utils/auth';
 import { syncLocationsWithCloud } from './utils/locations';
@@ -681,9 +681,10 @@ export default function App() {
     const brandMap = new Map();
     cars.forEach(c => {
       if (!c.brand || !c.brand.trim()) return;
-      const key = c.brand.trim().toLowerCase();
-      if (!brandMap.has(key)) {
-        brandMap.set(key, c.brand.trim());
+      const canonical = getCanonicalBrandName(c.brand);
+      const normKey = normalizeBrandName(canonical);
+      if (normKey && !brandMap.has(normKey)) {
+        brandMap.set(normKey, canonical);
       }
     });
     return Array.from(brandMap.values()).sort((a, b) => a.localeCompare(b));
@@ -718,9 +719,13 @@ export default function App() {
         }
       }
 
-      // Brand filter
-      if (selectedBrand !== 'Tutti' && (car.brand || '').trim().toLowerCase() !== selectedBrand.trim().toLowerCase()) {
-        return false;
+      // Brand filter with canonical matching
+      if (selectedBrand !== 'Tutti') {
+        const carCanonical = getCanonicalBrandName(car.brand);
+        const selCanonical = getCanonicalBrandName(selectedBrand);
+        if (carCanonical !== selCanonical) {
+          return false;
+        }
       }
 
       // Location filter

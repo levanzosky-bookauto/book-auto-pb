@@ -256,7 +256,21 @@ export function renameCustomBrand(oldBrandName, newBrandName) {
   }
 }
 
-// Delete custom brand entry
+const DELETED_BRANDS_STORAGE_KEY = 'book_auto_pb_deleted_brands_v1';
+let memoryDeletedBrandsCache = null;
+
+export function getDeletedBrands() {
+  if (memoryDeletedBrandsCache) return new Set(memoryDeletedBrandsCache);
+  try {
+    const saved = localStorage.getItem(DELETED_BRANDS_STORAGE_KEY);
+    memoryDeletedBrandsCache = saved ? JSON.parse(saved) : [];
+  } catch (e) {
+    memoryDeletedBrandsCache = [];
+  }
+  return new Set(memoryDeletedBrandsCache);
+}
+
+// Delete brand entry (removes logo and hides brand from registered list)
 export function deleteCustomBrand(brandName) {
   if (!brandName) return;
   const rawKey = brandName.trim().toLowerCase();
@@ -275,6 +289,17 @@ export function deleteCustomBrand(brandName) {
     localStorage.setItem(CUSTOM_LOGOS_STORAGE_KEY, JSON.stringify(customLogos));
   } catch (e) {
     console.warn('LocalStorage delete failed:', e);
+  }
+
+  try {
+    const deleted = getDeletedBrands();
+    deleted.add(normKey);
+    deleted.add(canonicalKey);
+    deleted.add(rawKey);
+    memoryDeletedBrandsCache = Array.from(deleted);
+    localStorage.setItem(DELETED_BRANDS_STORAGE_KEY, JSON.stringify(memoryDeletedBrandsCache));
+  } catch (e) {
+    console.warn('LocalStorage deleted brands save failed:', e);
   }
 }
 
