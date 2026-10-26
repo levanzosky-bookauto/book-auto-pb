@@ -19,7 +19,7 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_2_img_2.jpeg",
-    "logoImg": "./images/cars/car_2_img_4.jpeg",
+    "logoImg": "./images/logos/alfa_romeo.jpeg",
     "carPhotos": [
       "./images/cars/car_2_img_2.jpeg",
       "./images/cars/car_2_img_5.jpeg",
@@ -29,7 +29,8 @@
     "scadenzaBollo": "08/12/2026",
     "scadenzaAssicurazione": "08/01/2027",
     "scadenzaRevisione": "08/11/2026",
-    "prossimoTagliandoData": "29/10/2026"
+    "prossimoTagliandoData": "29/10/2026",
+    "documents": []
   },
   {
     "id": "car_3",
@@ -51,13 +52,26 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_3_img_4.jpeg",
-    "logoImg": "./images/cars/car_3_img_5.jpeg",
+    "logoImg": "./images/logos/aston_martin.jpeg",
     "carPhotos": [
       "./images/cars/car_3_img_4.jpeg",
       "./images/cars/car_3_img_3.jpeg",
       "./images/cars/car_3_img_1.jpeg",
       "./images/cars/car_3_img_2.jpeg"
-    ]
+    ],
+    "documents": [
+      {
+        "id": "doc_aston_martin_db5_polizza",
+        "category": "assicurazione",
+        "title": "Polizza Assicurativa — Aston Martin DB5 [1965]",
+        "fileName": "Aston Martin DB5 [1965] - Polizza Assicurativa.pdf",
+        "fileType": "application/pdf"
+      }
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": ""
   },
   {
     "id": "car_4",
@@ -76,10 +90,23 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_4_img_2.png",
-    "logoImg": "./images/cars/car_4_img_1.jpeg",
+    "logoImg": "./images/logos/audi.jpeg",
     "carPhotos": [
       "./images/cars/car_4_img_2.png"
-    ]
+    ],
+    "documents": [
+      {
+        "id": "doc_audi_a1_libretto",
+        "category": "libretto",
+        "title": "Libretto di Circolazione — Audi A1 [2017]",
+        "fileName": "Audi A1 [2017] - Libretto di Circolazione.pdf",
+        "fileType": "application/pdf"
+      }
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": ""
   },
   {
     "id": "car_5",
@@ -101,13 +128,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_5_img_1.jpeg",
-    "logoImg": "./images/cars/car_4_img_1.jpeg",
+    "logoImg": "./images/logos/audi.jpeg",
     "carPhotos": [
       "./images/cars/car_5_img_1.jpeg",
       "./images/cars/car_5_img_4.jpeg",
       "./images/cars/car_5_img_2.jpeg",
       "./images/cars/car_5_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_6",
@@ -130,13 +162,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_6_img_2.jpeg",
-    "logoImg": "./images/cars/car_4_img_1.jpeg",
+    "logoImg": "./images/logos/audi.jpeg",
     "carPhotos": [
       "./images/cars/car_6_img_2.jpeg",
       "./images/cars/car_6_img_3.jpeg",
       "./images/cars/car_6_img_4.jpeg",
       "./images/cars/car_6_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_7",
@@ -158,13 +195,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_7_img_3.jpeg",
-    "logoImg": "./images/cars/car_7_img_5.jpeg",
+    "logoImg": "./images/logos/bentley.jpeg",
     "carPhotos": [
       "./images/cars/car_7_img_3.jpeg",
       "./images/cars/car_7_img_4.jpeg",
       "./images/cars/car_7_img_1.jpeg",
       "./images/cars/car_7_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_8",
@@ -186,13 +228,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_8_img_3.jpeg",
-    "logoImg": "./images/cars/car_8_img_1.png",
+    "logoImg": "./images/logos/bizzarrini.png",
     "carPhotos": [
       "./images/cars/car_8_img_3.jpeg",
       "./images/cars/car_8_img_4.jpeg",
       "./images/cars/car_8_img_2.jpeg",
       "./images/cars/car_8_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_9",
@@ -214,13 +261,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_9_img_3.jpeg",
-    "logoImg": "./images/cars/car_9_img_1.jpeg",
+    "logoImg": "./images/logos/bmw.jpeg",
     "carPhotos": [
       "./images/cars/car_9_img_3.jpeg",
       "./images/cars/car_9_img_2.jpeg",
       "./images/cars/car_9_img_5.jpeg",
       "./images/cars/car_9_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_10",
@@ -242,13 +294,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_10_img_4.jpeg",
-    "logoImg": "./images/cars/car_10_img_1.png",
+    "logoImg": "./images/logos/bugatti.png",
     "carPhotos": [
       "./images/cars/car_10_img_4.jpeg",
       "./images/cars/car_10_img_5.jpeg",
       "./images/cars/car_10_img_2.jpeg",
       "./images/cars/car_10_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_11",
@@ -270,13 +327,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_11_img_3.jpeg",
-    "logoImg": "./images/cars/car_11_img_1.jpeg",
+    "logoImg": "./images/logos/citroen.jpeg",
     "carPhotos": [
       "./images/cars/car_11_img_3.jpeg",
       "./images/cars/car_11_img_5.jpeg",
       "./images/cars/car_11_img_2.jpeg",
       "./images/cars/car_11_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_12",
@@ -298,13 +360,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_12_img_3.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_12_img_3.jpeg",
       "./images/cars/car_12_img_5.jpeg",
       "./images/cars/car_12_img_4.jpeg",
       "./images/cars/car_12_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_13",
@@ -325,12 +392,17 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_13_img_3.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_13_img_3.jpeg",
       "./images/cars/car_13_img_2.jpeg",
       "./images/cars/car_13_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_14",
@@ -352,13 +424,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_14_img_3.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_14_img_3.jpeg",
       "./images/cars/car_14_img_2.jpeg",
       "./images/cars/car_14_img_5.jpeg",
       "./images/cars/car_14_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_15",
@@ -380,13 +457,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_15_img_2.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_15_img_2.jpeg",
       "./images/cars/car_15_img_3.jpeg",
       "./images/cars/car_15_img_5.jpeg",
       "./images/cars/car_15_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_16",
@@ -408,13 +490,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_16_img_2.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_16_img_2.jpeg",
       "./images/cars/car_16_img_3.jpeg",
       "./images/cars/car_16_img_4.jpeg",
       "./images/cars/car_16_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_17",
@@ -435,11 +522,16 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_17_img_2.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_17_img_2.jpeg",
       "./images/cars/car_17_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_18",
@@ -461,13 +553,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_18_img_3.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_18_img_3.jpeg",
       "./images/cars/car_18_img_5.jpeg",
       "./images/cars/car_18_img_2.jpeg",
       "./images/cars/car_18_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_19",
@@ -489,13 +586,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_19_img_3.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_19_img_3.jpeg",
       "./images/cars/car_19_img_2.jpeg",
       "./images/cars/car_19_img_4.jpeg",
       "./images/cars/car_19_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_20",
@@ -517,13 +619,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_20_img_5.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_20_img_5.jpeg",
       "./images/cars/car_20_img_2.jpeg",
       "./images/cars/car_20_img_3.jpeg",
       "./images/cars/car_20_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_21",
@@ -545,13 +652,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_21_img_1.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_21_img_1.jpeg",
       "./images/cars/car_21_img_2.jpeg",
       "./images/cars/car_21_img_3.jpeg",
       "./images/cars/car_21_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_22",
@@ -573,13 +685,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_22_img_3.jpeg",
-    "logoImg": "./images/cars/car_12_img_1.jpeg",
+    "logoImg": "./images/logos/ferrari.jpeg",
     "carPhotos": [
       "./images/cars/car_22_img_3.jpeg",
       "./images/cars/car_22_img_5.jpeg",
       "./images/cars/car_22_img_2.jpeg",
       "./images/cars/car_22_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_23",
@@ -601,13 +718,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_23_img_2.jpeg",
-    "logoImg": "./images/cars/car_23_img_1.jpeg",
+    "logoImg": "./images/logos/fiat.jpeg",
     "carPhotos": [
       "./images/cars/car_23_img_2.jpeg",
       "./images/cars/car_23_img_3.jpeg",
       "./images/cars/car_23_img_5.jpeg",
       "./images/cars/car_23_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_24",
@@ -629,13 +751,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_24_img_4.jpeg",
-    "logoImg": "./images/cars/car_24_img_7.jpeg",
+    "logoImg": "./images/logos/ford.jpeg",
     "carPhotos": [
       "./images/cars/car_24_img_4.jpeg",
       "./images/cars/car_24_img_5.jpeg",
       "./images/cars/car_24_img_6.jpeg",
       "./images/cars/car_24_img_7.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_25",
@@ -657,13 +784,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_25_img_3.jpeg",
-    "logoImg": "./images/cars/car_25_img_6.jpeg",
+    "logoImg": "./images/logos/lamborghini.jpeg",
     "carPhotos": [
       "./images/cars/car_25_img_3.jpeg",
       "./images/cars/car_25_img_4.jpeg",
       "./images/cars/car_25_img_5.jpeg",
       "./images/cars/car_25_img_6.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_26",
@@ -685,13 +817,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_26_img_5.jpeg",
-    "logoImg": "./images/cars/car_26_img_1.jpeg",
+    "logoImg": "./images/logos/lancia.jpeg",
     "carPhotos": [
       "./images/cars/car_26_img_5.jpeg",
       "./images/cars/car_26_img_2.jpeg",
       "./images/cars/car_26_img_3.jpeg",
       "./images/cars/car_26_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_27",
@@ -713,13 +850,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_27_img_2.jpeg",
-    "logoImg": "./images/cars/car_26_img_1.jpeg",
+    "logoImg": "./images/logos/lancia.jpeg",
     "carPhotos": [
       "./images/cars/car_27_img_2.jpeg",
       "./images/cars/car_27_img_3.jpeg",
       "./images/cars/car_27_img_4.jpeg",
       "./images/cars/car_27_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_28",
@@ -741,13 +883,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_28_img_5.jpeg",
-    "logoImg": "./images/cars/car_26_img_1.jpeg",
+    "logoImg": "./images/logos/lancia.jpeg",
     "carPhotos": [
       "./images/cars/car_28_img_5.jpeg",
       "./images/cars/car_28_img_2.jpeg",
       "./images/cars/car_28_img_4.jpeg",
       "./images/cars/car_28_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_29",
@@ -767,11 +914,16 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_29_img_2.jpeg",
-    "logoImg": "./images/cars/car_29_img_2.jpeg",
+    "logoImg": "./images/logos/land_rover.jpeg",
     "carPhotos": [
       "./images/cars/car_29_img_2.jpeg",
       "./images/cars/car_29_img_1.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_30",
@@ -793,13 +945,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_30_img_3.jpeg",
-    "logoImg": "./images/cars/car_30_img_1.jpeg",
+    "logoImg": "./images/logos/mercedes_amg.jpeg",
     "carPhotos": [
       "./images/cars/car_30_img_3.jpeg",
       "./images/cars/car_30_img_4.jpeg",
       "./images/cars/car_30_img_1.jpeg",
       "./images/cars/car_30_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_31",
@@ -821,13 +978,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_31_img_3.jpeg",
-    "logoImg": "./images/cars/car_31_img_1.jpeg",
+    "logoImg": "./images/logos/mercedes_benz.jpeg",
     "carPhotos": [
       "./images/cars/car_31_img_3.jpeg",
       "./images/cars/car_31_img_2.jpeg",
       "./images/cars/car_31_img_4.jpeg",
       "./images/cars/car_31_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_32",
@@ -849,13 +1011,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_32_img_4.jpeg",
-    "logoImg": "./images/cars/car_31_img_1.jpeg",
+    "logoImg": "./images/logos/mercedes_benz.jpeg",
     "carPhotos": [
       "./images/cars/car_32_img_4.jpeg",
       "./images/cars/car_32_img_3.jpeg",
       "./images/cars/car_32_img_2.jpeg",
       "./images/cars/car_32_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_33",
@@ -874,10 +1041,15 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_33_img_2.jpeg",
-    "logoImg": "./images/cars/car_33_img_1.png",
+    "logoImg": "./images/logos/polaris.png",
     "carPhotos": [
       "./images/cars/car_33_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_34",
@@ -899,13 +1071,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_34_img_2.jpeg",
-    "logoImg": "./images/cars/car_34_img_1.png",
+    "logoImg": "./images/logos/pontiac.png",
     "carPhotos": [
       "./images/cars/car_34_img_2.jpeg",
       "./images/cars/car_34_img_3.jpeg",
       "./images/cars/car_34_img_4.jpeg",
       "./images/cars/car_34_img_5.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_35",
@@ -927,13 +1104,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_35_img_3.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_35_img_3.jpeg",
       "./images/cars/car_35_img_5.jpeg",
       "./images/cars/car_35_img_2.jpeg",
       "./images/cars/car_35_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_36",
@@ -955,13 +1137,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_36_img_4.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_36_img_4.jpeg",
       "./images/cars/car_36_img_5.jpeg",
       "./images/cars/car_36_img_1.jpeg",
       "./images/cars/car_36_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_37",
@@ -983,13 +1170,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_37_img_1.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_37_img_1.jpeg",
       "./images/cars/car_37_img_3.jpeg",
       "./images/cars/car_37_img_4.jpeg",
       "./images/cars/car_37_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_38",
@@ -1011,13 +1203,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_38_img_3.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_38_img_3.jpeg",
       "./images/cars/car_38_img_4.jpeg",
       "./images/cars/car_38_img_2.jpeg",
       "./images/cars/car_38_img_1.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_39",
@@ -1039,13 +1236,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_39_img_1.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_39_img_1.jpeg",
       "./images/cars/car_39_img_5.jpeg",
       "./images/cars/car_39_img_2.jpeg",
       "./images/cars/car_39_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_40",
@@ -1067,13 +1269,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_40_img_2.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_40_img_2.jpeg",
       "./images/cars/car_40_img_1.jpeg",
       "./images/cars/car_40_img_3.jpeg",
       "./images/cars/car_40_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_41",
@@ -1095,13 +1302,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_41_img_2.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_41_img_2.jpeg",
       "./images/cars/car_41_img_4.jpeg",
       "./images/cars/car_41_img_5.jpeg",
       "./images/cars/car_41_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_42",
@@ -1123,13 +1335,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_42_img_5.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_42_img_5.jpeg",
       "./images/cars/car_42_img_3.jpeg",
       "./images/cars/car_42_img_1.jpeg",
       "./images/cars/car_42_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_43",
@@ -1151,13 +1368,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_43_img_1.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_43_img_1.jpeg",
       "./images/cars/car_43_img_2.jpeg",
       "./images/cars/car_43_img_3.jpeg",
       "./images/cars/car_43_img_4.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_44",
@@ -1179,13 +1401,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_44_img_4.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_44_img_4.jpeg",
       "./images/cars/car_44_img_5.jpeg",
       "./images/cars/car_44_img_2.jpeg",
       "./images/cars/car_44_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_45",
@@ -1207,13 +1434,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_45_img_4.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_45_img_4.jpeg",
       "./images/cars/car_45_img_2.jpeg",
       "./images/cars/car_45_img_3.jpeg",
       "./images/cars/car_45_img_1.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_46",
@@ -1235,13 +1467,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_46_img_3.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_46_img_3.jpeg",
       "./images/cars/car_46_img_4.jpeg",
       "./images/cars/car_46_img_1.jpeg",
       "./images/cars/car_46_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_47",
@@ -1263,13 +1500,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_47_img_3.jpeg",
-    "logoImg": "./images/cars/car_35_img_1.jpeg",
+    "logoImg": "./images/logos/porsche.jpeg",
     "carPhotos": [
       "./images/cars/car_47_img_3.jpeg",
       "./images/cars/car_47_img_4.jpeg",
       "./images/cars/car_47_img_1.jpeg",
       "./images/cars/car_47_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_48",
@@ -1291,13 +1533,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_48_img_1.jpeg",
-    "logoImg": "./images/cars/car_48_img_5.jpeg",
+    "logoImg": "./images/logos/renault.jpeg",
     "carPhotos": [
       "./images/cars/car_48_img_1.jpeg",
       "./images/cars/car_48_img_4.jpeg",
       "./images/cars/car_48_img_2.jpeg",
       "./images/cars/car_48_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_49",
@@ -1318,12 +1565,17 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_49_img_1.jpeg",
-    "logoImg": "./images/cars/car_49_img_4.jpeg",
+    "logoImg": "./images/logos/rolls_royce.jpeg",
     "carPhotos": [
       "./images/cars/car_49_img_1.jpeg",
       "./images/cars/car_49_img_2.jpeg",
       "./images/cars/car_49_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_50",
@@ -1345,13 +1597,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_50_img_1.jpeg",
-    "logoImg": "./images/cars/car_50_img_5.jpeg",
+    "logoImg": "./images/logos/rover.jpeg",
     "carPhotos": [
       "./images/cars/car_50_img_1.jpeg",
       "./images/cars/car_50_img_4.jpeg",
       "./images/cars/car_50_img_2.jpeg",
       "./images/cars/car_50_img_3.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_51",
@@ -1373,13 +1630,18 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_51_img_4.jpeg",
-    "logoImg": "./images/cars/car_51_img_5.jpeg",
+    "logoImg": "./images/logos/saab.jpeg",
     "carPhotos": [
       "./images/cars/car_51_img_4.jpeg",
       "./images/cars/car_51_img_3.jpeg",
       "./images/cars/car_51_img_5.jpeg",
       "./images/cars/car_51_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_52",
@@ -1398,10 +1660,15 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_52_img_2.jpeg",
-    "logoImg": "./images/cars/car_52_img_1.jpeg",
+    "logoImg": "./images/logos/toyota.jpeg",
     "carPhotos": [
       "./images/cars/car_52_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   },
   {
     "id": "car_53",
@@ -1423,12 +1690,17 @@
     "isFavorite": false,
     "notes": "",
     "mainPhoto": "./images/cars/car_53_img_4.jpeg",
-    "logoImg": "./images/cars/car_53_img_1.jpeg",
+    "logoImg": "./images/logos/volkswagen.jpeg",
     "carPhotos": [
       "./images/cars/car_53_img_4.jpeg",
       "./images/cars/car_53_img_3.jpeg",
       "./images/cars/car_53_img_5.jpeg",
       "./images/cars/car_53_img_2.jpeg"
-    ]
+    ],
+    "scadenzaBollo": "",
+    "scadenzaAssicurazione": "",
+    "scadenzaRevisione": "",
+    "prossimoTagliandoData": "",
+    "documents": []
   }
 ]
