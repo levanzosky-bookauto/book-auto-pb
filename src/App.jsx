@@ -719,11 +719,11 @@ export default function App() {
         }
       }
 
-      // Brand filter with canonical matching
+      // Brand filter with canonical / normalized matching
       if (selectedBrand !== 'Tutti') {
-        const carCanonical = getCanonicalBrandName(car.brand);
-        const selCanonical = getCanonicalBrandName(selectedBrand);
-        if (carCanonical !== selCanonical) {
+        const carNorm = normalizeBrandName(car.brand);
+        const selNorm = normalizeBrandName(selectedBrand);
+        if (carNorm !== selNorm) {
           return false;
         }
       }

@@ -37,8 +37,8 @@ export const BRAND_ALIASES = {
   "alfa_romeo": "alfa romeo",
   "aston-martin": "aston martin",
   "aston_martin": "aston martin",
-  "citroën": "citroen",
-  "citroen": "citroen",
+  "citroën": "citroën",
+  "citroen": "citroën",
   "land-rover": "land rover",
   "land_rover": "land rover",
   "rolls royce": "rolls-royce",
@@ -56,6 +56,7 @@ export function getCanonicalBrandName(name) {
   if (aliased === 'mercedes-benz') return 'MERCEDES-BENZ';
   if (aliased === 'mercedes-amg') return 'MERCEDES-AMG';
   if (aliased === 'rolls-royce') return 'ROLLS-ROYCE';
+  if (aliased === 'citroen' || aliased === 'citroën') return 'CITROËN';
   return aliased.toUpperCase();
 }
 
@@ -68,6 +69,7 @@ export const DEFAULT_BRAND_LOGOS = {
   "bizzarrini": "./images/logos/bizzarrini.png",
   "bugatti": "./images/logos/bugatti.png",
   "citroen": "./images/logos/citroen.jpeg",
+  "citroën": "./images/logos/citroen.jpeg",
   "ferrari": "./images/logos/ferrari.jpeg",
   "fiat": "./images/logos/fiat.jpeg",
   "ford": "./images/logos/ford.jpeg",

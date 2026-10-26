@@ -1,5 +1,6 @@
 import React from 'react';
 import { Shield, Zap, Sparkles, Trophy, Award, Layers, MapPin } from 'lucide-react';
+import { normalizeBrandName } from '../utils/brandLogos';
 
 export default function StatsBar({ 
   cars, 
@@ -29,8 +30,9 @@ export default function StatsBar({
           </button>
           
           {brands.map(brand => {
-            const count = cars.filter(c => (c.brand || '').trim().toLowerCase() === brand.toLowerCase()).length;
-            const isSelected = selectedBrand.toLowerCase() === brand.toLowerCase();
+            const brandNorm = normalizeBrandName(brand);
+            const count = cars.filter(c => normalizeBrandName(c.brand) === brandNorm).length;
+            const isSelected = selectedBrand !== 'Tutti' && normalizeBrandName(selectedBrand) === brandNorm;
             return (
               <button
                 key={brand}

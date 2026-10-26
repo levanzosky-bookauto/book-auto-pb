@@ -27,7 +27,7 @@ import {
   Download,
   Printer
 } from 'lucide-react';
-import { getLogoForBrand, saveCustomBrandLogo, resetCustomBrandLogo, isValidBrandLogo } from '../utils/brandLogos';
+import { getLogoForBrand, saveCustomBrandLogo, resetCustomBrandLogo, isValidBrandLogo, normalizeBrandName } from '../utils/brandLogos';
 import { getLocations, addLocation, removeLocation, renameLocation } from '../utils/locations';
 import { openDocument, downloadDocument } from '../utils/documentViewer';
 import { processScannedDocumentFile } from '../utils/storage';
@@ -128,9 +128,11 @@ export default function AddEditCarModal({
       const matchedLoc = currentLocs.find(l => l.toLowerCase() === locVal.toLowerCase());
       const isKnownLoc = Boolean(matchedLoc);
 
+      const matchedBrand = existingBrands.find(b => normalizeBrandName(b) === normalizeBrandName(carToEdit.brand));
+
       setFormData({
-        brand: existingBrands.includes(carToEdit.brand) ? carToEdit.brand : 'Altro',
-        customBrand: existingBrands.includes(carToEdit.brand) ? '' : carToEdit.brand,
+        brand: matchedBrand || (carToEdit.brand ? 'Altro' : ''),
+        customBrand: matchedBrand ? '' : (carToEdit.brand || ''),
         model: carToEdit.model || '',
         location: isKnownLoc ? matchedLoc : (locVal ? 'Altro' : ''),
         customLocation: !isKnownLoc ? locVal : '',
