@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { X, Printer, Image as ImageIcon, FileText, Download, Loader2, Type, Wrench, ShieldCheck, Calendar, Euro, Paperclip, Eye, FileCheck, Smartphone, ZoomIn, CheckSquare, Square, SlidersHorizontal, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Printer, Image as ImageIcon, FileText, Download, Loader2, Type, Wrench, ShieldCheck, Calendar, Euro, Paperclip, Eye, FileCheck, Smartphone, ZoomIn, CheckSquare, Square, SlidersHorizontal, ChevronDown, ChevronUp, Car } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PDFDocument } from 'pdf-lib';
