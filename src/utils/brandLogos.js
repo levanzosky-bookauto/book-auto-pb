@@ -31,36 +31,56 @@ export function normalizeBrandName(name) {
     .trim();
 }
 
+// Canonical aliases to resolve hyphenated, space, or accent variations to a single official brand
+export const BRAND_ALIASES = {
+  "alfa-romeo": "alfa romeo",
+  "alfa_romeo": "alfa romeo",
+  "aston-martin": "aston martin",
+  "aston_martin": "aston martin",
+  "citroën": "citroen",
+  "citroen": "citroen",
+  "land-rover": "land rover",
+  "land_rover": "land rover",
+  "rolls royce": "rolls-royce",
+  "rolls_royce": "rolls-royce",
+  "mercedes": "mercedes-benz",
+  "mercedes benz": "mercedes-benz",
+  "mercedes amg": "mercedes-amg"
+};
+
+// Returns a single canonical uppercase brand name for display and deduplication
+export function getCanonicalBrandName(name) {
+  if (!name || typeof name !== 'string') return '';
+  const lower = name.trim().toLowerCase();
+  const aliased = BRAND_ALIASES[lower] || lower;
+  if (aliased === 'mercedes-benz') return 'MERCEDES-BENZ';
+  if (aliased === 'mercedes-amg') return 'MERCEDES-AMG';
+  if (aliased === 'rolls-royce') return 'ROLLS-ROYCE';
+  return aliased.toUpperCase();
+}
+
 export const DEFAULT_BRAND_LOGOS = {
   "alfa romeo": "./images/logos/alfa_romeo.jpeg",
-  "alfa-romeo": "./images/logos/alfa_romeo.jpeg",
   "aston martin": "./images/logos/aston_martin.jpeg",
-  "aston-martin": "./images/logos/aston_martin.jpeg",
   "audi": "./images/logos/audi.jpeg",
   "bmw": "./images/logos/bmw.jpeg",
   "bentley": "./images/logos/bentley.jpeg",
   "bizzarrini": "./images/logos/bizzarrini.png",
   "bugatti": "./images/logos/bugatti.png",
   "citroen": "./images/logos/citroen.jpeg",
-  "citroën": "./images/logos/citroen.jpeg",
   "ferrari": "./images/logos/ferrari.jpeg",
   "fiat": "./images/logos/fiat.jpeg",
   "ford": "./images/logos/ford.jpeg",
   "lamborghini": "./images/logos/lamborghini.jpeg",
   "lancia": "./images/logos/lancia.jpeg",
   "land rover": "./images/logos/land_rover.jpeg",
-  "land-rover": "./images/logos/land_rover.jpeg",
-  "mercedes": "./images/logos/mercedes_benz.jpeg",
   "mercedes-benz": "./images/logos/mercedes_benz.jpeg",
-  "mercedes benz": "./images/logos/mercedes_benz.jpeg",
   "mercedes-amg": "./images/logos/mercedes_amg.jpeg",
-  "mercedes amg": "./images/logos/mercedes_amg.jpeg",
   "polaris": "./images/logos/polaris.png",
   "pontiac": "./images/logos/pontiac.png",
   "porsche": "./images/logos/porsche.jpeg",
   "renault": "./images/logos/renault.jpeg",
   "rolls-royce": "./images/logos/rolls_royce.jpeg",
-  "rolls royce": "./images/logos/rolls_royce.jpeg",
   "rover": "./images/logos/rover.jpeg",
   "saab": "./images/logos/saab.jpeg",
   "toyota": "./images/logos/toyota.jpeg",
@@ -127,28 +147,40 @@ export function getLogoForBrand(brandName, fallbackLogo = null) {
   if (!brandName) return null;
 
   const rawKey = brandName.trim().toLowerCase();
+  const canonicalKey = getCanonicalBrandName(brandName).toLowerCase();
+  const aliasedKey = BRAND_ALIASES[rawKey] || BRAND_ALIASES[canonicalKey] || rawKey;
   const normKey = normalizeBrandName(brandName);
 
   const customLogos = getCustomBrandLogos();
-  if (customLogos[rawKey] && isValidBrandLogo(customLogos[rawKey])) {
-    return customLogos[rawKey];
-  }
-  if (customLogos[normKey] && isValidBrandLogo(customLogos[normKey])) {
-    return customLogos[normKey];
-  }
+  if (customLogos[rawKey] && isValidBrandLogo(customLogos[rawKey])) return customLogos[rawKey];
+  if (customLogos[canonicalKey] && isValidBrandLogo(customLogos[canonicalKey])) return customLogos[canonicalKey];
+  if (customLogos[aliasedKey] && isValidBrandLogo(customLogos[aliasedKey])) return customLogos[aliasedKey];
+  if (customLogos[normKey] && isValidBrandLogo(customLogos[normKey])) return customLogos[normKey];
 
-  return DEFAULT_BRAND_LOGOS[rawKey] || DEFAULT_BRAND_LOGOS[normKey] || null;
+  return (
+    DEFAULT_BRAND_LOGOS[canonicalKey] ||
+    DEFAULT_BRAND_LOGOS[rawKey] ||
+    DEFAULT_BRAND_LOGOS[aliasedKey] ||
+    DEFAULT_BRAND_LOGOS[normKey] ||
+    null
+  );
 }
 
 // Save or update custom brand logo
 export function saveCustomBrandLogo(brandName, logoUrl) {
   if (!brandName || !logoUrl) return;
   const rawKey = brandName.trim().toLowerCase();
+  const canonicalKey = getCanonicalBrandName(brandName).toLowerCase();
   const normKey = normalizeBrandName(brandName);
 
   const customLogos = getCustomBrandLogos();
-  customLogos[rawKey] = logoUrl;
-  customLogos[normKey] = logoUrl;
+  customLogos[canonicalKey] = logoUrl;
+  if (rawKey !== canonicalKey) {
+    customLogos[rawKey] = logoUrl;
+  }
+  if (normKey !== canonicalKey && normKey !== rawKey) {
+    customLogos[normKey] = logoUrl;
+  }
   memoryLogosCache = { ...customLogos };
 
   try {
@@ -166,7 +198,7 @@ export function saveCustomBrandLogo(brandName, logoUrl) {
     fetch('/api/save-brand-logo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ brandName, logoData: logoUrl })
+      body: JSON.stringify({ brandName: canonicalKey, logoData: logoUrl })
     })
     .then(r => r.json())
     .then(res => {
@@ -180,11 +212,15 @@ export function saveCustomBrandLogo(brandName, logoUrl) {
 export function resetCustomBrandLogo(brandName) {
   if (!brandName) return;
   const rawKey = brandName.trim().toLowerCase();
+  const canonicalKey = getCanonicalBrandName(brandName).toLowerCase();
   const normKey = normalizeBrandName(brandName);
 
   const customLogos = getCustomBrandLogos();
   delete customLogos[rawKey];
+  delete customLogos[canonicalKey];
   delete customLogos[normKey];
+  delete customLogos[rawKey.replace(/-/g, ' ')];
+  delete customLogos[rawKey.replace(/\s+/g, '-')];
   memoryLogosCache = { ...customLogos };
 
   try {
@@ -199,17 +235,17 @@ export function renameCustomBrand(oldBrandName, newBrandName) {
   if (!oldBrandName || !newBrandName) return;
   const oldKey = oldBrandName.trim().toLowerCase();
   const newKey = newBrandName.trim().toLowerCase();
-  const oldNorm = normalizeBrandName(oldBrandName);
-  const newNorm = normalizeBrandName(newBrandName);
+  const oldCanonical = getCanonicalBrandName(oldBrandName).toLowerCase();
+  const newCanonical = getCanonicalBrandName(newBrandName).toLowerCase();
 
   const customLogos = getCustomBrandLogos();
-  const existingLogo = customLogos[oldKey] || customLogos[oldNorm] || DEFAULT_BRAND_LOGOS[oldKey] || null;
+  const existingLogo = customLogos[oldKey] || customLogos[oldCanonical] || DEFAULT_BRAND_LOGOS[oldKey] || DEFAULT_BRAND_LOGOS[oldCanonical] || null;
 
   delete customLogos[oldKey];
-  delete customLogos[oldNorm];
+  delete customLogos[oldCanonical];
   if (existingLogo) {
     customLogos[newKey] = existingLogo;
-    customLogos[newNorm] = existingLogo;
+    customLogos[newCanonical] = existingLogo;
   }
   memoryLogosCache = { ...customLogos };
 
@@ -224,11 +260,15 @@ export function renameCustomBrand(oldBrandName, newBrandName) {
 export function deleteCustomBrand(brandName) {
   if (!brandName) return;
   const rawKey = brandName.trim().toLowerCase();
+  const canonicalKey = getCanonicalBrandName(brandName).toLowerCase();
   const normKey = normalizeBrandName(brandName);
 
   const customLogos = getCustomBrandLogos();
   delete customLogos[rawKey];
+  delete customLogos[canonicalKey];
   delete customLogos[normKey];
+  delete customLogos[rawKey.replace(/-/g, ' ')];
+  delete customLogos[rawKey.replace(/\s+/g, '-')];
   memoryLogosCache = { ...customLogos };
 
   try {

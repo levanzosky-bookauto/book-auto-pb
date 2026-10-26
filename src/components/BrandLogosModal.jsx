@@ -21,7 +21,9 @@ import {
   getLogoForBrand,
   renameCustomBrand,
   deleteCustomBrand,
-  compressLogoImage
+  compressLogoImage,
+  getCanonicalBrandName,
+  normalizeBrandName
 } from '../utils/brandLogos';
 import ImageCropperModal from './ImageCropperModal';
 
@@ -51,14 +53,25 @@ export default function BrandLogosModal({
     setCustomLogos(getCustomBrandLogos());
   }, []);
 
-  // Combine default brands, car dataset brands, and any custom added brands
+  // Combine default brands, car dataset brands, and any custom added brands with strict deduplication
   const allBrands = React.useMemo(() => {
-    const set = new Set([
-      ...Object.keys(DEFAULT_BRAND_LOGOS).map(b => b.toUpperCase()),
-      ...existingBrands.map(b => b.toUpperCase()),
-      ...Object.keys(customLogos).map(b => b.toUpperCase())
-    ]);
-    return Array.from(set).sort();
+    const brandMap = new Map(); // normKey -> canonicalDisplayName
+    const candidates = [
+      ...Object.keys(DEFAULT_BRAND_LOGOS),
+      ...existingBrands,
+      ...Object.keys(customLogos)
+    ];
+
+    candidates.forEach(rawBrand => {
+      if (!rawBrand || typeof rawBrand !== 'string') return;
+      const canonical = getCanonicalBrandName(rawBrand);
+      const normKey = normalizeBrandName(canonical);
+      if (normKey && !brandMap.has(normKey)) {
+        brandMap.set(normKey, canonical);
+      }
+    });
+
+    return Array.from(brandMap.values()).sort((a, b) => a.localeCompare(b));
   }, [existingBrands, customLogos]);
 
   const filteredBrands = allBrands.filter(b => 
@@ -308,7 +321,11 @@ export default function BrandLogosModal({
             <div className="space-y-3">
               {filteredBrands.map((brandName) => {
                 const currentLogo = brandInputs[brandName] || getLogoForBrand(brandName);
-                const isCustom = Boolean(customLogos[brandName.toLowerCase()]);
+                const isCustom = Boolean(
+                  customLogos[brandName.toLowerCase()] ||
+                  customLogos[normalizeBrandName(brandName)] ||
+                  customLogos[getCanonicalBrandName(brandName).toLowerCase()]
+                );
                 const isSaved = Boolean(savedFeedback[brandName]);
                 const isEditing = editingBrand === brandName;
 
@@ -411,7 +428,11 @@ export default function BrandLogosModal({
                       {/* URL input */}
                       <input
                         type="text"
-                        value={brandInputs[brandName] !== undefined ? brandInputs[brandName] : (customLogos[brandName.toLowerCase()] || '')}
+                        value={
+                          brandInputs[brandName] !== undefined 
+                            ? brandInputs[brandName] 
+                            : (customLogos[brandName.toLowerCase()] || customLogos[normalizeBrandName(brandName)] || customLogos[getCanonicalBrandName(brandName).toLowerCase()] || '')
+                        }
                         onChange={(e) => handleBrandInputChange(brandName, e.target.value)}
                         placeholder="URL logo..."
                         className="w-32 px-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-100"
@@ -423,7 +444,7 @@ export default function BrandLogosModal({
                         onClick={() => {
                           const targetImg = (brandInputs[brandName] !== undefined && brandInputs[brandName] !== '')
                             ? brandInputs[brandName]
-                            : (customLogos[brandName.toLowerCase()] || getLogoForBrand(brandName));
+                            : (customLogos[brandName.toLowerCase()] || customLogos[normalizeBrandName(brandName)] || customLogos[getCanonicalBrandName(brandName).toLowerCase()] || getLogoForBrand(brandName));
                           
                           if (targetImg) {
                             setCropperTarget({ brandName, imageSrc: targetImg });
