@@ -52,7 +52,9 @@ export default function Navbar({
   onRefreshCloudData,
   isSyncing = false,
   onOpenCartellaDocumenti,
-  totalDocumentsCount = 0
+  totalDocumentsCount = 0,
+  theme = 'military',
+  setTheme
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const showExpirations = canViewExpirations(currentUser, clientPermissions);
@@ -136,6 +138,22 @@ export default function Navbar({
                 <ListIcon className="w-4 h-4" />
               </button>
             </div>
+
+            {/* Military Camo / Classic Dark Theme Switcher */}
+            {setTheme && (
+              <button
+                onClick={() => setTheme(theme === 'military' ? 'classic' : 'military')}
+                className={`flex items-center space-x-1.5 px-2.5 py-2 rounded-xl text-xs font-bold border transition-all shrink-0 ${
+                  theme === 'military'
+                    ? 'bg-emerald-950/80 text-amber-300 border-emerald-600/40 shadow-lg shadow-emerald-900/30'
+                    : 'bg-slate-900/60 text-slate-300 border-slate-700/60 hover:bg-slate-800 hover:text-white'
+                }`}
+                title={theme === 'military' ? "Tema Militare Mimetico Attivo (Clicca per Tema Classico)" : "Tema Scuro Classico Attivo (Clicca per Tema Militare Mimetico)"}
+              >
+                <span className="text-sm">{theme === 'military' ? '🪖' : '🌙'}</span>
+                <span className="hidden xl:inline">{theme === 'military' ? 'Mimetico' : 'Classico'}</span>
+              </button>
+            )}
 
             {/* Favorite Filter Toggle - Compact: Only Heart + Counter */}
             <button
@@ -388,6 +406,33 @@ export default function Navbar({
                 </button>
               </div>
             </div>
+
+            {/* Mobile Theme Switcher */}
+            {setTheme && (
+              <div className="flex items-center justify-between px-1">
+                <span className="text-xs font-semibold text-slate-400">Tema & Colori Sfondo</span>
+                <div className="flex bg-slate-900 p-1 rounded-lg border border-slate-800">
+                  <button
+                    onClick={() => setTheme('military')}
+                    className={`px-3 py-1 rounded text-xs font-bold flex items-center space-x-1 ${
+                      theme === 'military' ? 'bg-amber-500 text-slate-950' : 'text-slate-400'
+                    }`}
+                  >
+                    <span>🪖</span>
+                    <span>Mimetico</span>
+                  </button>
+                  <button
+                    onClick={() => setTheme('classic')}
+                    className={`px-3 py-1 rounded text-xs font-bold flex items-center space-x-1 ${
+                      theme === 'classic' ? 'bg-amber-500 text-slate-950' : 'text-slate-400'
+                    }`}
+                  >
+                    <span>🌙</span>
+                    <span>Classico</span>
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col space-y-2 pt-2">
               {showExpirations && (

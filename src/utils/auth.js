@@ -31,6 +31,7 @@ export const USER_ROLES = {
 };
 
 export const DEFAULT_BACKGROUNDS = [
+  "./images/military_camo_bg.jpg",
   "./images/bg_1.jpg",
   "./images/bg_2.jpg",
   "./images/bg_3.jpg",

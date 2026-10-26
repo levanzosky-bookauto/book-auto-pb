@@ -64,7 +64,21 @@ export default function App() {
   const [sortBy, setSortBy] = useState('page'); // 'page' | 'brand' | 'hp_desc' | 'year_desc'
   const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'list'
 
-  // Visual Effects & Expiration Alert Bar Toggles (saved in localStorage)
+  // Visual Effects, Theme & Expiration Alert Bar Toggles (saved in localStorage)
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem('book_auto_pb_theme_v1');
+    return saved || 'military';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('book_auto_pb_theme_v1', theme);
+    if (theme === 'military') {
+      document.body.classList.add('theme-military');
+    } else {
+      document.body.classList.remove('theme-military');
+    }
+  }, [theme]);
+
   const [showSideGlow, setShowSideGlow] = useState(() => {
     const saved = localStorage.getItem('book_auto_pb_side_glow');
     return saved !== null ? JSON.parse(saved) : true;
@@ -796,16 +810,24 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col pb-16 relative">
+    <div className={`min-h-screen flex flex-col pb-16 relative transition-colors duration-500 ${theme === 'military' ? 'theme-military' : ''}`}>
       
-      {/* Soft Ambient Side Glow Lights (Azure / Cyan / Blue breathing aura on viewport left and right edges) */}
+      {/* Soft Ambient Side Glow Lights (Olive/Khaki for Military or Azure/Blue for Classic) */}
       {showSideGlow && (
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none">
-          {/* Left Side Azure Aura */}
-          <div className="absolute top-1/4 -left-36 w-96 h-[700px] bg-gradient-to-r from-cyan-500/25 via-blue-600/15 to-transparent rounded-full blur-3xl animate-side-aura" />
+          {/* Left Side Aura */}
+          <div className={`absolute top-1/4 -left-36 w-96 h-[700px] rounded-full blur-3xl animate-side-aura ${
+            theme === 'military' 
+              ? 'bg-gradient-to-r from-emerald-600/25 via-lime-700/15 to-transparent'
+              : 'bg-gradient-to-r from-cyan-500/25 via-blue-600/15 to-transparent'
+          }`} />
           
-          {/* Right Side Blue/Indigo Aura */}
-          <div className="absolute top-1/3 -right-36 w-96 h-[700px] bg-gradient-to-l from-blue-600/25 via-indigo-600/15 to-transparent rounded-full blur-3xl animate-side-aura" style={{ animationDelay: '2s' }} />
+          {/* Right Side Aura */}
+          <div className={`absolute top-1/3 -right-36 w-96 h-[700px] rounded-full blur-3xl animate-side-aura ${
+            theme === 'military'
+              ? 'bg-gradient-to-l from-amber-700/25 via-yellow-900/15 to-transparent'
+              : 'bg-gradient-to-l from-blue-600/25 via-indigo-600/15 to-transparent'
+          }`} style={{ animationDelay: '2s' }} />
         </div>
       )}
 
@@ -839,6 +861,8 @@ export default function App() {
         isSyncing={isSyncing}
         onOpenCartellaDocumenti={() => setIsCartellaDocumentiOpen(true)}
         totalDocumentsCount={totalDocumentsCount}
+        theme={theme}
+        setTheme={setTheme}
       />
 
       {/* Top Expiration Notification Banner (Shown ONLY if allowed for clients, or always for staff) */}
