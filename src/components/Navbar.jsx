@@ -80,7 +80,7 @@ export default function Navbar({
 
   return (
     <header className="sticky top-0 z-40 glass-panel border-b border-white/10 shadow-2xl">
-      <div className="max-w-[1440px] mx-auto px-3 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Logo & Title */}
@@ -102,8 +102,8 @@ export default function Navbar({
             </div>
           </div>
 
-          {/* Search Bar - Spacious Desktop & Tablet */}
-          <div className="hidden md:flex flex-1 min-w-[200px] max-w-2xl mx-3 lg:mx-4">
+          {/* Search Bar - Responsive & Compact to preserve room for right buttons */}
+          <div className="hidden md:flex flex-1 min-w-[120px] max-w-xs lg:max-w-sm xl:max-w-md mx-2 sm:mx-3">
             <div className="relative w-full">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
               <input
@@ -236,25 +236,38 @@ export default function Navbar({
               </button>
             )}
 
+            {/* Standalone Admin Button - Exactly in line and bounded within grid width */}
+            {isStaff && (
+              <button
+                type="button"
+                onClick={onOpenAdminModal}
+                className="flex items-center space-x-1.5 px-2.5 sm:px-3 py-2 bg-gradient-to-r from-amber-500 via-amber-400 to-amber-500 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-bold rounded-xl text-xs shadow-md shadow-amber-500/20 transition-all shrink-0 cursor-pointer active:scale-95 border border-amber-300/40"
+                title="Pannello Amministratore & Email"
+              >
+                <ShieldCheck className="w-4 h-4 text-slate-950" />
+                <span>Admin</span>
+              </button>
+            )}
+
             {/* Active User Dropdown Menu */}
             {currentUser && (
-              <div className="relative shrink-0 pl-1 sm:pl-2 border-l border-slate-800" ref={userMenuRef}>
+              <div className="relative shrink-0 pl-1 border-l border-slate-800" ref={userMenuRef}>
                 <button
                   type="button"
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className={`flex items-center space-x-2 px-2.5 sm:px-3 py-1.5 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
+                  className={`flex items-center space-x-1.5 sm:space-x-2 px-2 sm:px-2.5 py-1.5 rounded-xl border transition-all text-xs font-semibold cursor-pointer ${
                     userMenuOpen
                       ? 'bg-amber-500/20 border-amber-500/50 text-amber-300 shadow-md shadow-amber-500/10'
                       : 'bg-slate-900/80 hover:bg-slate-800 border-slate-700/80 hover:border-amber-500/40 text-slate-200'
                   }`}
-                  title="Menu Utente & Funzioni Amministratore"
+                  title="Menu Profilo & Utente"
                 >
                   <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-500 to-amber-300 p-0.5 flex items-center justify-center shrink-0 shadow-sm">
                     <div className="w-full h-full bg-[#0b132b] rounded-[6px] flex items-center justify-center">
                       <User className="w-3.5 h-3.5 text-amber-400" />
                     </div>
                   </div>
-                  <div className="flex flex-col text-left leading-tight">
+                  <div className="flex flex-col text-left leading-tight hidden xl:flex">
                     <span className="font-bold text-xs text-amber-300 flex items-center space-x-1">
                       <span>{currentUser.name || currentUser.username}</span>
                     </span>

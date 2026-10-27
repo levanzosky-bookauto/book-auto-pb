@@ -552,6 +552,40 @@ export default function App() {
     setCarToEdit(null);
   };
 
+  // Quick update and save of car expirations (Bollo, Assicurazione, Revisione, Tagliando)
+  const handleUpdateCarExpirations = async (carId, expirationFields) => {
+    const existingIndex = cars.findIndex(c => String(c.id) === String(carId));
+    if (existingIndex < 0) return;
+
+    const currentCar = cars[existingIndex];
+    const updatedCar = {
+      ...currentCar,
+      ...expirationFields
+    };
+
+    const updatedCars = [...cars];
+    updatedCars[existingIndex] = updatedCar;
+
+    saveCarsState(updatedCars);
+    upsertSingleCarToSupabase(updatedCar);
+
+    if (typeof window !== 'undefined' && (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname === '0.0.0.0'
+    )) {
+      try {
+        await fetch('/api/save-car', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ car: updatedCar })
+        });
+      } catch (err) {
+        console.warn('Could not save car to local disk:', err);
+      }
+    }
+  };
+
   // Delete Single Car Permanently across Local & Supabase Cloud
   const handleDeleteCar = async (carId) => {
     const targetCar = cars.find(c => String(c.id) === String(carId));
@@ -1056,6 +1090,7 @@ export default function App() {
           }}
           onSaveCar={handleSaveCar}
           onUpdateCars={saveCarsState}
+          onUpdateCarExpirations={handleUpdateCarExpirations}
           currentUser={currentUser}
           clientPermissions={clientPermissions}
         />
@@ -1099,11 +1134,14 @@ export default function App() {
       {isExpirationsModalOpen && isStaffUser(currentUser) && (
         <ExpirationsModal
           alerts={expirationsAlerts}
+          cars={cars}
           onClose={() => setIsExpirationsModalOpen(false)}
           onEditCar={(carToEditObj) => {
             setCarToEdit(carToEditObj);
             setIsAddModalOpen(true);
           }}
+          onUpdateCarExpirations={handleUpdateCarExpirations}
+          currentUser={currentUser}
         />
       )}
 

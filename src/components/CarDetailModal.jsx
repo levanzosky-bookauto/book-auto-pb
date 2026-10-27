@@ -38,7 +38,7 @@ import html2canvas from 'html2canvas';
 import ImageCropperModal from './ImageCropperModal';
 import { openDocument, downloadDocument, getSafeDocumentBlobUrl, getDocumentSource } from '../utils/documentViewer';
 import { processScannedDocumentFile } from '../utils/storage';
-import { getVehicleExpirations } from '../utils/notifications';
+import { getVehicleExpirations, toInputDateFormat, toDisplayDateFormat } from '../utils/notifications';
 import { 
   isStaffUser, 
   canViewExpirations, 
@@ -61,6 +61,7 @@ export default function CarDetailModal({
   onOpenCartellaDocumenti,
   onSaveCar,
   onUpdateCars,
+  onUpdateCarExpirations,
   currentUser,
   clientPermissions
 }) {
@@ -70,6 +71,17 @@ export default function CarDetailModal({
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const modalContentRef = useRef(null);
   const [cropperTarget, setCropperTarget] = useState(null); // { index: number, imageSrc: string }
+
+  // Expirations Quick Edit State
+  const [isEditingExpirations, setIsEditingExpirations] = useState(false);
+  const [expirationsForm, setExpirationsForm] = useState({
+    scadenzaBollo: '',
+    scadenzaAssicurazione: '',
+    scadenzaRevisione: '',
+    prossimoTagliandoData: '',
+    prossimoTagliandoKm: ''
+  });
+  const [expirationsFeedback, setExpirationsFeedback] = useState('');
 
   // Document Viewer & Upload states
   const [activePreviewDoc, setActivePreviewDoc] = useState(null);
@@ -598,95 +610,253 @@ export default function CarDetailModal({
                   <Bell className="w-5 h-5 mr-2 text-amber-400" />
                   <span>Scadenze & Promemoria Ministeriali</span>
                 </h3>
-                {isStaff && onEditCar && (
-                  <button
-                    type="button"
-                    onClick={() => onEditCar(car)}
-                    className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center space-x-1"
-                  >
-                    <Edit3 className="w-3.5 h-3.5" />
-                    <span>Modifica Scadenze</span>
-                  </button>
+                {isStaff && (
+                  <div className="flex items-center space-x-2">
+                    {isEditingExpirations ? (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => setIsEditingExpirations(false)}
+                          className="px-3 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition-all cursor-pointer"
+                        >
+                          Annulla
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const formattedPayload = {
+                              scadenzaBollo: toDisplayDateFormat(expirationsForm.scadenzaBollo),
+                              scadenzaAssicurazione: toDisplayDateFormat(expirationsForm.scadenzaAssicurazione),
+                              scadenzaRevisione: toDisplayDateFormat(expirationsForm.scadenzaRevisione),
+                              prossimoTagliandoData: toDisplayDateFormat(expirationsForm.prossimoTagliandoData),
+                              prossimoTagliandoKm: (expirationsForm.prossimoTagliandoKm || '').trim()
+                            };
+                            if (onUpdateCarExpirations) {
+                              await onUpdateCarExpirations(car.id, formattedPayload);
+                            } else if (onSaveCar) {
+                              await onSaveCar({ ...car, ...formattedPayload });
+                            }
+                            setIsEditingExpirations(false);
+                            setExpirationsFeedback('✅ Scadenze salvate con successo!');
+                            setTimeout(() => setExpirationsFeedback(''), 4000);
+                          }}
+                          className="px-3.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow-md cursor-pointer active:scale-95"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Salva Scadenze</span>
+                        </button>
+                      </>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setExpirationsForm({
+                            scadenzaBollo: toInputDateFormat(car.scadenzaBollo),
+                            scadenzaAssicurazione: toInputDateFormat(car.scadenzaAssicurazione),
+                            scadenzaRevisione: toInputDateFormat(car.scadenzaRevisione),
+                            prossimoTagliandoData: toInputDateFormat(car.prossimoTagliandoData),
+                            prossimoTagliandoKm: car.prossimoTagliandoKm || ''
+                          });
+                          setIsEditingExpirations(true);
+                        }}
+                        className="px-3 py-1 bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        <span>Modifica Scadenze</span>
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* Bollo Auto */}
-                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Bollo Auto</p>
-                    <p className="text-sm font-extrabold text-white">{car.scadenzaBollo || 'Non inserito'}</p>
-                  </div>
-                  {bolloAlert ? (
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
-                      bolloAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
-                      bolloAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
-                      'bg-amber-500/25 text-amber-300 border border-amber-500/50'
-                    }`}>
-                      {bolloAlert.badgeLabel}
-                    </span>
-                  ) : car.scadenzaBollo ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
-                  ) : null}
+              {/* Feedback toast */}
+              {expirationsFeedback && (
+                <div className="p-2.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 rounded-xl text-xs font-bold flex items-center space-x-2 animate-fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>{expirationsFeedback}</span>
                 </div>
+              )}
 
-                {/* Assicurazione RC */}
-                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Assicurazione RC</p>
-                    <p className="text-sm font-extrabold text-white">{car.scadenzaAssicurazione || 'Non inserita'}</p>
+              {/* Editable or Readonly Expirations Cards */}
+              {isEditingExpirations ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-950/70 border border-amber-500/30 rounded-2xl animate-fade-in">
+                  {/* Bollo Auto Input */}
+                  <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Scadenza Bollo</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          let base = expirationsForm.scadenzaBollo ? new Date(expirationsForm.scadenzaBollo) : new Date();
+                          if (isNaN(base.getTime())) base = new Date();
+                          base.setFullYear(base.getFullYear() + 1);
+                          setExpirationsForm({ ...expirationsForm, scadenzaBollo: base.toISOString().split('T')[0] });
+                        }}
+                        className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-[10px] text-amber-300 rounded font-semibold"
+                      >
+                        +1 Anno
+                      </button>
+                    </div>
+                    <input
+                      type="date"
+                      value={expirationsForm.scadenzaBollo}
+                      onChange={(e) => setExpirationsForm({ ...expirationsForm, scadenzaBollo: e.target.value })}
+                      className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-amber-500"
+                    />
                   </div>
-                  {insuranceAlert ? (
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
-                      insuranceAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
-                      insuranceAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
-                      'bg-amber-500/25 text-amber-300 border border-amber-500/50'
-                    }`}>
-                      {insuranceAlert.badgeLabel}
-                    </span>
-                  ) : car.scadenzaAssicurazione ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
-                  ) : null}
-                </div>
 
-                {/* Revisione Ministeriale */}
-                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Revisione Ministeriale</p>
-                    <p className="text-sm font-extrabold text-white">{car.scadenzaRevisione || 'Non inserita'}</p>
+                  {/* Assicurazione RC Input */}
+                  <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider">Assicurazione RC</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          let base = expirationsForm.scadenzaAssicurazione ? new Date(expirationsForm.scadenzaAssicurazione) : new Date();
+                          if (isNaN(base.getTime())) base = new Date();
+                          base.setFullYear(base.getFullYear() + 1);
+                          setExpirationsForm({ ...expirationsForm, scadenzaAssicurazione: base.toISOString().split('T')[0] });
+                        }}
+                        className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-[10px] text-emerald-300 rounded font-semibold"
+                      >
+                        +1 Anno
+                      </button>
+                    </div>
+                    <input
+                      type="date"
+                      value={expirationsForm.scadenzaAssicurazione}
+                      onChange={(e) => setExpirationsForm({ ...expirationsForm, scadenzaAssicurazione: e.target.value })}
+                      className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
                   </div>
-                  {revisionAlert ? (
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
-                      revisionAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
-                      revisionAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
-                      'bg-amber-500/25 text-amber-300 border border-amber-500/50'
-                    }`}>
-                      {revisionAlert.badgeLabel}
-                    </span>
-                  ) : car.scadenzaRevisione ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
-                  ) : null}
-                </div>
 
-                {/* Prossimo Tagliando */}
-                <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Prossimo Tagliando</p>
-                    <p className="text-sm font-extrabold text-white">{car.prossimoTagliandoData || 'Non inserito'}</p>
+                  {/* Revisione Ministeriale Input */}
+                  <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Revisione Ministeriale</label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          let base = expirationsForm.scadenzaRevisione ? new Date(expirationsForm.scadenzaRevisione) : new Date();
+                          if (isNaN(base.getTime())) base = new Date();
+                          base.setFullYear(base.getFullYear() + 2);
+                          setExpirationsForm({ ...expirationsForm, scadenzaRevisione: base.toISOString().split('T')[0] });
+                        }}
+                        className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-[10px] text-cyan-300 rounded font-semibold"
+                      >
+                        +2 Anni
+                      </button>
+                    </div>
+                    <input
+                      type="date"
+                      value={expirationsForm.scadenzaRevisione}
+                      onChange={(e) => setExpirationsForm({ ...expirationsForm, scadenzaRevisione: e.target.value })}
+                      className="w-full px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-cyan-500"
+                    />
                   </div>
-                  {tagliandoAlert ? (
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
-                      tagliandoAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
-                      tagliandoAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
-                      'bg-amber-500/25 text-amber-300 border border-amber-500/50'
-                    }`}>
-                      {tagliandoAlert.badgeLabel}
-                    </span>
-                  ) : car.prossimoTagliandoData ? (
-                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
-                  ) : null}
+
+                  {/* Prossimo Tagliando Input */}
+                  <div className="bg-slate-900/90 p-3 rounded-xl border border-slate-800 space-y-1.5">
+                    <label className="text-[11px] font-bold text-amber-300 uppercase tracking-wider block">Prossimo Tagliando</label>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <input
+                        type="date"
+                        value={expirationsForm.prossimoTagliandoData}
+                        onChange={(e) => setExpirationsForm({ ...expirationsForm, prossimoTagliandoData: e.target.value })}
+                        className="w-full px-2 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                      <input
+                        type="text"
+                        value={expirationsForm.prossimoTagliandoKm}
+                        onChange={(e) => setExpirationsForm({ ...expirationsForm, prossimoTagliandoKm: e.target.value })}
+                        placeholder="Es. 80.000 km"
+                        className="w-full px-2 py-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs outline-none focus:ring-1 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Bollo Auto */}
+                  <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Bollo Auto</p>
+                      <p className="text-sm font-extrabold text-white">{car.scadenzaBollo || 'Non inserito'}</p>
+                    </div>
+                    {bolloAlert ? (
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                        bolloAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                        bolloAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                        'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                      }`}>
+                        {bolloAlert.badgeLabel}
+                      </span>
+                    ) : car.scadenzaBollo ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                    ) : null}
+                  </div>
+
+                  {/* Assicurazione RC */}
+                  <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Assicurazione RC</p>
+                      <p className="text-sm font-extrabold text-white">{car.scadenzaAssicurazione || 'Non inserita'}</p>
+                    </div>
+                    {insuranceAlert ? (
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                        insuranceAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                        insuranceAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                        'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                      }`}>
+                        {insuranceAlert.badgeLabel}
+                      </span>
+                    ) : car.scadenzaAssicurazione ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                    ) : null}
+                  </div>
+
+                  {/* Revisione Ministeriale */}
+                  <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Revisione Ministeriale</p>
+                      <p className="text-sm font-extrabold text-white">{car.scadenzaRevisione || 'Non inserita'}</p>
+                    </div>
+                    {revisionAlert ? (
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                        revisionAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                        revisionAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                        'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                      }`}>
+                        {revisionAlert.badgeLabel}
+                      </span>
+                    ) : car.scadenzaRevisione ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                    ) : null}
+                  </div>
+
+                  {/* Prossimo Tagliando */}
+                  <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                    <div>
+                      <p className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">Prossimo Tagliando</p>
+                      <p className="text-sm font-extrabold text-white">
+                        {car.prossimoTagliandoData || 'Non inserito'}
+                        {car.prossimoTagliandoKm ? ` (${car.prossimoTagliandoKm})` : ''}
+                      </p>
+                    </div>
+                    {tagliandoAlert ? (
+                      <span className={`px-2.5 py-1 rounded-lg text-[10px] font-extrabold shadow-sm ${
+                        tagliandoAlert.alertLevel === 'expired' ? 'bg-rose-500 text-white animate-pulse' :
+                        tagliandoAlert.alertLevel === 'urgent' ? 'bg-rose-500/30 text-rose-300 border border-rose-500/50' :
+                        'bg-amber-500/25 text-amber-300 border border-amber-500/50'
+                      }`}>
+                        {tagliandoAlert.badgeLabel}
+                      </span>
+                    ) : car.prossimoTagliandoData ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">In Regola</span>
+                    ) : null}
+                  </div>
+                </div>
+              )}
 
               {/* Targa */}
               {car.targa && (

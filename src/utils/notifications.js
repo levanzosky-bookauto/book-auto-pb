@@ -120,3 +120,60 @@ export function getVehicleExpirations(cars = []) {
   // Sort by priority (most urgent / expired first)
   return alerts.sort((a, b) => a.priority - b.priority || a.daysRemaining - b.daysRemaining);
 }
+
+/**
+ * Converts date string (DD/MM/YYYY or YYYY-MM-DD) to YYYY-MM-DD for <input type="date">
+ */
+export function toInputDateFormat(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  const cleaned = dateStr.trim();
+  if (!cleaned) return '';
+
+  // Already YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleaned)) return cleaned;
+
+  // DD/MM/YYYY or DD-MM-YYYY or DD.MM.YYYY
+  const dmyMatch = cleaned.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{4})$/);
+  if (dmyMatch) {
+    const day = dmyMatch[1].padStart(2, '0');
+    const month = dmyMatch[2].padStart(2, '0');
+    const year = dmyMatch[3];
+    return `${year}-${month}-${day}`;
+  }
+
+  const d = new Date(cleaned);
+  if (!isNaN(d.getTime())) {
+    try {
+      return d.toISOString().split('T')[0];
+    } catch {
+      return '';
+    }
+  }
+  return '';
+}
+
+/**
+ * Converts date string from <input type="date"> (YYYY-MM-DD) to standard Italian DD/MM/YYYY
+ */
+export function toDisplayDateFormat(inputDate) {
+  if (!inputDate || typeof inputDate !== 'string') return '';
+  const cleaned = inputDate.trim();
+  if (!cleaned) return '';
+
+  // YYYY-MM-DD -> DD/MM/YYYY
+  const ymdMatch = cleaned.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+  if (ymdMatch) {
+    const year = ymdMatch[1];
+    const month = ymdMatch[2].padStart(2, '0');
+    const day = ymdMatch[3].padStart(2, '0');
+    return `${day}/${month}/${year}`;
+  }
+
+  // Already DD/MM/YYYY
+  if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{4}$/.test(cleaned)) {
+    return cleaned;
+  }
+
+  return cleaned;
+}
+
